@@ -22,6 +22,7 @@ defmodule Nebula.Mixfile do
                     :cowboy,
                     :logger,
                     :gettext,
+                    :comeonin,
                     :nebula_metadata]]
   end
 
@@ -38,6 +39,7 @@ defmodule Nebula.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:logger_file_backend, "~> 0.0"},
+     {:comeonin, "~> 2.0"},
      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", branch: "develop"}]
   end
 end
