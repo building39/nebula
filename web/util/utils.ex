@@ -1,4 +1,4 @@
-defmodule Nebula.Utils do
+defmodule Nebula.Util.Utils do
   @moduledoc """
   Various utility functions
   """

@@ -4,6 +4,7 @@ defmodule Nebula.V1.CdmiObjectController do
   """
 
   use Nebula.Web, :controller
+  import Nebula.Util.Constants, only: :macros
   alias Nebula.CdmiObject
   require Logger
 
