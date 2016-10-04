@@ -6,6 +6,8 @@ defmodule Nebula.Authentication do
   import Plug.Conn
 #  import Nebula.Router.Helpers
   import Phoenix.Controller
+  import Nebula.Util.Constants, only: :macros
+  import Nebula.Util.Utils, only: [get_domain_hash: 1]
   require Logger
 
   def init(opts) do
@@ -21,7 +23,7 @@ defmodule Nebula.Authentication do
     case auth do
       [] ->
 #        assign(conn, :authenticated_as, nil)
-        authentication_failed(conn)
+        authentication_failed(conn, "Basic")
       _ ->
         Logger.debug("Got an auth: #{auth}")
         [method, authstring] = String.split(List.to_string(auth))
@@ -36,14 +38,15 @@ defmodule Nebula.Authentication do
         if user do
           assign(conn, :authenticated_as, user)
         else
-          authentication_failed(conn)
+          authentication_failed(conn, method)
         end
     end
   end
 
-  defp authentication_failed(conn) do
+  defp authentication_failed(conn, method) do
     conn
     |> put_status(:unauthorized)
+    |> put_resp_header("WWW-Authenticate", method)
     |> json(%{error: "Unauthorized"})
     |> halt()
   end
@@ -52,6 +55,8 @@ defmodule Nebula.Authentication do
     [user, password] = String.split(authstring, ":")
     Logger.debug("User: #{user}")
     Logger.debug("Pswd: #{password}")
+    domain_hash = get_domain_hash(system_domain_uri)
+    Logger.debug("System Domain hash: #{domain_hash}")
     true
   end
 
