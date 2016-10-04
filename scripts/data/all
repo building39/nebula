@@ -1,0 +1,1039 @@
+Key: f55ac334b0284509a4c834b87ef4fd3f000452410048aed7
+Data: {
+    "cdmi": {
+        "objectName": "container/", 
+        "objectID": "f55ac334b0284509a4c834b87ef4fd3f000452410048aed7", 
+        "parentURI": "/cdmi_capabilities/", 
+        "capabilities": {
+            "cdmi_create_queue": "false", 
+            "cdmi_authentication_methods": [
+                "anonymous", 
+                "basic"
+            ], 
+            "cdmi_create_dataobject": "true", 
+            "cdmi_data_dispersion": "false", 
+            "cdmi_serialize_container": "false", 
+            "cdmi_create_value_range": "false", 
+            "cdmi_value_hash": [
+                "MD5", 
+                "RIPEMD160", 
+                "SHA1", 
+                "SHA224", 
+                "SHA256", 
+                "SHA384", 
+                "SHA512"
+            ], 
+            "cdmi_latency": "false", 
+            "cdmi_create_reference": "false", 
+            "cdmi_geographic_placement": "false", 
+            "cdmi_data_autodelete": "false", 
+            "cdmi_serialize_domain": "false", 
+            "cdmi_export_container_cifs": "false", 
+            "cdmi_copy_container": "false", 
+            "cdmi_deserialize_dataobject": "false", 
+            "cdmi_data_retention": "false", 
+            "cdmi_encryption": [], 
+            "cdmi_export_container_nfs": "false", 
+            "cdmi_move_dataobject": "false", 
+            "cdmi_read_value": "false", 
+            "cdmi_deserialize_container": "false", 
+            "cdmi_data_holds": "false", 
+            "cdmi_modify_metadata": "true", 
+            "cdmi_move_container": "false", 
+            "cdmi_sanitization_method": [], 
+            "cdmi_ctime": "true", 
+            "cdmi_post_queue": "false", 
+            "cdmi_export_container_webdav": "false", 
+            "cdmi_mtime": "true", 
+            "cdmi_mcount": "false", 
+            "cdmi_modify_deserialize_container": "false", 
+            "cdmi_snapshot": "false", 
+            "cdmi_assignedsize": "false", 
+            "cdmi_atime": "true", 
+            "cdmi_deserialize_queue": "false", 
+            "cdmi_post_dataobject": "false", 
+            "cdmi_throughput": "false", 
+            "cdmi_acl": "true", 
+            "cdmi_immediate_redundancy": "", 
+            "cdmi_list_children": "true", 
+            "cdmi_create_container": "true", 
+            "cdmi_export_container_occi": "false", 
+            "cdmi_data_redundancy": "", 
+            "cdmi_read_metadata": "true", 
+            "cdmi_read_value_range": "false", 
+            "cdmi_RTO": "false", 
+            "cdmi_serialize_queue": "false", 
+            "cdmi_list_children_range": "true", 
+            "cdmi_RPO": "false", 
+            "cdmi_size": "true", 
+            "cdmi_export_container_iscsi": "false", 
+            "cdmi_infrastructure_redundancy": "", 
+            "cdmi_serialize_dataobject": "false", 
+            "cdmi_copy_dataobject": "false", 
+            "cdmi_delete_container": "true", 
+            "cdmi_acount": "false"
+        }, 
+        "childrenrange": "0-0", 
+        "parentID": "d3e8b630251b4d8bbc3fdf0cc73cd35d00045241004824e6", 
+        "children": [
+            "permanent/"
+        ], 
+        "objectType": "application/cdmi-capability"
+    }, 
+    "sp": "e1c36ee8b6b76553d8977eb4737df5b996b418bd/cdmi_capabilities/container/"
+}
+Key: 8ab6f8699c554e78ab59573ebfd4a31d000452410048ab37
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "valuetransferencoding": "utf-8", 
+        "objectID": "8ab6f8699c554e78ab59573ebfd4a31d000452410048ab37", 
+        "objectName": "administrator", 
+        "capabilitiesURI": "/cdmi_capabilities/dataobject/member/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "value": "{\"cdmi_member_enabled\": \"true\",\"cdmi_member_type\": \"user\", \"cdmi_member_name\": \"administrator\",\"cdmi_member_credentials\": \"c361a2fd5286f612e1e9757de0b0c27418e6ebc6\",\"cdmi_member_principal\": \"administrator\",\"cdmi_member_privileges\": [\"cross_domain\", \"administrator\"],\"cdmi_member_groups\": []}", 
+        "valuerange": "0-290", 
+        "parentID": "2fef78677d9e4221b3bc9f6c8cf875e80004524100488230", 
+        "objectType": "application/cdmi-object", 
+        "parentURI": "/cdmi_domains/system_domain/cdmi_domain_members/", 
+        "metadata": {
+            "cdmi_owner": "administrator", 
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_mtime": "2015-12-25T16:39:1451083144.000000Z", 
+            "cdmi_atime": "2015-12-25T16:39:1451083144.000000Z", 
+            "cdmi_value_hash": "SHA512", 
+            "cdmi_ctime": "2015-12-25T16:39:1451083144.000000Z", 
+            "cdmi_hash": "929db772bea2db99053125fdf411ee4d5301b17a86db3d0809faa35f81bd8e49d8bd78613c1a6635a6325001fb5f5cc27431382bb4d598bba20f2dc97715ea54"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/cdmi_domains/system_domain/cdmi_domain_members/administrator"
+}
+Key: 237b93c4b5d546ae87fee99de1a7fef800045241004835ab
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectName": "cdmi_domains/", 
+        "objectID": "237b93c4b5d546ae87fee99de1a7fef800045241004835ab", 
+        "capabilitiesURI": "/cdmi_capabilities/domain/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "childrenrange": "0-0", 
+        "parentID": "9acc207191e54461843e5aff43f5dae5000452410048c2b", 
+        "objectType": "application/cdmi-container", 
+        "parentURI": "/", 
+        "children": [
+            "system_domain/"
+        ], 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:38:1451083129.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:38:1451083129.000000Z", 
+            "cdmi_atime": "2015-12-25T16:38:1451083129.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/cdmi_domains/"
+}
+Key: 1218c094de4d4297be8a3db17c30d35200045241004860a9
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectName": "cdmi_domain_summary/", 
+        "objectID": "1218c094de4d4297be8a3db17c30d35200045241004860a9", 
+        "capabilitiesURI": "/cdmi_capabilities/container/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "childrenrange": "0-3", 
+        "parentID": "40aa3dcc38594d76b96d410a11c02bf0000452410048b8c7", 
+        "objectType": "application/cdmi-container", 
+        "parentURI": "/cdmi_domains/system_domain/", 
+        "children": [
+            "yearly/", 
+            "monthly/", 
+            "weekly/", 
+            "daily/"
+        ], 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:38:1451083136.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:38:1451083136.000000Z", 
+            "cdmi_atime": "2015-12-25T16:38:1451083136.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/cdmi_domains/system_domain/cdmi_domain_summary/"
+}
+Key: 7f55e63f41f04515b80cd7a3fbda34150004524100486f31
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectID": "7f55e63f41f04515b80cd7a3fbda34150004524100486f31", 
+        "objectName": "monthly/", 
+        "capabilitiesURI": "/cdmi_capabilities/container/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "parentID": "1218c094de4d4297be8a3db17c30d35200045241004860a9", 
+        "objectType": "application/cdmi-container", 
+        "parentURI": "/cdmi_domains/system_domain/cdmi_domain_summary/", 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:39:1451083140.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:39:1451083140.000000Z", 
+            "cdmi_atime": "2015-12-25T16:39:1451083140.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/cdmi_domains/system_domain/cdmi_domain_summary/monthly/"
+}
+Key: 2fef78677d9e4221b3bc9f6c8cf875e80004524100488230
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectName": "cdmi_domain_members/", 
+        "objectID": "2fef78677d9e4221b3bc9f6c8cf875e80004524100488230", 
+        "capabilitiesURI": "/cdmi_capabilities/container/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "childrenrange": "0-0", 
+        "parentID": "40aa3dcc38594d76b96d410a11c02bf0000452410048b8c7", 
+        "objectType": "application/cdmi-container", 
+        "parentURI": "/cdmi_domains/system_domain/", 
+        "children": [
+            "administrator"
+        ], 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:38:1451083134.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:38:1451083134.000000Z", 
+            "cdmi_atime": "2015-12-25T16:38:1451083134.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/cdmi_domains/system_domain/cdmi_domain_members/"
+}
+Key: def31ee4ced1471494faa457b48792ba000452410048ffd9
+Data: {
+    "cdmi": {
+        "objectID": "def31ee4ced1471494faa457b48792ba000452410048ffd9", 
+        "objectName": "permanent/", 
+        "parentURI": "/cdmi_capabilities/dataobject/", 
+        "capabilities": {
+            "cdmi_authentication_methods": [
+                "anonymous", 
+                "basic"
+            ], 
+            "cdmi_mtime": "true", 
+            "cdmi_data_dispersion": "false", 
+            "cdmi_value_hash": [
+                "MD5", 
+                "RIPEMD160", 
+                "SHA1", 
+                "SHA224", 
+                "SHA256", 
+                "SHA384", 
+                "SHA512"
+            ], 
+            "cdmi_latency": "false", 
+            "cdmi_modify_metadata": "true", 
+            "cdmi_geographic_placement": "false", 
+            "cdmi_data_autodelete": "false", 
+            "cdmi_data_retention": "false", 
+            "cdmi_encryption": [], 
+            "cdmi_modify_value_range": "true", 
+            "cdmi_read_value": "true", 
+            "cdmi_data_holds": "false", 
+            "cdmi_sanitization_method": [], 
+            "cdmi_ctime": "true", 
+            "cdmi_mcount": "false", 
+            "cdmi_assignedsize": "false", 
+            "cdmi_atime": "true", 
+            "cdmi_modify_deserialize_dataobject": "false", 
+            "cdmi_throughput": "false", 
+            "cdmi_acl": "true", 
+            "cdmi_immediate_redundancy": "", 
+            "cdmi_modify_value": "true", 
+            "cdmi_data_redundancy": "", 
+            "cdmi_read_metadata": "true", 
+            "cdmi_read_value_range": "true", 
+            "cdmi_RTO": "false", 
+            "cdmi_RPO": "false", 
+            "cdmi_size": "true", 
+            "cdmi_infrastructure_redundancy": "", 
+            "cdmi_acount": "false"
+        }, 
+        "parentID": "425a06142a7046789dd43a16e04e766b000452410048fa98", 
+        "objectType": "application/cdmi-capability"
+    }, 
+    "sp": "e1c36ee8b6b76553d8977eb4737df5b996b418bd/cdmi_capabilities/dataobject/permanent/"
+}
+Key: cb4c286450e7466d9adf2acb66a4b462000452410048b06e
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectID": "cb4c286450e7466d9adf2acb66a4b462000452410048b06e", 
+        "objectName": "daily/", 
+        "capabilitiesURI": "/cdmi_capabilities/container/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "parentID": "1218c094de4d4297be8a3db17c30d35200045241004860a9", 
+        "objectType": "application/cdmi-container", 
+        "parentURI": "/cdmi_domains/system_domain/cdmi_domain_summary/", 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:39:1451083143.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:39:1451083143.000000Z", 
+            "cdmi_atime": "2015-12-25T16:39:1451083143.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/cdmi_domains/system_domain/cdmi_domain_summary/daily/"
+}
+Key: 39c23a4d84c84ec39ea0afa08fde16b1000452410048ab01
+Data: {
+    "cdmi": {
+        "objectID": "39c23a4d84c84ec39ea0afa08fde16b1000452410048ab01", 
+        "objectName": "permanent/", 
+        "parentURI": "/cdmi_capabilities/container/", 
+        "capabilities": {
+            "cdmi_create_queue": "false", 
+            "cdmi_authentication_methods": [
+                "anonymous", 
+                "basic"
+            ], 
+            "cdmi_create_dataobject": "true", 
+            "cdmi_data_dispersion": "false", 
+            "cdmi_serialize_container": "false", 
+            "cdmi_create_value_range": "false", 
+            "cdmi_value_hash": [
+                "MD5", 
+                "RIPEMD160", 
+                "SHA1", 
+                "SHA224", 
+                "SHA256", 
+                "SHA384", 
+                "SHA512"
+            ], 
+            "cdmi_latency": "false", 
+            "cdmi_create_reference": "false", 
+            "cdmi_geographic_placement": "false", 
+            "cdmi_data_autodelete": "false", 
+            "cdmi_serialize_domain": "false", 
+            "cdmi_export_container_cifs": "false", 
+            "cdmi_copy_container": "false", 
+            "cdmi_deserialize_dataobject": "false", 
+            "cdmi_data_retention": "false", 
+            "cdmi_encryption": [], 
+            "cdmi_export_container_nfs": "false", 
+            "cdmi_move_dataobject": "false", 
+            "cdmi_read_value": "false", 
+            "cdmi_deserialize_container": "false", 
+            "cdmi_data_holds": "false", 
+            "cdmi_modify_metadata": "true", 
+            "cdmi_move_container": "false", 
+            "cdmi_sanitization_method": [], 
+            "cdmi_ctime": "true", 
+            "cdmi_post_queue": "false", 
+            "cdmi_export_container_webdav": "false", 
+            "cdmi_mtime": "true", 
+            "cdmi_mcount": "false", 
+            "cdmi_modify_deserialize_container": "false", 
+            "cdmi_snapshot": "false", 
+            "cdmi_assignedsize": "false", 
+            "cdmi_atime": "true", 
+            "cdmi_deserialize_queue": "false", 
+            "cdmi_post_dataobject": "false", 
+            "cdmi_throughput": "false", 
+            "cdmi_acl": "true", 
+            "cdmi_immediate_redundancy": "", 
+            "cdmi_list_children": "true", 
+            "cdmi_create_container": "true", 
+            "cdmi_export_container_occi": "false", 
+            "cdmi_data_redundancy": "", 
+            "cdmi_read_metadata": "true", 
+            "cdmi_read_value_range": "false", 
+            "cdmi_RTO": "false", 
+            "cdmi_serialize_queue": "false", 
+            "cdmi_list_children_range": "true", 
+            "cdmi_RPO": "false", 
+            "cdmi_size": "true", 
+            "cdmi_export_container_iscsi": "false", 
+            "cdmi_infrastructure_redundancy": "", 
+            "cdmi_serialize_dataobject": "false", 
+            "cdmi_copy_dataobject": "false", 
+            "cdmi_delete_container": "true", 
+            "cdmi_acount": "false"
+        }, 
+        "parentID": "f55ac334b0284509a4c834b87ef4fd3f000452410048aed7", 
+        "objectType": "application/cdmi-capability"
+    }, 
+    "sp": "e1c36ee8b6b76553d8977eb4737df5b996b418bd/cdmi_capabilities/container/permanent/"
+}
+Key: 2cbabeec38ce49bfa34d25de82d91c45000452410048f871
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectID": "2cbabeec38ce49bfa34d25de82d91c45000452410048f871", 
+        "objectName": "yearly/", 
+        "capabilitiesURI": "/cdmi_capabilities/container/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "parentID": "1218c094de4d4297be8a3db17c30d35200045241004860a9", 
+        "objectType": "application/cdmi-container", 
+        "parentURI": "/cdmi_domains/system_domain/cdmi_domain_summary/", 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:38:1451083138.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:38:1451083138.000000Z", 
+            "cdmi_atime": "2015-12-25T16:38:1451083138.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/cdmi_domains/system_domain/cdmi_domain_summary/yearly/"
+}
+Key: 425a06142a7046789dd43a16e04e766b000452410048fa98
+Data: {
+    "cdmi": {
+        "objectName": "dataobject/", 
+        "objectID": "425a06142a7046789dd43a16e04e766b000452410048fa98", 
+        "parentURI": "/cdmi_capabilities/", 
+        "capabilities": {
+            "cdmi_authentication_methods": [
+                "anonymous", 
+                "basic"
+            ], 
+            "cdmi_mtime": "true", 
+            "cdmi_data_dispersion": "false", 
+            "cdmi_value_hash": [
+                "MD5", 
+                "RIPEMD160", 
+                "SHA1", 
+                "SHA224", 
+                "SHA256", 
+                "SHA384", 
+                "SHA512"
+            ], 
+            "cdmi_latency": "false", 
+            "cdmi_modify_metadata": "true", 
+            "cdmi_geographic_placement": "false", 
+            "cdmi_data_autodelete": "false", 
+            "cdmi_data_retention": "false", 
+            "cdmi_encryption": [], 
+            "cdmi_modify_value_range": "true", 
+            "cdmi_delete_dataobject": "true", 
+            "cdmi_read_value": "true", 
+            "cdmi_data_holds": "false", 
+            "cdmi_sanitization_method": [], 
+            "cdmi_ctime": "true", 
+            "cdmi_mcount": "false", 
+            "cdmi_assignedsize": "false", 
+            "cdmi_atime": "true", 
+            "cdmi_modify_deserialize_dataobject": "false", 
+            "cdmi_throughput": "false", 
+            "cdmi_acl": "true", 
+            "cdmi_immediate_redundancy": "", 
+            "cdmi_modify_value": "true", 
+            "cdmi_data_redundancy": "", 
+            "cdmi_read_metadata": "true", 
+            "cdmi_read_value_range": "true", 
+            "cdmi_RTO": "false", 
+            "cdmi_RPO": "false", 
+            "cdmi_size": "true", 
+            "cdmi_infrastructure_redundancy": "", 
+            "cdmi_acount": "false"
+        }, 
+        "childrenrange": "0-1", 
+        "parentID": "d3e8b630251b4d8bbc3fdf0cc73cd35d00045241004824e6", 
+        "children": [
+            "permanent/", 
+            "member/"
+        ], 
+        "objectType": "application/cdmi-capability"
+    }, 
+    "sp": "e1c36ee8b6b76553d8977eb4737df5b996b418bd/cdmi_capabilities/dataobject/"
+}
+Key: 02c318c0d20a44a081e20d45e66772c5000452410048b517
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectID": "02c318c0d20a44a081e20d45e66772c5000452410048b517", 
+        "objectName": "environment_variables/", 
+        "capabilitiesURI": "/cdmi_capabilities/container/permanent/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "parentID": "5d983ae7dc334d868222d6db0b7b10ca000452410048498c", 
+        "objectType": "application/cdmi-container", 
+        "parentURI": "/system_configuration/", 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:39:1451083148.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:39:1451083148.000000Z", 
+            "cdmi_atime": "2015-12-25T16:39:1451083148.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/system_configuration/environment_variables/"
+}
+Key: 1fa3f04dc4b74adc814d3818bbbc95ee0004524100486341
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectID": "1fa3f04dc4b74adc814d3818bbbc95ee0004524100486341", 
+        "objectName": "weekly/", 
+        "capabilitiesURI": "/cdmi_capabilities/container/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "parentID": "1218c094de4d4297be8a3db17c30d35200045241004860a9", 
+        "objectType": "application/cdmi-container", 
+        "parentURI": "/cdmi_domains/system_domain/cdmi_domain_summary/", 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:39:1451083141.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:39:1451083141.000000Z", 
+            "cdmi_atime": "2015-12-25T16:39:1451083141.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/cdmi_domains/system_domain/cdmi_domain_summary/weekly/"
+}
+Key: 5af5ae8be56648d7a153a642724d9aa90004524100484c03
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "valuetransferencoding": "utf-8", 
+        "objectID": "5af5ae8be56648d7a153a642724d9aa90004524100484c03", 
+        "objectName": "domain_maps", 
+        "capabilitiesURI": "/cdmi_capabilities/dataobject/permanent/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "value": "{}", 
+        "valuerange": "0-1", 
+        "parentID": "5d983ae7dc334d868222d6db0b7b10ca000452410048498c", 
+        "objectType": "application/cdmi-object", 
+        "parentURI": "/system_configuration/", 
+        "metadata": {
+            "cdmi_owner": "administrator", 
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_mtime": "2015-12-25T16:39:1451083150.000000Z", 
+            "cdmi_atime": "2015-12-25T16:39:1451083150.000000Z", 
+            "cdmi_value_hash": "SHA512", 
+            "cdmi_ctime": "2015-12-25T16:39:1451083150.000000Z", 
+            "cdmi_hash": "27c74670adb75075fad058d5ceaf7b20c4e7786c83bae8a32f626f9782af34c9a33c2046ef60fd2a7878d378e29fec851806bbd9a67878f3a9f1cda4830763fd"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/system_configuration/domain_maps"
+}
+Key: bce91598c591421888d6146f0206402d000452410048207b
+Data: {
+    "cdmi": {
+        "objectID": "bce91598c591421888d6146f0206402d000452410048207b", 
+        "objectName": "domain/", 
+        "parentURI": "/cdmi_capabilities/", 
+        "capabilities": {
+            "cdmi_authentication_methods": [
+                "anonymous", 
+                "basic"
+            ], 
+            "cdmi_mtime": "true", 
+            "cdmi_data_dispersion": "false", 
+            "cdmi_value_hash": [
+                "MD5", 
+                "RIPEMD160", 
+                "SHA1", 
+                "SHA224", 
+                "SHA256", 
+                "SHA384", 
+                "SHA512"
+            ], 
+            "cdmi_latency": "false", 
+            "cdmi_modify_metadata": "true", 
+            "cdmi_geographic_placement": "false", 
+            "cdmi_data_autodelete": "false", 
+            "cdmi_modify_deserialize_domain": "false", 
+            "cdmi_data_retention": "false", 
+            "cdmi_encryption": [], 
+            "cdmi_domain_summary": "true", 
+            "cdmi_data_holds": "false", 
+            "cdmi_delete_domain": "true", 
+            "cdmi_sanitization_method": [], 
+            "cdmi_ctime": "true", 
+            "cdmi_deserialize_domain": "false", 
+            "cdmi_mcount": "false", 
+            "cdmi_assignedsize": "false", 
+            "cdmi_atime": "true", 
+            "cdmi_create_domain": "true", 
+            "cdmi_acl": "true", 
+            "cdmi_immediate_redundancy": "", 
+            "cdmi_list_children": "true", 
+            "cdmi_data_redundancy": "", 
+            "cdmi_read_metadata": "true", 
+            "cdmi_throughput": "false", 
+            "cdmi_RTO": "false", 
+            "cdmi_RPO": "false", 
+            "cdmi_size": "true", 
+            "cdmi_copy_domain": "false", 
+            "cdmi_move_domain": "false", 
+            "cdmi_infrastructure_redundancy": "", 
+            "cdmi_acount": "false", 
+            "cdmi_domain_members": "true"
+        }, 
+        "parentID": "d3e8b630251b4d8bbc3fdf0cc73cd35d00045241004824e6", 
+        "objectType": "application/cdmi-capability"
+    }, 
+    "sp": "e1c36ee8b6b76553d8977eb4737df5b996b418bd/cdmi_capabilities/domain/"
+}
+Key: 40aa3dcc38594d76b96d410a11c02bf0000452410048b8c7
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectName": "system_domain/", 
+        "objectID": "40aa3dcc38594d76b96d410a11c02bf0000452410048b8c7", 
+        "capabilitiesURI": "/cdmi_capabilities/domain/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "childrenrange": "0-1", 
+        "parentID": "237b93c4b5d546ae87fee99de1a7fef800045241004835ab", 
+        "objectType": "application/cdmi-domain", 
+        "parentURI": "/cdmi_domains/", 
+        "children": [
+            "cdmi_domain_members/", 
+            "cdmi_domain_summary/"
+        ], 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:38:1451083131.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:38:1451083131.000000Z", 
+            "cdmi_atime": "2015-12-25T16:38:1451083131.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/cdmi_domains/system_domain/"
+}
+Key: 9acc207191e54461843e5aff43f5dae5000452410048c2b
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectName": "/", 
+        "objectID": "9acc207191e54461843e5aff43f5dae5000452410048c2b", 
+        "capabilitiesURI": "/cdmi_capabilities/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "childrenrange": "0-2", 
+        "objectType": "application/cdmi-container", 
+        "children": [
+            "cdmi_domains/", 
+            "system_configuration/", 
+            "cdmi_capabilities/"
+        ], 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:38:1451083127.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:38:1451083127.000000Z", 
+            "cdmi_atime": "2015-12-25T16:38:1451083127.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/"
+}
+Key: 0715a8b04d084a5e998b961d940c8d43000452410048a56a
+Data: {
+    "cdmi": {
+        "objectID": "0715a8b04d084a5e998b961d940c8d43000452410048a56a", 
+        "objectName": "member/", 
+        "parentURI": "/cdmi_capabilities/dataobject/", 
+        "capabilities": {
+            "cdmi_read_metadata": "true", 
+            "cdmi_read_value_range": "true", 
+            "cdmi_delete_dataobject": "true", 
+            "cdmi_read_value": "true", 
+            "cdmi_modify_deserialize_dataobject": "false", 
+            "cdmi_modify_metadata": "true", 
+            "cdmi_modify_value": "true", 
+            "cdmi_modify_value_range": "true"
+        }, 
+        "parentID": "425a06142a7046789dd43a16e04e766b000452410048fa98", 
+        "objectType": "application/cdmi-capability"
+    }, 
+    "sp": "e1c36ee8b6b76553d8977eb4737df5b996b418bd/cdmi_capabilities/dataobject/member/"
+}
+Key: d3e8b630251b4d8bbc3fdf0cc73cd35d00045241004824e6
+Data: {
+    "cdmi": {
+        "objectName": "cdmi_capabilities/", 
+        "objectID": "d3e8b630251b4d8bbc3fdf0cc73cd35d00045241004824e6", 
+        "parentURI": "/", 
+        "capabilities": {
+            "cdmi_query_tags": "false", 
+            "cdmi_deserialize_dataobject_by_ID": "false", 
+            "cdmi_create_value_range_by_ID": "false", 
+            "cdmi_copy_dataobject_from_queue": "false", 
+            "cdmi_logging": "false", 
+            "cdmi_export_cifs": "false", 
+            "cdmi_query_value": "false", 
+            "cdmi_security_immutability": "false", 
+            "cdmi_snapshots": "false", 
+            "cdmi_post_dataobject_by_ID": "false", 
+            "cdmi_query": "false", 
+            "cdmi_security_sanitization": "false", 
+            "cdmi_create_reference_by_ID": "false", 
+            "cdmi_object_move_from_local": "false", 
+            "cdmi_queues": "false", 
+            "cdmi_export_webdav": "false", 
+            "cdmi_metadata_maxsize": 8192, 
+            "cdmi_metadata_maxtotalsize": 8388608, 
+            "cdmi_object_copy_from_local": "false", 
+            "cdmi_object_move_to_ID": "false", 
+            "cdmi_query_regex": "false", 
+            "cdmi_multipart_mime": "false", 
+            "cdmi_serialization_json": "false", 
+            "cdmi_references": "false", 
+            "cdmi_export_nfs": "false", 
+            "cdmi_serialize_domain_to_ID": "false", 
+            "cdmi_object_move_from_remote": "false", 
+            "cdmi_security_data_integrity": "true", 
+            "cdmi_object_move_from_ID": "false", 
+            "cdmi_serialize_dataobject_to_ID": "false", 
+            "cdmi_dataobjects": "true", 
+            "cdmi_object_copy_from_remote": "false", 
+            "cdmi_metadata_maxitems": 1024, 
+            "cdmi_post_queue_by_ID": "false", 
+            "cdmi_domains": "false", 
+            "cdmi_deserialize_queue_by_ID": "false", 
+            "cdmi_copy_queue_by_ID": "false", 
+            "cdmi_serialize_queue_to_ID": "false", 
+            "cdmi_security_audit": "false", 
+            "cdmi_export_occi_iscsi": "false", 
+            "cdmi_notification": "false", 
+            "cdmi_export_iscsi": "false", 
+            "cdmi_query_contains": "false", 
+            "cdmi_serialize_container_ID": "false", 
+            "cdmi_object_access_by_ID": "true", 
+            "cdmi_security_access_control": "false"
+        }, 
+        "childrenrange": "0-2", 
+        "parentID": "9acc207191e54461843e5aff43f5dae5000452410048c2b", 
+        "children": [
+            "container/", 
+            "dataobject/", 
+            "domain/"
+        ], 
+        "objectType": "application/cdmi-capability"
+    }, 
+    "sp": "e1c36ee8b6b76553d8977eb4737df5b996b418bd/cdmi_capabilities/"
+}
+Key: 5d983ae7dc334d868222d6db0b7b10ca000452410048498c
+Data: {
+    "cdmi": {
+        "completionStatus": "complete", 
+        "objectName": "system_configuration/", 
+        "objectID": "5d983ae7dc334d868222d6db0b7b10ca000452410048498c", 
+        "capabilitiesURI": "/cdmi_capabilities/container/permanent/", 
+        "domainURI": "/cdmi_domains/system_domain/", 
+        "childrenrange": "0-1", 
+        "parentID": "9acc207191e54461843e5aff43f5dae5000452410048c2b", 
+        "objectType": "application/cdmi-container", 
+        "parentURI": "/", 
+        "children": [
+            "environment_variables/", 
+            "domain_maps"
+        ], 
+        "metadata": {
+            "cdmi_acls": [
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "OWNER@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "ALL_PERMS"
+                }, 
+                {
+                    "aceflags": "INHERITED, OBJECT_INHERIT, CONTAINER_INHERIT", 
+                    "identifier": "AUTHENTICATED@", 
+                    "acetype": "ALLOW", 
+                    "acemask": "READ"
+                }
+            ], 
+            "cdmi_ctime": "2015-12-25T16:39:1451083145.000000Z", 
+            "cdmi_mtime": "2015-12-25T16:39:1451083145.000000Z", 
+            "cdmi_atime": "2015-12-25T16:39:1451083145.000000Z", 
+            "cdmi_owner": "administrator"
+        }
+    }, 
+    "sp": "c8c17baf9a68a8dbc75b818b24269ebca06b0f31/system_configuration/"
+}
+Listed 20 objects
