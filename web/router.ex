@@ -3,6 +3,7 @@ defmodule Nebula.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug Nebula.Authentication
   end
 
   scope "/api", Nebula do

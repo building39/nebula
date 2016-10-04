@@ -1,6 +1,9 @@
 defmodule Nebula.V1.CdmiObjectController do
-  use Nebula.Web, :controller
+  @moduledoc """
+  Handel cdmi_object resources
+  """
 
+  use Nebula.Web, :controller
   alias Nebula.CdmiObject
   require Logger
 
@@ -57,4 +60,5 @@ defmodule Nebula.V1.CdmiObjectController do
 #
 #    send_resp(conn, :no_content, "")
   end
+
 end
