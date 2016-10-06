@@ -6,6 +6,7 @@ defmodule Nebula.Util.Utils do
   @doc """
   Calculate a hash for a domain.
   """
+  @spec get_domain_hash(string) :: string
   def get_domain_hash(domain) when is_list(domain) do
     get_domain_hash(<<domain>>)
   end
@@ -18,6 +19,7 @@ defmodule Nebula.Util.Utils do
   @doc """
   Return a timestamp in the form of "2015-12-25T16:39:1451083144.000000Z"
   """
+  @spec make_timestamp() :: string
   def make_timestamp() do
     {{year, month, day}, {hour, minute, second}} =
       :calendar.now_to_universal_time(:os.timestamp)
