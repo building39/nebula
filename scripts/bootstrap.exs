@@ -1,2 +1,0 @@
-defmodule Bootstrap do
-end

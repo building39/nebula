@@ -40,6 +40,7 @@ defmodule Nebula.Mixfile do
      {:cowboy, "~> 1.0"},
      {:logger_file_backend, "~> 0.0"},
      {:comeonin, "~> 2.0"},
+     { :uuid, "~> 1.1" },
      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", branch: "develop"}]
   end
 end

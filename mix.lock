@@ -17,4 +17,5 @@
   "ranch": {:hex, :ranch, "1.2.1", "a6fb992c10f2187b46ffd17ce398ddf8a54f691b81768f9ef5f461ea7e28c762", [:make], []},
   "riak": {:hex, :riak, "1.1.0", "25d4ab68fa2b0c76bafb8144646ed536e7bf2c10e6cc5cf55defb29f1808f8f4", [:mix], [{:linguist, "~> 0.1", [hex: :linguist, optional: false]}, {:pooler, "~> 1.5", [hex: :pooler, optional: false]}, {:riakc, "~> 2.4", [hex: :riakc, optional: false]}]},
   "riak_pb": {:hex, :riak_pb, "2.1.4", "0de76c3b44a950dc9ffe50f45f7b55128bacce12170705c5e364af95b96a33cf", [:rebar, :make], [{:hamcrest, "~> 0.1", [hex: :hamcrest, optional: false]}, {:protobuffs, "~> 0.8", [hex: :protobuffs, optional: false]}]},
-  "riakc": {:hex, :riakc, "2.4.1", "5d2e191ac6597e1a4cfb5628bf78219d126c5ffa42dbb904af622136d8426a32", [:rebar, :make], [{:riak_pb, "~> 2.1", [hex: :riak_pb, optional: false]}]}}
+  "riakc": {:hex, :riakc, "2.4.1", "5d2e191ac6597e1a4cfb5628bf78219d126c5ffa42dbb904af622136d8426a32", [:rebar, :make], [{:riak_pb, "~> 2.1", [hex: :riak_pb, optional: false]}]},
+  "uuid": {:hex, :uuid, "1.1.5", "96cb36d86ee82f912efea4d50464a5df606bf3f1163d6bdbb302d98474969369", [:mix], []}}

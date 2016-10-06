@@ -4,7 +4,7 @@ defmodule Nebula.Util.Utils do
   """
 
   @doc """
-  Calculate a hash for a domain
+  Calculate a hash for a domain.
   """
   def get_domain_hash(domain) when is_list(domain) do
     get_domain_hash(<<domain>>)
@@ -13,6 +13,16 @@ defmodule Nebula.Util.Utils do
     :crypto.hmac(:sha, <<"domain">>, domain)
     |> Base.encode16
     |> String.downcase
+  end
+
+  @doc """
+  Return a timestamp in the form of "2015-12-25T16:39:1451083144.000000Z"
+  """
+  def make_timestamp() do
+    {{year, month, day}, {hour, minute, second}} =
+      :calendar.now_to_universal_time(:os.timestamp)
+    List.flatten(:io_lib.format("~4..0w-~2..0w-~2..0wT~2..0w:~2..0w:~2..0w.000000Z",
+      [year, month, day, hour, minute, second]))
   end
 
 end
