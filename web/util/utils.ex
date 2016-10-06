@@ -10,6 +10,7 @@ defmodule Nebula.Util.Utils do
   def get_domain_hash(domain) when is_list(domain) do
     get_domain_hash(<<domain>>)
   end
+  @spec get_domain_hash(binary) :: string
   def get_domain_hash(domain) when is_binary(domain) do
     :crypto.hmac(:sha, <<"domain">>, domain)
     |> Base.encode16
