@@ -55,24 +55,17 @@ defmodule Nebula.Authentication do
   defp basic_authentication(authstring) do
     [domain_user, password] = String.split(authstring, ":")
     [domain, user] = case String.contains?(domain_user, "/") do
-                       true -> String.split(domain_user, "/")
-                       false -> ["default", domain_user]
-                     end
-    Logger.debug("User: #{user}")
-    Logger.debug("Pswd: #{password}")
-    Logger.debug("Domain: #{domain}")
+      true -> String.split(domain_user, "/")
+      false -> ["default", domain_user]
+    end
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain <> "/")
-    Logger.debug("Domain hash: #{domain_hash}")
     query = "sp:" <> domain_hash
                   <> "/cdmi_domains/"
                   <> domain
                   <> "/cdmi_domain_members/"
                   <> user
-    Logger.debug("Query: #{query}")
     user_obj = GenServer.call(Metadata, {:search, query})
-    IO.inspect(user_obj)
     creds = user_obj.cdmi.metadata.cdmi_member_credentials
-    Logger.debug("Creds: #{creds}")
     creds == encrypt(user, password)
   end
 
