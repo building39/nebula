@@ -27,9 +27,9 @@ defmodule Nebula.Authentication do
         [method, authstring] = String.split(List.to_string(auth))
         authstring = Base.decode64!(authstring)
         user = case method do
-                "Basic" ->
-                  basic_authentication(authstring)
-                end
+          "Basic" ->
+            basic_authentication(authstring)
+        end
         if user do
           assign(conn, :authenticated_as, user)
         else
@@ -60,7 +60,11 @@ defmodule Nebula.Authentication do
                   <> user
     user_obj = GenServer.call(Metadata, {:search, query})
     creds = user_obj.cdmi.metadata.cdmi_member_credentials
-    creds == encrypt(user, password)
+    if creds == encrypt(user, password) do
+      user
+    else
+      nil
+    end
   end
 
 end
