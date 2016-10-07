@@ -14,9 +14,19 @@ defmodule Nebula.V1.ContainerController do
   """
   def index(conn, _params) do
     Logger.debug("Entry to Controller.index")
-    conn
-    |> put_status(501)
-    |> json(%{error: "Not Implemented"})
+    IO.inspect conn
+    cond do
+      not String.ends_with?(conn.request_path, "/") ->
+        conn
+        |> put_status(301)
+        |> put_resp_header("Location", conn.request_path <> "/")
+        |> json(%{error: "Moved Permanently"})
+        |> halt
+      :else ->
+        conn
+        |> put_status(501)
+        |> json(%{error: "Not Implemented"})
+    end
   end
 
   def create(conn, %{"container" => container_params}) do
