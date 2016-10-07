@@ -7,5 +7,8 @@ config :nebula, Nebula.Endpoint,
   server: false,
   cdmi_version: ["1.1"]
 
+config :nebula,
+  cdmi_version: ["1.1"]
+
 # Print only warnings and errors during test
 config :logger, level: :warn

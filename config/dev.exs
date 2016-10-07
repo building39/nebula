@@ -11,9 +11,10 @@ config :nebula, Nebula.Endpoint,
   debug_errors: false,
   code_reloader: true,
   check_origin: false,
-  cdmi_version: ["1.1"],
   watchers: []
 
+config :nebula,
+  cdmi_version: ["1.1"]
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

@@ -3,6 +3,7 @@ defmodule Nebula.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug Nebula.CDMIVersion
     plug Nebula.Authentication
   end
 

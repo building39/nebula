@@ -1,6 +1,6 @@
 defmodule Nebula.V1.CdmiObjectController do
   @moduledoc """
-  Handel cdmi_object resources
+  Handle cdmi_object resources
   """
 
   use Nebula.Web, :controller

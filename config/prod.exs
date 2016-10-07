@@ -17,6 +17,9 @@ config :nebula, Nebula.Endpoint,
   cache_static_manifest: "priv/static/manifest.json",
   cdmi_version: ["1.1"]
 
+config :nebula,
+  cdmi_version: ["1.1"]
+
 # Do not print debug messages in production
 config :logger, level: :info
 
