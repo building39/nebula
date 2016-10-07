@@ -4,6 +4,16 @@ defmodule Nebula.Util.Utils do
   """
 
   @doc """
+  Encrypt.
+  """
+  @spec encrypt(string, string) :: string
+  def encrypt(key, message) do
+    :crypto.hmac(:sha, key, message)
+    |> Base.encode16
+    |> String.downcase
+  end
+
+  @doc """
   Calculate a hash for a domain.
   """
   @spec get_domain_hash(string) :: string

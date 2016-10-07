@@ -4,13 +4,14 @@ defmodule Nebula.Authentication do
   """
 
   import Plug.Conn
-#  import Nebula.Router.Helpers
   import Phoenix.Controller
   import Nebula.Util.Constants, only: :macros
-  import Nebula.Util.Utils, only: [get_domain_hash: 1]
+  import Nebula.Util.Utils, only: [encrypt: 2,
+                                   get_domain_hash: 1]
   require Logger
 
   def init(opts) do
+    Logger.debug("Auth init")
     opts
   end
 
@@ -62,11 +63,17 @@ defmodule Nebula.Authentication do
     Logger.debug("Domain: #{domain}")
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain <> "/")
     Logger.debug("Domain hash: #{domain_hash}")
-    query = "sp:" <> domain_hash <> "/cdmi_domains/" <> domain <> "/cdmi_domain_members/" <> user
+    query = "sp:" <> domain_hash
+                  <> "/cdmi_domains/"
+                  <> domain
+                  <> "/cdmi_domain_members/"
+                  <> user
     Logger.debug("Query: #{query}")
     user_obj = GenServer.call(Metadata, {:search, query})
     IO.inspect(user_obj)
-    true
+    creds = user_obj.cdmi.metadata.cdmi_member_credentials
+    Logger.debug("Creds: #{creds}")
+    creds == encrypt(user, password)
   end
 
 end
