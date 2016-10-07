@@ -15,7 +15,7 @@ config :nebula, Nebula.Endpoint,
   http: [port: {:system, "PORT"}],
   url: [host: "example.com", port: 80],
   cache_static_manifest: "priv/static/manifest.json",
-  cdmi_version: "1.1"
+  cdmi_version: ["1.1"]
 
 # Do not print debug messages in production
 config :logger, level: :info

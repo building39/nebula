@@ -5,7 +5,7 @@ use Mix.Config
 config :nebula, Nebula.Endpoint,
   http: [port: 4001],
   server: false,
-  cdmi_version: "1.1",
+  cdmi_version: ["1.1"]
 
 # Print only warnings and errors during test
 config :logger, level: :warn

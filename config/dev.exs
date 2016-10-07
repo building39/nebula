@@ -11,7 +11,7 @@ config :nebula, Nebula.Endpoint,
   debug_errors: false,
   code_reloader: true,
   check_origin: false,
-  cdmi_version: "1.1",
+  cdmi_version: ["1.1"],
   watchers: []
 
 
