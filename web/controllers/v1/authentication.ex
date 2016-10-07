@@ -11,7 +11,6 @@ defmodule Nebula.Authentication do
   require Logger
 
   def init(opts) do
-    Logger.debug("Auth init")
     opts
   end
 
@@ -19,23 +18,18 @@ defmodule Nebula.Authentication do
   Document the authenticate function
   """
   def call(conn, _opts) do
-    Logger.debug("Doing authentication")
     auth = get_req_header(conn, "authorization")
     case auth do
       [] ->
 #        assign(conn, :authenticated_as, nil)
         authentication_failed(conn, "Basic")
       _ ->
-        Logger.debug("Got an auth: #{auth}")
         [method, authstring] = String.split(List.to_string(auth))
         authstring = Base.decode64!(authstring)
-        Logger.debug("Auth Method: #{method}")
-        Logger.debug("Auth String: #{authstring}")
         user = case method do
                 "Basic" ->
                   basic_authentication(authstring)
                 end
-        Logger.debug("basic_authentication returned: #{user}")
         if user do
           assign(conn, :authenticated_as, user)
         else
