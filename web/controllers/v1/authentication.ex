@@ -21,7 +21,6 @@ defmodule Nebula.Authentication do
     auth = get_req_header(conn, "authorization")
     case auth do
       [] ->
-#        assign(conn, :authenticated_as, nil)
         authentication_failed(conn, "Basic")
       _ ->
         [method, authstring] = String.split(List.to_string(auth))
@@ -31,7 +30,6 @@ defmodule Nebula.Authentication do
             basic_authentication(authstring)
         end
         if user do
-          Logger.debug("User: #{user} Domain: #{domain}")
           conn
           |> assign(:authenticated_as, user)
           |> assign(:cdmi_domain, domain)

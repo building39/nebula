@@ -5,7 +5,6 @@ defmodule Nebula.CDMIVersion do
 
   import Plug.Conn
   import Phoenix.Controller
-  import Nebula.Util.Constants, only: :macros
   require Logger
 
   def init(opts) do
@@ -17,7 +16,6 @@ defmodule Nebula.CDMIVersion do
   """
   def call(conn, _opts) do
     x_cdmi_header = get_req_header(conn, "x-cdmi-specification-version")
-    sv = Application.get_env(:nebula, :cdmi_version)
     if length(x_cdmi_header) == 0 do
       conn
       |> put_status(:bad_request)

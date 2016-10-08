@@ -4,14 +4,19 @@ defmodule Nebula.V1.ContainerController do
   """
 
   use Nebula.Web, :controller
-  import Nebula.Util.Constants, only: :macros
+  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
   import Nebula.Util.Utils, only: [get_domain_hash: 1]
-  alias Nebula.Container
   require Logger
 
+  def create(conn, %{"container" => _container_params}) do
+    Logger.debug("Entry to Controller.create")
+    conn
+    |> put_status(501)
+    |> json(%{error: "Not Implemented"})
+  end
+
   @doc """
-  When a get for the root container is requested, this is where
-  we end up.
+  Return a container object.
 
   First, check to be sure that the path ends with a "/" character. If not,
   append one, and remember this fact.
@@ -22,10 +27,8 @@ defmodule Nebula.V1.ContainerController do
   Otherwise, return the container with a 200 status.
 
   """
-  def index(conn, _params) do
-    Logger.debug("Entry to Controller.index")
-    IO.inspect conn
-    x_cdmi_header = get_req_header(conn, "X-CDMI-Specification-Version")
+  def show(conn, params) do
+    set_mandatory_response_headers(conn, "container")
     req_path = if String.ends_with?(conn.request_path, "/") do
       conn.request_path
     else
@@ -35,11 +38,8 @@ defmodule Nebula.V1.ContainerController do
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash
                   <> String.replace_prefix(req_path, "/api/v1/container", "")
-    Logger.debug("Query2: #{query}")
     {rc, data} = GenServer.call(Metadata, {:search, query})
-    Logger.debug("Query response:")
-    IO.inspect({rc, data})
-    if rc == :ok do
+    if rc == :ok and data.cdmi.objectType == "application/cdmi-container" do
       if String.ends_with?(conn.request_path, "/") do
         conn
         |> put_status(:ok)
@@ -59,28 +59,14 @@ defmodule Nebula.V1.ContainerController do
     end
   end
 
-  def create(conn, %{"container" => container_params}) do
-    Logger.debug("Entry to Controller.create")
-    conn
-    |> put_status(501)
-    |> json(%{error: "Not Implemented"})  end
-
-  def show(conn, %{"id" => id}) do
-    Logger.debug("In container show")
-    container = GenServer.call(Metadata, {:get, id})
-    Logger.debug("Got container:")
-    IO.inspect(container)
-    render(conn, "show.json", container: container)
-  end
-
-  def update(conn, %{"id" => id, "container" => container_params}) do
+  def update(conn, %{"id" => _id, "container" => _container_params}) do
     Logger.debug("Entry to Controller.update")
     conn
     |> put_status(501)
     |> json(%{error: "Not Implemented"})
   end
 
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"id" => _id}) do
     Logger.debug("Entry to Controller.delete")
     conn
     |> put_status(501)
