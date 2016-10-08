@@ -15,6 +15,21 @@ defmodule Nebula.V1.ContainerController do
   def index(conn, _params) do
     Logger.debug("Entry to Controller.index")
     IO.inspect conn
+    x_cdmi_header = get_req_header(conn, "X-CDMI-Specification-Version")
+    req_path = if String.ends_with?(conn.request_path, "/") do
+      conn.request_path
+    else
+      conn.request_path <> "/"
+    end
+    # TODO: Finish out fetch of object
+
+    domain = conn.assigns.cdmi_domain
+    domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
+    query = "sp:" <> domain_hash
+                  <> "/cdmi_domains/"
+                  <> domain
+                  <> "cdmi_domain_members/"
+                  <> user
     cond do
       not String.ends_with?(conn.request_path, "/") ->
         conn
