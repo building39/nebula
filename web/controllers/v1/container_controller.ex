@@ -5,12 +5,22 @@ defmodule Nebula.V1.ContainerController do
 
   use Nebula.Web, :controller
   import Nebula.Util.Constants, only: :macros
+  import Nebula.Util.Utils, only: [get_domain_hash: 1]
   alias Nebula.Container
   require Logger
 
   @doc """
   When a get for the root container is requested, this is where
   we end up.
+
+  First, check to be sure that the path ends with a "/" character. If not,
+  append one, and remember this fact.
+  Next, construct the search query and attempt to retrieve the container.
+  If search fails, return a 404.
+  If search succeeds, but the path originally had no trailing "/", return
+  a 301 along with a Location header.
+  Otherwise, return the container with a 200 status.
+
   """
   def index(conn, _params) do
     Logger.debug("Entry to Controller.index")
@@ -21,26 +31,31 @@ defmodule Nebula.V1.ContainerController do
     else
       conn.request_path <> "/"
     end
-    # TODO: Finish out fetch of object
-
     domain = conn.assigns.cdmi_domain
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash
-                  <> "/cdmi_domains/"
-                  <> domain
-                  <> "cdmi_domain_members/"
-                  <> user
-    cond do
-      not String.ends_with?(conn.request_path, "/") ->
+                  <> String.replace_prefix(req_path, "/api/v1/container", "")
+    Logger.debug("Query2: #{query}")
+    {rc, data} = GenServer.call(Metadata, {:search, query})
+    Logger.debug("Query response:")
+    IO.inspect({rc, data})
+    if rc == :ok do
+      if String.ends_with?(conn.request_path, "/") do
         conn
-        |> put_status(301)
-        |> put_resp_header("Location", conn.request_path <> "/")
+        |> put_status(:ok)
+        |> render("container.json", container: data)
+      else
+        conn
+        |> put_status(:moved_permanently)
+        |> put_resp_header("Location", req_path)
         |> json(%{error: "Moved Permanently"})
-        |> halt
-      :else ->
-        conn
-        |> put_status(501)
-        |> json(%{error: "Not Implemented"})
+        |> halt()
+      end
+    else
+      conn
+      |> put_status(:not_found)
+      |> json(%{error: "Not found"})
+      |> halt()
     end
   end
 

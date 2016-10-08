@@ -1,8 +1,11 @@
 defmodule Nebula.V1.ContainerView do
   use Nebula.Web, :view
+  require Logger
 
-  def render("index.json", %{containers: containers}) do
-    %{data: render_many(containers, Nebula.V1.ContainerView, "container.json")}
+  def render("index.json", %{container: container}) do
+    Logger.debug("In container view render index.json")
+    IO.inspect(container)
+    %{data: render_one(container, Nebula.V1.ContainerView, "container.json")}
   end
 
   def render("show.json", %{container: container}) do
@@ -10,7 +13,7 @@ defmodule Nebula.V1.ContainerView do
   end
 
   def render("container.json", %{container: container}) do
-    %{id: container.cdmi.objectID}
+    container.cdmi
   end
 
 end
