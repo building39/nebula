@@ -31,6 +31,7 @@ defmodule Nebula.Authentication do
             basic_authentication(authstring)
         end
         if user do
+          Logger.debug("User: #{user} Domain: #{domain}")
           conn
           |> assign(:authenticated_as, user)
           |> assign(:cdmi_domain, domain)
@@ -57,12 +58,11 @@ defmodule Nebula.Authentication do
               {d, u}  # return the domain and the user
       false -> {"default", domain_user}
     end
-    Logger.debug("Domain: #{domain}")
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash
                   <> "/cdmi_domains/"
                   <> domain
-                  <> "/cdmi_domain_members/"
+                  <> "cdmi_domain_members/"
                   <> user
     user_obj = GenServer.call(Metadata, {:search, query})
     case user_obj do
