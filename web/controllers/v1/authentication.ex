@@ -26,12 +26,14 @@ defmodule Nebula.Authentication do
       _ ->
         [method, authstring] = String.split(List.to_string(auth))
         authstring = Base.decode64!(authstring)
-        user = case method do
+        {domain, user} = case method do
           "Basic" ->
             basic_authentication(authstring)
         end
         if user do
-          assign(conn, :authenticated_as, user)
+          conn
+          |> assign(:authenticated_as, user)
+          |> assign(:cdmi_domain, domain)
         else
           authentication_failed(conn, method)
         end
@@ -48,9 +50,12 @@ defmodule Nebula.Authentication do
 
   defp basic_authentication(authstring) do
     [domain_user, password] = String.split(authstring, ":")
-    [domain, user] = case String.contains?(domain_user, "/") do
-      true -> String.split(domain_user, "/")
-      false -> ["default", domain_user]
+    {domain, user} = case String.contains?(domain_user, "/") do
+      true -> l = String.split(domain_user, "/")
+              u = List.last(l)  # get the userid
+              d = String.replace_suffix(domain_user, "/#{u}", "") # get the domain
+              {d, u}  # return the domain and the user
+      false -> {"default", domain_user}
     end
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain <> "/")
     query = "sp:" <> domain_hash
@@ -61,7 +66,7 @@ defmodule Nebula.Authentication do
     user_obj = GenServer.call(Metadata, {:search, query})
     creds = user_obj.cdmi.metadata.cdmi_member_credentials
     if creds == encrypt(user, password) do
-      user
+      {domain, user}
     else
       nil
     end
