@@ -53,22 +53,28 @@ defmodule Nebula.Authentication do
     {domain, user} = case String.contains?(domain_user, "/") do
       true -> l = String.split(domain_user, "/")
               u = List.last(l)  # get the userid
-              d = String.replace_suffix(domain_user, "/#{u}", "") # get the domain
+              d = String.replace_suffix(domain_user, "/#{u}", "") <> "/"
               {d, u}  # return the domain and the user
       false -> {"default", domain_user}
     end
-    domain_hash = get_domain_hash("/cdmi_domains/" <> domain <> "/")
+    Logger.debug("Domain: #{domain}")
+    domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash
                   <> "/cdmi_domains/"
                   <> domain
                   <> "/cdmi_domain_members/"
                   <> user
     user_obj = GenServer.call(Metadata, {:search, query})
-    creds = user_obj.cdmi.metadata.cdmi_member_credentials
-    if creds == encrypt(user, password) do
-      {domain, user}
-    else
-      nil
+    case user_obj do
+      {:ok, data} ->
+        creds = data.cdmi.metadata.cdmi_member_credentials
+        if creds == encrypt(user, password) do
+          {domain, user}
+        else
+          {nil, nil}
+        end
+      {_, _} ->
+        {nil, nil}
     end
   end
 
