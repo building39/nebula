@@ -10,7 +10,7 @@ defmodule Nebula.Router do
   scope "/api", Nebula do
     pipe_through :api
     scope "/v1", V1, as: :v1 do
-      get "/cdmi_object/:id", ContainerController, :show
+      get "/cdmi_object/:id", CdmiObjectController, :show
       get "/container", ContainerController, :show
       get "/container/*path", ContainerController, :show
       put "/container/:path", ContainerController, :create
