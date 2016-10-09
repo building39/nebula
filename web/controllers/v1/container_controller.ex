@@ -4,15 +4,14 @@ defmodule Nebula.V1.ContainerController do
   """
 
   use Nebula.Web, :controller
+  use Nebula.ControllerCommon
   import Nebula.Macros, only: [set_mandatory_response_headers: 2]
   import Nebula.Util.Utils, only: [get_domain_hash: 1]
   require Logger
 
-  def create(conn, %{"container" => _container_params}) do
+  def create(conn, _params) do
     Logger.debug("Entry to Controller.create")
-    conn
-    |> put_status(501)
-    |> json(%{error: "Not Implemented"})
+    request_fail(conn, :not_implemented, "Create Not Implemented")
   end
 
   @doc """
@@ -27,7 +26,8 @@ defmodule Nebula.V1.ContainerController do
   Otherwise, return the container with a 200 status.
 
   """
-  def show(conn, params) do
+  def show(conn, _params) do
+    Logger.debug("Entry to Controller.show")
     set_mandatory_response_headers(conn, "container")
     req_path = if String.ends_with?(conn.request_path, "/") do
       conn.request_path
@@ -45,31 +45,20 @@ defmodule Nebula.V1.ContainerController do
         |> put_status(:ok)
         |> render("container.json", container: data)
       else
-        conn
-        |> put_status(:moved_permanently)
-        |> put_resp_header("Location", req_path)
-        |> json(%{error: "Moved Permanently"})
-        |> halt()
+        request_fail(conn, :moved_permanently, "Moved Permanently", [{"Location", req_path}])
       end
     else
-      conn
-      |> put_status(:not_found)
-      |> json(%{error: "Not found"})
-      |> halt()
+      request_fail(conn, :not_found, "Not found")
     end
   end
 
   def update(conn, %{"id" => _id, "container" => _container_params}) do
     Logger.debug("Entry to Controller.update")
-    conn
-    |> put_status(501)
-    |> json(%{error: "Not Implemented"})
+    request_fail(conn, :not_implemented, "Update Not Implemented")
   end
 
   def delete(conn, %{"id" => _id}) do
     Logger.debug("Entry to Controller.delete")
-    conn
-    |> put_status(501)
-    |> json(%{error: "Not Implemented"})
+    request_fail(conn, :not_implemented, "Delete Not Implemented")
   end
 end

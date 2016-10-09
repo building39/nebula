@@ -48,6 +48,7 @@ defmodule Nebula.Authentication do
   end
 
   defp basic_authentication(authstring) do
+    Logger.debug("Doing basic authentication")
     [domain_user, password] = String.split(authstring, ":")
     {domain, user} = case String.contains?(domain_user, "/") do
       true -> l = String.split(domain_user, "/")
