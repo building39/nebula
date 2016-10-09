@@ -8,6 +8,7 @@ defmodule Nebula.Authentication do
   import Nebula.Util.Constants, only: :macros
   import Nebula.Util.Utils, only: [encrypt: 2,
                                    get_domain_hash: 1]
+  use Nebula.ControllerCommon
   require Logger
 
   def init(opts) do
@@ -40,11 +41,8 @@ defmodule Nebula.Authentication do
   end
 
   defp authentication_failed(conn, method) do
-    conn
-    |> put_status(:unauthorized)
-    |> put_resp_header("WWW-Authenticate", method)
-    |> json(%{error: "Unauthorized"})
-    |> halt()
+    request_fail(conn, :unauthorized, "Unauthorized",
+                 [{"WWW-Authenticate", method}])
   end
 
   defp basic_authentication(authstring) do

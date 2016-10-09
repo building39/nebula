@@ -5,6 +5,7 @@ defmodule Nebula.CDMIVersion do
 
   import Plug.Conn
   import Phoenix.Controller
+  use Nebula.ControllerCommon
   require Logger
 
   def init(opts) do
