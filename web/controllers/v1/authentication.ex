@@ -5,7 +5,6 @@ defmodule Nebula.Authentication do
 
   import Plug.Conn
   import Phoenix.Controller
-  import Nebula.Util.Constants, only: :macros
   import Nebula.Util.Utils, only: [encrypt: 2,
                                    get_domain_hash: 1]
   use Nebula.ControllerCommon

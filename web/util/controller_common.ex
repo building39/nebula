@@ -25,6 +25,21 @@ defmodule Nebula.ControllerCommon do
         |> json(%{error: message})
         |> halt()
       end
+
+      @doc """
+      Check for mandatory Content-Type header.
+      """
+      @spec check_content_type_header(map, charlist) :: map
+      def check_content_type_header(conn, resource) do
+        if (List.keymember?(conn.req_headers, "content-type", 0) and
+               List.keyfind(conn.req_headers, "content-type", 0) ==
+                 {"content-type", "application/cdmi-#{resource}"}) do
+          conn
+        else
+          request_fail(conn, :bad_request,
+                       "Missing Header: Content-Type: application/cdmi-#{resource}")
+        end
+      end
     end
   end
 end
