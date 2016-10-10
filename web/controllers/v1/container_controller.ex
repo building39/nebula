@@ -44,6 +44,8 @@ defmodule Nebula.V1.ContainerController do
     {rc, data} = GenServer.call(Metadata, {:search, query})
     if rc == :ok and data.objectType == container_object() do
       if String.ends_with?(conn.request_path, "/") do
+        data = process_query_string(conn, data)
+        Logger.debug("processed data: #{inspect data}")
         conn
         |> put_status(:ok)
         |> render("container.json", container: data)
