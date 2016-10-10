@@ -6,7 +6,7 @@ defmodule Nebula.Util.Utils do
   @doc """
   Encrypt.
   """
-  @spec encrypt(string, string) :: string
+  @spec encrypt(charlist, charlist) :: charlist
   def encrypt(key, message) do
     :crypto.hmac(:sha, key, message)
     |> Base.encode16
@@ -16,11 +16,11 @@ defmodule Nebula.Util.Utils do
   @doc """
   Calculate a hash for a domain.
   """
-  @spec get_domain_hash(string) :: string
+  @spec get_domain_hash(charlist) :: charlist
   def get_domain_hash(domain) when is_list(domain) do
     get_domain_hash(<<domain>>)
   end
-  @spec get_domain_hash(binary) :: string
+  @spec get_domain_hash(binary) :: charlist
   def get_domain_hash(domain) when is_binary(domain) do
     :crypto.hmac(:sha, <<"domain">>, domain)
     |> Base.encode16
@@ -30,7 +30,7 @@ defmodule Nebula.Util.Utils do
   @doc """
   Return a timestamp in the form of "2015-12-25T16:39:1451083144.000000Z"
   """
-  @spec make_timestamp() :: string
+  @spec make_timestamp() :: charlist
   def make_timestamp() do
     {{year, month, day}, {hour, minute, second}} =
       :calendar.now_to_universal_time(:os.timestamp)
