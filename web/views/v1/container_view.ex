@@ -3,7 +3,7 @@ defmodule Nebula.V1.ContainerView do
   require Logger
 
   def render("container.json", %{container: container}) do
-    container.cdmi
+    container
   end
 
 end

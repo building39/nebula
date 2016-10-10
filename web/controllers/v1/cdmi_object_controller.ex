@@ -5,6 +5,8 @@ defmodule Nebula.V1.CdmiObjectController do
 
   use Nebula.Web, :controller
   use Nebula.ControllerCommon
+  import Nebula.Constants
+  @api_prefix  api_prefix()
   require Logger
 
   def create(conn, %{"cdmi_object" => _params}) do
@@ -17,9 +19,25 @@ defmodule Nebula.V1.CdmiObjectController do
     cdmi_object = GenServer.call(Metadata, {:get, key})
     case cdmi_object do
       {:ok, data} ->
-        conn
-        |> put_resp_content_type(data.cdmi.objectType)
-        |> render("cdmi_object.json", cdmi_object: data)
+        case data.objectType do
+          container_object() ->
+            if String.ends_with?(conn.request_path, "/") do
+              conn
+              |> put_status(:ok)
+              |> render("cdmi_object.json", cdmi_object: data)
+            else
+              location = @api_prefix <>
+                         "container" <>
+                         data.parentURI <>
+                         data.objectName
+              request_fail(conn,
+                           :moved_permanently,
+                           "Moved Permanently",
+                           [{"Location", location}])
+            end
+          :else ->
+            request_fail(conn, :bad_request, "Unknown object type")
+        end
       {:not_found, _} ->
         request_fail(conn, :not_found, "Not found")
     end

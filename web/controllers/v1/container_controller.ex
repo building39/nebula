@@ -5,9 +5,9 @@ defmodule Nebula.V1.ContainerController do
 
   use Nebula.Web, :controller
   use Nebula.ControllerCommon
-  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
+  import Nebula.Constants
   import Nebula.Util.Utils, only: [get_domain_hash: 1]
-  import Nebula.Macros
+  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
   require Logger
 
   def create(conn, _params) do
@@ -42,7 +42,7 @@ defmodule Nebula.V1.ContainerController do
     query = "sp:" <> domain_hash
                   <> String.replace_prefix(req_path, "/api/v1/container", "")
     {rc, data} = GenServer.call(Metadata, {:search, query})
-    if rc == :ok and data.cdmi.objectType == "application/cdmi-container" do
+    if rc == :ok and data.objectType == container_object() do
       if String.ends_with?(conn.request_path, "/") do
         conn
         |> put_status(:ok)

@@ -3,7 +3,7 @@ defmodule Nebula.V1.CdmiObjectView do
   require Logger
 
   def render("cdmi_object.json", %{cdmi_object: cdmi_object}) do
-    cdmi_object.cdmi
+    cdmi_object
   end
 
 end

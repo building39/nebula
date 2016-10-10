@@ -63,7 +63,7 @@ defmodule Nebula.Authentication do
     user_obj = GenServer.call(Metadata, {:search, query})
     case user_obj do
       {:ok, data} ->
-        creds = data.cdmi.metadata.cdmi_member_credentials
+        creds = data.metadata.cdmi_member_credentials
         if creds == encrypt(user, password) do
           {domain, user}
         else
