@@ -31,6 +31,7 @@ defmodule Nebula.V1.ContainerController do
   def show(conn, _params) do
     Logger.debug("Entry to Controller.show")
     set_mandatory_response_headers(conn, "container")
+    check_content_type_header(conn, "container")
     req_path = if String.ends_with?(conn.request_path, "/") do
       conn.request_path
     else
