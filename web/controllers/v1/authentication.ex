@@ -28,6 +28,7 @@ defmodule Nebula.Authentication do
         {domain, user} = case method do
           "Basic" ->
             basic_authentication(authstring)
+          _ -> {"", nil}
         end
         if user do
           conn
