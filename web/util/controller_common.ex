@@ -27,7 +27,7 @@ defmodule Nebula.ControllerCommon do
       @doc """
       Process the query string.
       """
-      @spec process_query_string(map, map) :: map
+      @spec process_query_string(map, map) :: {atom, map}
       def process_query_string(conn, data) do
         Logger.debug("Processing the query string")
         qs = String.split(conn.query_string, ";")
@@ -36,26 +36,37 @@ defmodule Nebula.ControllerCommon do
           new_data = Enum.reduce(qs, %{}, fn(qp, acc) ->
             value = if String.contains?(qp, ":") do
               [qp2, val] = String.split(qp, ":")
-              case String.to_atom(qp2) do
-                :children ->
-                  [idx0, idx1] = String.split(val, "-")
-                  s = String.to_integer(idx0)
-                  e = String.to_integer(idx1)
-                  childlist = Enum.reduce(s..e, [], fn(i, acc) ->
-                    acc ++ List.wrap(Enum.at(data.children, i))
-                  end)
-                  Map.put(acc, qp2, childlist)
-                :metadata ->
-                  Logger.debug("Getting metadata #{inspect val}")
-                  Map.put(acc, qp2, Map.get(data.metadata, String.to_atom(val)))
+              if not query_parm_exists?(data, String.to_atom(qp2)) do
+                {:bad_request, "Requested parameter #{qp2} not found"}
+              else
+                case qp2 do
+                  "children" ->
+                    [idx0, idx1] = String.split(val, "-")
+                    s = String.to_integer(idx0)
+                    e = String.to_integer(idx1)
+                    childlist = Enum.reduce(s..e, [], fn(i, acc) ->
+                      acc ++ List.wrap(Enum.at(data.children, i))
+                    end)
+                    {:ok, Map.put(acc, String.to_atom(qp2), childlist)}
+                  "metadata" ->
+                    Logger.debug("Getting metadata #{inspect val}")
+                    {:ok, Map.put(acc, String.to_atom(qp2),
+                                  Map.get(data.metadata,
+                                  String.to_atom(val)))}
+                  _ ->
+                    {:bad_request, "Can't return value for #{qp2}"}
+                end
               end
             else
-              Map.put(acc, qp, Map.get(data, String.to_atom(qp)))
+              if query_parm_exists?(data, qp) do
+                {:ok, Map.put(acc, qp, Map.get(data, String.to_atom(qp)))}
+              else
+                {:bad_request, "Requested parameter #{qp} not found"}
+              end
             end
           end)
         else
-          Logger.debug("Returning the original data: #{inspect data}")
-          data
+          {:ok, data}
         end
       end
 
@@ -74,6 +85,14 @@ defmodule Nebula.ControllerCommon do
         |> put_status(status)
         |> json(%{error: message})
         |> halt()
+      end
+
+      @doc """
+      Check for the existence of a query parameter.
+      """
+      @spec query_parm_exists?(map, atom) :: boolean
+      def query_parm_exists?(data, parm) do
+        Map.has_key?(data, parm)
       end
 
     end

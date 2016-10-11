@@ -23,7 +23,11 @@ defmodule Nebula.V1.CdmiObjectController do
         case data.objectType do
           container_object() ->
             set_mandatory_response_headers(conn, "container")
-            data = process_query_string(conn, data)
+            resp = process_query_string(conn, data)
+            case resp do
+              {:bad_request, message} ->
+                request_fail(conn, :bad_request, message)
+            end
             if String.ends_with?(conn.request_path, "/") do
               conn
               |> put_status(:ok)
