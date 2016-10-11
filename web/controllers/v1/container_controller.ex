@@ -43,15 +43,10 @@ defmodule Nebula.V1.ContainerController do
     {rc, data} = GenServer.call(Metadata, {:search, query})
     if rc == :ok and data.objectType == container_object() do
       if String.ends_with?(conn.request_path, "/") do
-        resp = process_query_string(conn, data)
-        case resp do
-          {:ok, data} ->
-            conn
-            |> put_status(:ok)
-            |> render("container.json", container: data)
-          {:bad_request, message} ->
-            request_fail(conn, :bad_request, message)
-        end
+        data = process_query_string(conn, data)
+        conn
+        |> put_status(:ok)
+        |> render("container.json", container: data)
       else
         request_fail(conn, :moved_permanently, "Moved Permanently", [{"Location", req_path}])
       end

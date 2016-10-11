@@ -29,48 +29,7 @@ defmodule Nebula.ControllerCommon do
       """
       @spec process_query_string(map, map) :: {atom, map}
       def process_query_string(conn, data) do
-        Logger.debug("Processing the query string")
-        qs = String.split(conn.query_string, ";")
-        Logger.debug("The query stringlen: #{inspect length(qs)}")
-        if qs != [""] do
-          new_data = Enum.reduce(qs, %{}, fn(qp, acc) ->
-            value = if String.contains?(qp, ":") do
-              [qp2, val] = String.split(qp, ":")
-              if not query_parm_exists?(data, String.to_atom(qp2)) do
-                {:bad_request, "Requested parameter #{qp2} not found"}
-              else
-                case qp2 do
-                  "children" ->
-                    [idx0, idx1] = String.split(val, "-")
-                    s = String.to_integer(idx0)
-                    e = String.to_integer(idx1)
-                    childlist = Enum.reduce(s..e, [], fn(i, acc) ->
-                      acc ++ List.wrap(Enum.at(data.children, i))
-                    end)
-                    {:ok, Map.put(acc, String.to_atom(qp2), childlist)}
-                  "metadata" ->
-                    md = data.metadata
-                    metadata = Enum.reduce(data.metadata, %{}, fn({k, v}, acc) ->
-                      if String.starts_with?(Atom.to_string(k), val) do
-                        Map.put(acc, k, v)
-                      end
-                    end)
-                    {:ok, metadata}
-                  _ ->
-                    {:bad_request, "Can't return value for #{qp2}"}
-                end
-              end
-            else
-              if query_parm_exists?(data, qp) do
-                {:ok, Map.put(acc, qp, Map.get(data, String.to_atom(qp)))}
-              else
-                {:bad_request, "Requested parameter #{qp} not found"}
-              end
-            end
-          end)
-        else
-          {:ok, data}
-        end
+        handle_qs(conn, data, String.split(conn.query_string, ";"))
       end
 
       @doc """
@@ -97,6 +56,56 @@ defmodule Nebula.ControllerCommon do
       def query_parm_exists?(data, parm) do
         Map.has_key?(data, parm)
       end
+
+      @spec handle_qs(map, map, list) :: list
+      defp handle_qs(conn, data, qs) when qs == [""] do
+        data
+      end
+      defp handle_qs(conn, data, qs) do
+        Enum.reduce(qs, %{}, fn(qp, acc) ->
+          value = if String.contains?(qp, ":") do
+            handle_subparms(qp, acc, data)
+          else
+            if query_parm_exists?(data, String.to_atom(qp)) do
+              Map.put(acc, qp, Map.get(data, String.to_atom(qp)))
+            end
+          end
+        end)
+      end
+
+      @spec handle_subparms(charlist, list, map) :: list
+      defp handle_subparms(qp, acc, data) do
+        [qp2, val] = String.split(qp, ":")
+        if query_parm_exists?(data, String.to_atom(qp2)) do
+          handle_subparm(acc, data, qp2, val)
+        end
+      end
+
+      @spec handle_subparm(list, map, charlist, charlist) :: list
+      def handle_subparm(acc, data, qp, val) when qp == "children" do
+        [idx0, idx1] = String.split(val, "-")
+        s = String.to_integer(idx0)
+        e = String.to_integer(idx1)
+        childlist = Enum.reduce(s..e, [], fn(i, acc) ->
+          acc ++ List.wrap(Enum.at(data.children, i))
+        end)
+        Map.put(acc, String.to_atom(qp), childlist)
+
+      end
+      def handle_subparm(acc, data, qp, val) when qp == "metadata" do
+        metadata = Enum.reduce(data.metadata, %{}, fn({k, v}, md) ->
+          if String.starts_with?(Atom.to_string(k), val) do
+            Map.put(md, k, v)
+          else
+            md
+          end
+        end)
+        Map.put(acc, :metadata, metadata)
+      end
+      def handle_subparm(acc, _data, qp, _val) do
+        acc
+      end
+
 
     end
   end
