@@ -3,6 +3,15 @@ defmodule Nebula.Macros do
   Various and assorted macros used throughout the application.
   """
 
+  defmacro fix_container_path(conn) do
+    quote do
+      if String.ends_with?(unquote(conn).request_path, "/") do
+        unquote(conn).request_path
+      else
+        unquote(conn).request_path <> "/"
+      end
+    end
+  end
   defmacro set_mandatory_response_headers(conn, resource) do
     quote do
       unquote(conn) = put_resp_header(unquote(conn),

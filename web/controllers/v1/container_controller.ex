@@ -7,7 +7,9 @@ defmodule Nebula.V1.ContainerController do
   use Nebula.ControllerCommon
   import Nebula.Constants
   import Nebula.Util.Utils, only: [get_domain_hash: 1]
-  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
+  import Nebula.Macros, only: [
+    fix_container_path: 1,
+    set_mandatory_response_headers: 2]
   require Logger
 
   def create(conn, _params) do
@@ -31,11 +33,8 @@ defmodule Nebula.V1.ContainerController do
   def show(conn, _params) do
     Logger.debug("Entry to Controller.show")
     set_mandatory_response_headers(conn, "container")
-    req_path = if String.ends_with?(conn.request_path, "/") do
-      conn.request_path
-    else
-      conn.request_path <> "/"
-    end
+    req_path = fix_container_path(conn)
+    Logger.debug("req_path: #{inspect req_path}")
     domain = conn.assigns.cdmi_domain
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash
