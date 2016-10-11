@@ -49,10 +49,13 @@ defmodule Nebula.ControllerCommon do
                     end)
                     {:ok, Map.put(acc, String.to_atom(qp2), childlist)}
                   "metadata" ->
-                    Logger.debug("Getting metadata #{inspect val}")
-                    {:ok, Map.put(acc, String.to_atom(qp2),
-                                  Map.get(data.metadata,
-                                  String.to_atom(val)))}
+                    md = data.metadata
+                    metadata = Enum.reduce(data.metadata, %{}, fn({k, v}, acc) ->
+                      if String.starts_with?(Atom.to_string(k), val) do
+                        Map.put(acc, k, v)
+                      end
+                    end)
+                    {:ok, metadata}
                   _ ->
                     {:bad_request, "Can't return value for #{qp2}"}
                 end
