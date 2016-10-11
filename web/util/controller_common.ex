@@ -63,7 +63,7 @@ defmodule Nebula.ControllerCommon do
       end
       defp handle_qs(conn, data, qs) do
         Enum.reduce(qs, %{}, fn(qp, acc) ->
-          value = if String.contains?(qp, ":") do
+          if String.contains?(qp, ":") do
             handle_subparms(qp, acc, data)
           else
             if query_parm_exists?(data, String.to_atom(qp)) do
