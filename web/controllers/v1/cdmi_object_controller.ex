@@ -6,6 +6,7 @@ defmodule Nebula.V1.CdmiObjectController do
   use Nebula.Web, :controller
   use Nebula.ControllerCommon
   import Nebula.Constants
+  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
   @api_prefix  api_prefix()
   require Logger
 
@@ -21,6 +22,8 @@ defmodule Nebula.V1.CdmiObjectController do
       {:ok, data} ->
         case data.objectType do
           container_object() ->
+            set_mandatory_response_headers(conn, "container")
+            data = process_query_string(conn, data)
             if String.ends_with?(conn.request_path, "/") do
               conn
               |> put_status(:ok)
