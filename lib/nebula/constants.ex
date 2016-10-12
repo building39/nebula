@@ -6,7 +6,7 @@ defmodule Nebula.Constants do
   defmacro api_prefix do
     "/api/v1/"
   end
-  
+
   defmacro capabilities_object do
     "application/cdmi-capapbilities"
   end
