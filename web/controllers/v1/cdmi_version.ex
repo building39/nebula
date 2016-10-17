@@ -1,4 +1,4 @@
-defmodule Nebula.CDMIVersion do
+defmodule Nebula.V1.CDMIVersion do
   @moduledoc """
   Check the X-CDMI-Specification-Version request header.
   """
