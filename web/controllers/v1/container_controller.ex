@@ -33,25 +33,12 @@ defmodule Nebula.V1.ContainerController do
   def show(conn, _params) do
     Logger.debug("Entry to Controller.show")
     set_mandatory_response_headers(conn, "container")
-    req_path = fix_container_path(conn)
-    Logger.debug("req_path: #{inspect req_path}")
-    domain = conn.assigns.cdmi_domain
-    domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
-    query = "sp:" <> domain_hash
-                  <> String.replace_prefix(req_path, "/api/v1/container", "")
-    {rc, data} = GenServer.call(Metadata, {:search, query})
-    if rc == :ok and data.objectType == container_object() do
-      if String.ends_with?(conn.request_path, "/") do
-        data = process_query_string(conn, data)
-        conn
-        |> put_status(:ok)
-        |> render("container.json", container: data)
-      else
-        request_fail(conn, :moved_permanently, "Moved Permanently", [{"Location", req_path}])
-      end
-    else
-      request_fail(conn, :not_found, "Not found")
-    end
+    data = conn.assigns.data
+    data = process_query_string(conn, data)
+    conn
+    |> check_acls(data)
+    |> put_status(:ok)
+    |> render("container.json", container: data)
   end
 
   def update(conn, %{"id" => _id, "container" => _container_params}) do
