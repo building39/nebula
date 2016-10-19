@@ -9,6 +9,21 @@ defmodule Nebula.ControllerCommon do
 
     quote do
       require Logger
+
+      @doc """
+      Check ACLs for this object
+      """
+      @spec check_acls(map, map) :: map
+      def check_acls(conn, data) do
+        acls = data.metadata.cdmi_acls
+        owner = data.metadata.cdmi_owner
+        user = conn.assigns.authenticated_as
+        Logger.debug("ACLs: #{inspect acls}")
+        Logger.debug("Owner: #{inspect owner}")
+        Logger.debug("User: #{inspect user}")
+        conn
+      end
+
       @doc """
       Check for mandatory Content-Type header.
       """
