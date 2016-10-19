@@ -1,11 +1,14 @@
-defmodule acls do
+defmodule ACLs do
   @moduledoc """
   All things related to ACLs
   """
 
+  import Bitwise
+
   @doc """
   Allow access rights for a principal.
   """
+
   defmacro cdmi_ace_access_allow do
     0x00000000
   end
@@ -342,5 +345,38 @@ defmodule acls do
   defmacro cdmi_ace_synchronize do
     0x00100000
   end
+
+  @doc """
+  Allow all permissions.
+  """
+  defmacro cdmi_all_perms do
+    0x001F07FF
+  end
+
+  @doc """
+  Allow all read/write permissions.
+  """
+  defmacro cdmi_read_write_all_perms do
+    0x000601DF
+  end
+
+  @doc """
+  Allow basic read/write permissions.
+  """
+  defmacro cdmi_read_write_all_perms do
+    0x0000001F
+  end
+
+  @doc """
+  Read permissions.
+  """
+  defmacro cdmi_read_perms do
+    cdmi_ace_read_object()
+    |> bor(cdmi_ace_list_container())
+    |> bor(cdmi_ace_read_metadata())
+    |> bor(cdmi_ace_traverse_container())
+    |> bor(cdmi_ace_read_attributes())
+  end
+
 
 end
