@@ -49,7 +49,7 @@ defmodule Nebula.V1.CdmiObjectController do
                    [{"Location", location}])
     end
   end
-  defp handle_show_object_type(object_type, conn, data) do
+  defp handle_show_object_type(object_type, conn, _data) do
     request_fail(conn, :bad_request, "Unknown object type: #{inspect object_type}")
   end
 
