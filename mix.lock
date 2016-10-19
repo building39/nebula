@@ -9,6 +9,7 @@
   "getopt": {:hex, :getopt, "0.8.2", "b17556db683000ba50370b16c0619df1337e7af7ecbf7d64fbf8d1d6bce3109b", [:rebar], []},
   "gettext": {:hex, :gettext, "0.11.0", "80c1dd42d270482418fa158ec5ba073d2980e3718bacad86f3d4ad71d5667679", [:mix], []},
   "hamcrest": {:hex, :hamcrest, "0.1.2", "2f06fad05983ce98a7832c4a7a508aab935b68865fdf607d30a030c129ec1365", [:rebar, :make], []},
+  "hexate": {:hex, :hexate, "0.6.1", "1cea42e462c1daa32223127d4752e71016c3d933d492b9bb7fa4709a4a0fd50d", [:mix], []},
   "linguist": {:hex, :linguist, "0.1.5", "98739fc47ac5d951322a57c787f46786c95b53d800105d43a0631633e7f9da9b", [:mix], []},
   "logger_file_backend": {:hex, :logger_file_backend, "0.0.9", "5c2f7d4a28431e695cdf94d191523dbafe609321a67bb654254897f546c393db", [:mix], []},
   "meck": {:hex, :meck, "0.8.4", "59ca1cd971372aa223138efcf9b29475bde299e1953046a0c727184790ab1520", [:rebar, :make], []},
