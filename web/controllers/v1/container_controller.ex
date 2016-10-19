@@ -5,10 +5,8 @@ defmodule Nebula.V1.ContainerController do
 
   use Nebula.Web, :controller
   use Nebula.ControllerCommon
-  import Nebula.Constants
-  import Nebula.Util.Utils, only: [get_domain_hash: 1]
+
   import Nebula.Macros, only: [
-    fix_container_path: 1,
     set_mandatory_response_headers: 2]
   require Logger
 
