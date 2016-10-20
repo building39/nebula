@@ -17,6 +17,7 @@ defmodule Nebula.V1.CdmiObjectController do
 
   @spec show(map, map) :: map
   def show(conn, %{"id" => id}) do
+    Logger.debug("Conn: #{inspect conn}")
     # key (id) needs to be reversed for Riak datastore.
     key = String.slice(id, -32..-1) <> String.slice(id, 0..15)
     handle_show(conn, GenServer.call(Metadata, {:get, key}))
@@ -33,6 +34,24 @@ defmodule Nebula.V1.CdmiObjectController do
   @spec handle_show_object_type(charlist, map, map) :: map
   defp handle_show_object_type(container_object(), conn, data) do
     set_mandatory_response_headers(conn, "container")
+    data = process_query_string(conn, data)
+    if String.ends_with?(conn.request_path, "/") do
+      conn
+      |> put_status(:ok)
+      |> render("cdmi_object.json", cdmi_object: data)
+    else
+      location = @api_prefix <>
+                 "container" <>
+                 data.parentURI <>
+                 data.objectName
+      request_fail(conn,
+                   :moved_permanently,
+                   "Moved Permanently",
+                   [{"Location", location}])
+    end
+  end
+  defp handle_show_object_type(capabilities_object(), conn, data) do
+    set_mandatory_response_headers(conn, "capabilities")
     data = process_query_string(conn, data)
     if String.ends_with?(conn.request_path, "/") do
       conn
