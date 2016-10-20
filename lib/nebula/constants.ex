@@ -8,7 +8,7 @@ defmodule Nebula.Constants do
   end
 
   defmacro capabilities_object do
-    "application/cdmi-capabilities"
+    "application/cdmi-capability"
   end
 
   defmacro container_object do
