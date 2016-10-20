@@ -23,6 +23,10 @@ defmodule Nebula.Constants do
     "application/cdmi-domain"
   end
 
+  defmacro system_capabilities_uri do
+    "/cdmi_capabilities/"
+  end
+
   defmacro system_domain_uri do
     "/cdmi_domains/system_domain/"
   end
