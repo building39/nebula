@@ -23,6 +23,7 @@ defmodule Nebula.Mixfile do
                     :logger,
                     :gettext,
                     :comeonin,
+                    :cdmioid,
                     :nebula_metadata]]
   end
 
@@ -42,6 +43,7 @@ defmodule Nebula.Mixfile do
      {:comeonin, "~> 2.0"},
      {:uuid, "~> 1.1" },
      {:hexate,  ">= 0.6.0"},
+     {:cdmioid, git: "https://github.com/building39/cdmioid.git", tag: "0.1.1"},
      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "0.1.4"}
    ]
   end
