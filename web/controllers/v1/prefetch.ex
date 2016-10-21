@@ -19,7 +19,16 @@ defmodule Nebula.V1.Prefetch do
   Document the prefetch function
   """
   def call(conn, _opts) do
-    fetch_for_method(conn, conn.method)
+    domain_hash = get_domain_hash(system_domain_uri())
+    query = "sp:" <> domain_hash
+                  <> system_capabilities_uri()
+    {rc, data} = GenServer.call(Metadata, {:search, query})
+    if rc == :ok do
+      Logger.debug("Prefetch sys cap: #{inspect data}")
+      fetch_for_method(conn, conn.method)
+    else
+      request_fail(conn, :not_found, "Not found")
+    end
   end
 
   defp fetch_for_method(conn, method) when method == "DELETE" do

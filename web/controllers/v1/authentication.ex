@@ -5,8 +5,6 @@ defmodule Nebula.V1.Authentication do
 
   import Plug.Conn
   import Phoenix.Controller
-  import Nebula.Util.Utils, only: [encrypt: 2,
-                                   get_domain_hash: 1]
   use Nebula.ControllerCommon
   require Logger
 

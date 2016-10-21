@@ -5,6 +5,8 @@ defmodule Nebula.V1.CDMIVersion do
 
   import Plug.Conn
   import Phoenix.Controller
+  import Nebula.Constants
+  import Nebula.Util.Utils, only: [get_domain_hash: 1]
   use Nebula.ControllerCommon
   require Logger
 

@@ -18,6 +18,7 @@ defmodule Nebula.V1.CheckDomain do
   def call(conn, _opts) do
     data = conn.assigns.data
     if data.objectType == capabilities_object() do
+      # Capability objects don't have a domain object
       conn
     else
       domain = conn.assigns.cdmi_domain

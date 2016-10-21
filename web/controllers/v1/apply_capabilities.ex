@@ -6,9 +6,6 @@ defmodule Nebula.V1.ApplyCapabilities do
   import Plug.Conn
   import Phoenix.Controller
   import Nebula.Constants
-  import Nebula.Macros, only: [
-    fix_container_path: 1
-  ]
   import Nebula.Util.Utils, only: [get_domain_hash: 1]
   use Nebula.ControllerCommon
   require Logger
@@ -18,20 +15,22 @@ defmodule Nebula.V1.ApplyCapabilities do
   end
 
   @doc """
-  Document the prefetch function
+  Document this function
   """
   def call(conn, _opts) do
-    cap_uri = conn.assigns.data.capabilitiesURI
-    domain = conn.assigns.cdmi_domain
-    domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
+    domain_hash = get_domain_hash(system_domain_uri())
     query = "sp:" <> domain_hash
-                  <> cap_uri
+                  <> system_capabilities_uri()
     {rc, data} = GenServer.call(Metadata, {:search, query})
+    if rc != :ok do
+      request_fail(conn, :not_found, "Not found")
+    end
     capabilities = data.capabilities
     Logger.debug("Capabilities: #{inspect capabilities}")
-    assign_map = conn.assigns
-    assign_map = Map.put_new(assign_map, :capabilities, capabilities)
-    Map.put(conn, :assigns, assign_map)
+    assign(conn, :sys_capabilities, capabilities)
+    #assign_map = conn.assigns
+    #assign_map = Map.put_new(assign_map, :sys_capabilities, capabilities)
+    #Map.put(conn, :assigns, assign_map)
   end
 
 end

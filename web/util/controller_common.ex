@@ -3,11 +3,11 @@ defmodule Nebula.ControllerCommon do
   Functions common to all of the application's controllers
   """
 
-  require Logger
-
   defmacro __using__(_) do
 
     quote do
+      import Nebula.Constants
+      import Nebula.Util.Utils
       require Logger
 
       @doc """
@@ -36,6 +36,32 @@ defmodule Nebula.ControllerCommon do
         else
           request_fail(conn, :bad_request,
                        "Missing Header: Content-Type: application/cdmi-#{resource}")
+        end
+      end
+
+      @doc """
+      Document the Check Domain function
+      """
+      @spec check_domain(map, map) :: map
+      def check_domain(conn, data) do
+        if data.objectType == capabilities_object() do
+          # Capability objects don't have a domain object
+          conn
+        else
+          domain = conn.assigns.cdmi_domain
+          domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
+          query = "sp:" <> domain_hash
+                        <> "/cdmi_domains/#{domain}"
+          {rc, data} = GenServer.call(Metadata, {:search, query})
+          if rc == :ok and data.objectType == domain_object() do
+            if Map.get(data.metadata, :cdmi_domain_enabled, false) do
+              conn
+            else
+              request_fail(conn, :forbidden, "Forbidden")
+            end
+          else
+            request_fail(conn, :forbidden, "Forbidden")
+          end
         end
       end
 
@@ -97,7 +123,7 @@ defmodule Nebula.ControllerCommon do
       end
 
       @spec handle_subparm(list, map, charlist, charlist) :: list
-      def handle_subparm(acc, data, qp, val) when qp == "children" do
+      defp handle_subparm(acc, data, qp, val) when qp == "children" do
         [idx0, idx1] = String.split(val, "-")
         s = String.to_integer(idx0)
         e = String.to_integer(idx1)
@@ -107,7 +133,7 @@ defmodule Nebula.ControllerCommon do
         Map.put(acc, String.to_atom(qp), childlist)
 
       end
-      def handle_subparm(acc, data, qp, val) when qp == "metadata" do
+      defp handle_subparm(acc, data, qp, val) when qp == "metadata" do
         metadata = Enum.reduce(data.metadata, %{}, fn({k, v}, md) ->
           if String.starts_with?(Atom.to_string(k), val) do
             Map.put(md, k, v)
@@ -117,10 +143,9 @@ defmodule Nebula.ControllerCommon do
         end)
         Map.put(acc, :metadata, metadata)
       end
-      def handle_subparm(acc, _data, qp, _val) do
+      defp handle_subparm(acc, _data, qp, _val) do
         acc
       end
-
 
     end
   end
