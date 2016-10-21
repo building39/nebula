@@ -4,10 +4,11 @@ defmodule Nebula.Router do
   pipeline :api do
     plug :accepts, ["json"]
     plug Nebula.V1.CDMIVersion
+    plug Nebula.V1.ResolveDomain
+    plug Nebula.V1.ApplyCapabilities
     plug Nebula.V1.Authentication
     #plug Nebula.V1.Prefetch
     #plug Nebula.V1.CheckDomain
-    #plug Nebula.V1.ApplyCapabilities
     #plug Nebula.V1.ApplyACLs
   end
 
