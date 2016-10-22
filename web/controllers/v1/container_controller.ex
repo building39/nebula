@@ -16,6 +16,7 @@ defmodule Nebula.V1.ContainerController do
     |> check_content_type_header("container")
     |> check_for_dup()
     |> get_parent()
+    |> check_capabilities()
     |> check_acls()
     |> create_new_container()
     |> write_container()
@@ -64,6 +65,16 @@ defmodule Nebula.V1.ContainerController do
   defp check_acls(conn) do
     if conn.halted do
       Logger.debug("check_acls: request halted")
+      conn
+    else
+      conn
+    end
+  end
+
+  @spec check_capabilities(map) :: map
+  defp check_capabilities(conn) do
+    if conn.halted do
+      Logger.debug("check_capabilities: request halted")
       conn
     else
       conn
