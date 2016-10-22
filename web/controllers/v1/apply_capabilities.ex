@@ -26,7 +26,7 @@ defmodule Nebula.V1.ApplyCapabilities do
       request_fail(conn, :not_found, "Not found")
     end
     capabilities = data.capabilities
-    Logger.debug("Capabilities: #{inspect capabilities}")
+    #Logger.debug("Capabilities: #{inspect capabilities}")
     assign(conn, :sys_capabilities, capabilities)
     #assign_map = conn.assigns
     #assign_map = Map.put_new(assign_map, :sys_capabilities, capabilities)

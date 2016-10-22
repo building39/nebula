@@ -35,6 +35,7 @@ defmodule Nebula.V1.Prefetch do
     conn
   end
   defp fetch_for_method(conn, method) when method == "GET" do
+    Logger.debug("Fetching: #{inspect Enum.at(conn.path_info, 2)}")
     handle_object_get(conn, Enum.at(conn.path_info, 2))
   end
   defp fetch_for_method(conn, method) when method == "OPTIONS" do
@@ -47,6 +48,11 @@ defmodule Nebula.V1.Prefetch do
     conn
   end
   defp fetch_for_method(conn, method) when method == "PUT" do
+    conn
+  end
+
+  defp handle_object_get(conn, object_type) when object_type == "cdmi_objectid" do
+    Logger.debug("in get")
     conn
   end
 

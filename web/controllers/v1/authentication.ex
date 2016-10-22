@@ -52,7 +52,6 @@ defmodule Nebula.V1.Authentication do
                   <> domain
                   <> "cdmi_domain_members/"
                   <> user
-    Logger.debug("Search query: #{inspect query}")
     user_obj = GenServer.call(Metadata, {:search, query})
     case user_obj do
       {:ok, data} ->
