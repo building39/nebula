@@ -12,16 +12,20 @@ defmodule Nebula.V1.ContainerController do
   require Logger
 
   def create(conn, _params) do
-    new_container = create_new_container(conn)
-    # key (id) needs to be reversed for Riak datastore.
-    key = String.slice(new_container.cdmi.objectID, -32..-1) <>
-          String.slice(new_container.cdmi.objectID, 0..15)
-    {:ok, data} = GenServer.call(Metadata, {:put, key, new_container})
-    conn
+    c = conn
     |> check_content_type_header("container")
-#    |> check_acls(new_container)
-    |> put_status(:ok)
-    |> render("container.json", container: new_container)
+    |> check_for_dup()
+    |> get_parent()
+    |> check_acls()
+    |> create_new_container()
+    |> write_container()
+    if not c.halted do
+      c
+      |> put_status(:ok)
+      |> render("container.json", container: conn.assigns.newobject)
+    else
+      c
+    end
   end
 
   @doc """
@@ -56,10 +60,52 @@ defmodule Nebula.V1.ContainerController do
     request_fail(conn, :not_implemented, "Delete Not Implemented")
   end
 
+  @spec check_acls(map) :: map
+  defp check_acls(conn) do
+    if conn.halted do
+      Logger.debug("check_acls: request halted")
+      conn
+    else
+      conn
+    end
+  end
+
+  @spec check_for_dup(map) :: map
+  defp check_for_dup(conn) do
+    Logger.debug("Conn: #{inspect conn}")
+    if conn.halted do
+      Logger.debug("check_for_dup: request halted")
+      conn
+    else
+      domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
+      object_name = List.last(conn.path_info) <> "/"
+      container_path = Enum.drop(conn.path_info, 3)
+      parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
+      parent_uri = if String.ends_with?(parent_path, "/") do
+        parent_path
+      else
+        parent_path <> "/"
+      end
+      query = "sp:" <> domain_hash <> parent_uri <> object_name
+      response = GenServer.call(Metadata, {:search, query})
+      case tuple_size(response) do
+        2 ->
+          {status, _} = response
+          case status do
+            :not_found ->
+              conn
+            :ok ->
+              request_fail(conn, :conflict, "Container already exists")
+          end
+        3 ->
+          request_fail(conn, :conflict, "Container already exists")
+      end
+    end
+  end
+
   @spec construct_metadata(map) :: map
   defp construct_metadata(conn) do
     timestamp = List.to_string(Nebula.Util.Utils.make_timestamp())
-    Logger.debug("authenticated as: #{inspect conn.assigns.authenticated_as}")
     %{
       cdmi_owner: conn.assigns.authenticated_as,
       cdmi_atime: timestamp,
@@ -78,46 +124,96 @@ defmodule Nebula.V1.ContainerController do
 
   @spec create_new_container(map) :: map
   defp create_new_container(conn) do
-    object_name = List.last(conn.path_info)
-    {object_oid, object_key} = Cdmioid.generate(45241)
-    container_path = Enum.drop(conn.path_info, 3)
-    parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
-    parent_uri = if String.ends_with?(parent_path, "/") do
-      parent_path
+    if conn.halted do
+      Logger.debug("create_new_container: request halted")
+      conn
     else
-      parent_path <> "/"
-    end
-    domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
-    query = "sp:" <> domain_hash <> parent_uri
-    parent_obj = GenServer.call(Metadata, {:search, query})
-    parent_oid = case parent_obj do
-      {:ok, data} ->
-        data.objectID
-      {_, _} ->
-        nil
-    end
-    full_path = case String.length(parent_path) do
-      1 ->
-
-    end
-    if parent_oid do
-      %{
-        sp: domain_hash <> "/" <> Enum.join(Enum.drop(conn.path_info, 3), "/") <> "/",
-        cdmi: %{
+      {object_oid, object_key} = Cdmioid.generate(45241)
+      object_name = List.last(conn.path_info) <> "/"
+      parent = conn.assigns.parent
+      new_container =
+        %{
           objectType: container_object(),
           objectID: object_oid,
           objectName: object_name,
-          parentURI: parent_uri,
-          parentID: parent_oid,
+          parentURI: conn.assigns.parentURI,
+          parentID: conn.assigns.parent.objectID,
           domainURI: "/cdmi_domains/" <> conn.assigns.cdmi_domain,
           capabilitiesURI: container_capabilities_uri(),
           completionStatus: "Complete",
           children: [],
           metadata: construct_metadata(conn)
         }
-      }
-    else
-      request_fail(conn, :not_found, "Parent object not found")
+      assign(conn, :new_object, new_container)
     end
   end
+
+  @spec write_container(map) :: map
+  defp write_container(conn) do
+    if conn.halted do
+      Logger.debug("write_container: request halted")
+      conn
+    else
+      new_container = conn.assigns.new_bject
+      key = new_container.objectID
+      parent = conn.assigns.parent
+      {rc, data} = GenServer.call(Metadata, {:put, key, new_container})
+      if rc == :ok do
+        update_parent(conn)
+      else
+        request_fail(conn, :service_unavailable, "Service Unavailable")
+      end
+    end
+  end
+
+  @spec get_parent(map) :: map
+  defp get_parent(conn) do
+    if conn.halted do
+      Logger.debug("get_parent: request halted")
+      conn
+    else
+      container_path = Enum.drop(conn.path_info, 3)
+      parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
+      parent_uri = if String.ends_with?(parent_path, "/") do
+        parent_path
+      else
+        parent_path <> "/"
+      end
+      conn = assign(conn, :parentURI, parent_uri)
+      domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
+      query = "sp:" <> domain_hash <> parent_uri
+      parent_obj = GenServer.call(Metadata, {:search, query})
+      case parent_obj do
+        {:ok, data} ->
+          assign(conn, :parent, data)
+        {_, _} ->
+          request_fail(conn, :not_found, "Parent container does not exist")
+      end
+    end
+  end
+
+  @spec update_parent(map) :: map
+  defp update_parent(conn) do
+    if conn.halted do
+      Logger.debug("update_parent: request halted")
+      conn
+    else
+      child = conn.assigns.newobject
+      parent = conn.assigns.parent
+      children = Enum.concat([child.cdmi.objectName], Map.get(parent, :children, []))
+      Logger.debug("Children: #{inspect children}")
+      parent = Map.put(parent, :children, children)
+      children_range = Map.get(parent, :childrenrange, "")
+      new_range = case children_range do
+        "" ->
+          "0-0"
+        _ ->
+          [first, last] = String.split(children_range, "-")
+          "0-" <> Integer.to_string(String.to_integer(last) + 1)
+      end
+      parent = Map.put(parent, :childrenrange, new_range)
+      assign(conn, :parent, parent)
+    end
+  end
+
 end
