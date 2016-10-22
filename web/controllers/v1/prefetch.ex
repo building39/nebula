@@ -62,6 +62,7 @@ defmodule Nebula.V1.Prefetch do
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash
                   <> String.replace_prefix(req_path, "/api/v1/container", "")
+    Logger.debug("query: #{inspect query}")
     {rc, data} = GenServer.call(Metadata, {:search, query})
     if rc == :ok and data.objectType == container_object() do
       if not String.ends_with?(conn.request_path, "/") do

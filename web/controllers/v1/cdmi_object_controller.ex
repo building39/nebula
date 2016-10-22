@@ -17,9 +17,7 @@ defmodule Nebula.V1.CdmiObjectController do
 
   @spec show(map, map) :: map
   def show(conn, %{"id" => id}) do
-    # key (id) needs to be reversed for Riak datastore.
-    key = String.slice(id, -32..-1) <> String.slice(id, 0..15)
-    handle_show(conn, GenServer.call(Metadata, {:get, key}))
+    handle_show(conn, GenServer.call(Metadata, {:get, id}))
   end
 
   @spec handle_show(map, {atom, map}) :: map

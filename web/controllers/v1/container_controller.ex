@@ -23,7 +23,7 @@ defmodule Nebula.V1.ContainerController do
     if not c.halted do
       c
       |> put_status(:ok)
-      |> render("container.json", container: conn.assigns.newobject)
+      |> render("container.json", container: c.assigns.newobject)
     else
       c
     end
@@ -46,7 +46,7 @@ defmodule Nebula.V1.ContainerController do
     data = conn.assigns.data
     data = process_query_string(conn, data)
     conn
-    |> check_acls(data)
+    |> check_acls()
     |> put_status(:ok)
     |> render("container.json", container: data)
   end
@@ -83,7 +83,6 @@ defmodule Nebula.V1.ContainerController do
 
   @spec check_for_dup(map) :: map
   defp check_for_dup(conn) do
-    Logger.debug("Conn: #{inspect conn}")
     if conn.halted do
       Logger.debug("check_for_dup: request halted")
       conn
@@ -99,6 +98,7 @@ defmodule Nebula.V1.ContainerController do
       end
       query = "sp:" <> domain_hash <> parent_uri <> object_name
       response = GenServer.call(Metadata, {:search, query})
+      Logger.debug("Search query: #{inspect query}")
       case tuple_size(response) do
         2 ->
           {status, _} = response
@@ -155,7 +155,7 @@ defmodule Nebula.V1.ContainerController do
           children: [],
           metadata: construct_metadata(conn)
         }
-      assign(conn, :new_object, new_container)
+      assign(conn, :newobject, new_container)
     end
   end
 
@@ -165,7 +165,7 @@ defmodule Nebula.V1.ContainerController do
       Logger.debug("write_container: request halted")
       conn
     else
-      new_container = conn.assigns.new_bject
+      new_container = conn.assigns.newobject
       key = new_container.objectID
       parent = conn.assigns.parent
       {rc, data} = GenServer.call(Metadata, {:put, key, new_container})
@@ -211,7 +211,7 @@ defmodule Nebula.V1.ContainerController do
     else
       child = conn.assigns.newobject
       parent = conn.assigns.parent
-      children = Enum.concat([child.cdmi.objectName], Map.get(parent, :children, []))
+      children = Enum.concat([child.objectName], Map.get(parent, :children, []))
       Logger.debug("Children: #{inspect children}")
       parent = Map.put(parent, :children, children)
       children_range = Map.get(parent, :childrenrange, "")
