@@ -23,7 +23,7 @@ defmodule Nebula.V1.ApplyCapabilities do
                   <> system_capabilities_uri()
     {rc, data} = GenServer.call(Metadata, {:search, query})
     if rc != :ok do
-      request_fail(conn, :not_found, "Not found")
+      request_fail(conn, :not_found, "Not found 1")
     end
     capabilities = data.capabilities
     #Logger.debug("Capabilities: #{inspect capabilities}")

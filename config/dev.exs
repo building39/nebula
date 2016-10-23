@@ -16,6 +16,9 @@ config :nebula, Nebula.Endpoint,
 config :nebula,
   cdmi_version: ["1.1"]
 
+config :memcache_client,
+  transcoder: Memcache.Client.Transcoder.Erlang
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 

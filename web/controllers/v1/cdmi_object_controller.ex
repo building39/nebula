@@ -27,9 +27,13 @@ defmodule Nebula.V1.CdmiObjectController do
   defp handle_show(conn, {:not_found, _}) do
     request_fail(conn, :not_found, "Not found")
   end
+  defp handle_show(conn, {:im_a_teapot, _}) do
+    request_fail(conn, :im_a_teapot, "Not found teapot")
+  end
 
   @spec handle_show_object_type(charlist, map, map) :: map
   defp handle_show_object_type(container_object(), conn, data) do
+    Logger.debug("handle_show_object_type")
     set_mandatory_response_headers(conn, "container")
     data = process_query_string(conn, data)
     if String.ends_with?(conn.request_path, "/") do
@@ -81,7 +85,7 @@ defmodule Nebula.V1.CdmiObjectController do
       {:ok, data} ->
         assign(conn, :data, data)
       _ ->
-        request_fail(conn, :not_found, "Not Found")
+        request_fail(conn, :not_found, "Not Found 3")
     end
     c = conn
     |> get_parent()

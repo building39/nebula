@@ -46,6 +46,7 @@ defmodule Nebula.V1.Prefetch do
   end
 
   defp handle_object_get(conn, object_type) when object_type == "container" do
+    Logger.debug("Prefetch: handle_object_get container")
     req_path = fix_container_path(conn)
     domain = conn.assigns.cdmi_domain
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
@@ -57,7 +58,7 @@ defmodule Nebula.V1.Prefetch do
         request_fail(conn, :moved_permanently, "Moved Permanently", [{"Location", req_path}])
       end
     else
-      request_fail(conn, :not_found, "Not found")
+      request_fail(conn, :not_found, "Not found 2")
     end
     assign_map = conn.assigns
     assign_map = Map.put_new(assign_map, :data, data)
