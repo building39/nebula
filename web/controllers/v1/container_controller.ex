@@ -52,19 +52,16 @@ defmodule Nebula.V1.ContainerController do
   end
 
   def update(conn, %{"id" => _id, "container" => _container_params}) do
-    Logger.debug("Entry to Controller.update")
     request_fail(conn, :not_implemented, "Update Not Implemented")
   end
 
   def delete(conn, %{"id" => _id}) do
-    Logger.debug("Entry to Controller.delete")
     request_fail(conn, :not_implemented, "Delete Not Implemented")
   end
 
   @spec check_acls(map) :: map
   defp check_acls(conn) do
     if conn.halted do
-      Logger.debug("check_acls: request halted")
       conn
     else
       conn
@@ -74,17 +71,24 @@ defmodule Nebula.V1.ContainerController do
   @spec check_capabilities(map) :: map
   defp check_capabilities(conn) do
     if conn.halted do
-      Logger.debug("check_capabilities: request halted")
       conn
     else
-      conn
+      parent = conn.assigns.parent
+      query = "sp:" <> get_domain_hash(parent.domainURI) <> parent.capabilitiesURI
+      {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
+      capabilities = Map.get(capabilities, :capabilities)
+      create_container = Map.get(capabilities, :cdmi_create_container, false)
+      if create_container == "true" do
+        conn
+      else
+        request_fail(conn, :forbidden, "Forbidden")
+      end
     end
   end
 
   @spec check_for_dup(map) :: map
   defp check_for_dup(conn) do
     if conn.halted do
-      Logger.debug("check_for_dup: request halted")
       conn
     else
       domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
@@ -135,7 +139,6 @@ defmodule Nebula.V1.ContainerController do
   @spec create_new_container(map) :: map
   defp create_new_container(conn) do
     if conn.halted do
-      Logger.debug("create_new_container: request halted")
       conn
     else
       {object_oid, object_key} = Cdmioid.generate(45241)
@@ -161,7 +164,6 @@ defmodule Nebula.V1.ContainerController do
   @spec write_container(map) :: map
   defp write_container(conn) do
     if conn.halted do
-      Logger.debug("write_container: request halted")
       conn
     else
       new_container = conn.assigns.newobject
@@ -179,7 +181,6 @@ defmodule Nebula.V1.ContainerController do
   @spec get_parent(map) :: map
   defp get_parent(conn) do
     if conn.halted do
-      Logger.debug("get_parent: request halted")
       conn
     else
       container_path = Enum.drop(conn.path_info, 3)
@@ -205,7 +206,6 @@ defmodule Nebula.V1.ContainerController do
   @spec update_parent(map) :: map
   defp update_parent(conn) do
     if conn.halted do
-      Logger.debug("update_parent: request halted")
       conn
     else
       child = conn.assigns.newobject
