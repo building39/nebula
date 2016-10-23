@@ -26,10 +26,8 @@ defmodule Nebula.ControllerCommon do
 
       @spec handle_delete(map) :: atom
       defp handle_delete(obj) do
-        Logger.debug("working on #{inspect obj.objectName}")
         oid = obj.objectID
         if obj.objectType == dataobject_object() do
-          Logger.debug("deleting data_object #{inspect oid}")
           GenServer.call(Metadata, {:delete, oid})
         else
           children = Map.get(obj, :children, [])
@@ -39,7 +37,6 @@ defmodule Nebula.ControllerCommon do
             GenServer.call(Metadata, {:delete, oid})
           else
             for child <- children do
-              Logger.debug("working on child #{inspect child}")
               query = query <> child
               case GenServer.call(Metadata, {:search, query}) do
                 {:ok, data} ->
@@ -47,7 +44,6 @@ defmodule Nebula.ControllerCommon do
                 _ ->
                   :ok
               end
-              Logger.debug("deleting #{inspect obj.objectType} #{inspect oid}")
               GenServer.call(Metadata, {:delete, oid})
             end
           end
@@ -218,9 +214,7 @@ defmodule Nebula.ControllerCommon do
           child = conn.assigns.data
           parent = conn.assigns.parent
           index = Enum.find_index(Map.get(parent, :children), fn(x) -> x == child.objectName end)
-          Logger.debug("Child at index #{inspect index}")
           children = Enum.drop(Map.get(parent, :children), index + 1)
-          Logger.debug("New child list: #{inspect children}")
           parent = Map.put(parent, :children, children)
           children_range = Map.get(parent, :childrenrange)
           new_range = case children_range do
@@ -239,7 +233,6 @@ defmodule Nebula.ControllerCommon do
         if conn.halted do
           conn
         else
-          Logger.debug("In update_parent - PUT")
           child = conn.assigns.newobject
           parent = conn.assigns.parent
           children = Enum.concat([child.objectName], Map.get(parent, :children, []))
@@ -253,9 +246,7 @@ defmodule Nebula.ControllerCommon do
               "0-" <> Integer.to_string(String.to_integer(last) + 1)
           end
           parent = Map.put(parent, :childrenrange, new_range)
-          Logger.debug("About to update parent: #{inspect parent}")
           result = GenServer.call(Metadata, {:update, parent.objectID, parent})
-          Logger.debug("Parent update result: #{inspect result}")
           assign(conn, :parent, parent)
         end
       end
