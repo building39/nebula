@@ -19,7 +19,7 @@ defmodule Nebula.ControllerCommon do
           conn
         else
           oid = conn.assigns.data.objectID
-          handle_delete(conn.assigns.data)
+          Task.start(handle_delete(conn.assigns.data))
           conn
         end
       end
