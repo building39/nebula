@@ -98,7 +98,6 @@ defmodule Nebula.V1.ContainerController do
       end
       query = "sp:" <> domain_hash <> parent_uri <> object_name
       response = GenServer.call(Metadata, {:search, query})
-      Logger.debug("Search query: #{inspect query}")
       case tuple_size(response) do
         2 ->
           {status, _} = response
@@ -212,7 +211,6 @@ defmodule Nebula.V1.ContainerController do
       child = conn.assigns.newobject
       parent = conn.assigns.parent
       children = Enum.concat([child.objectName], Map.get(parent, :children, []))
-      Logger.debug("Children: #{inspect children}")
       parent = Map.put(parent, :children, children)
       children_range = Map.get(parent, :childrenrange, "")
       new_range = case children_range do
@@ -223,6 +221,7 @@ defmodule Nebula.V1.ContainerController do
           "0-" <> Integer.to_string(String.to_integer(last) + 1)
       end
       parent = Map.put(parent, :childrenrange, new_range)
+      result = GenServer.call(Metadata, {:update, parent.objectID, parent})
       assign(conn, :parent, parent)
     end
   end
