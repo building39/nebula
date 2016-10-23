@@ -18,7 +18,7 @@ defmodule Nebula.V1.ApplyACLs do
   Document the ACLs function
   """
   def call(conn, _opts) do
-    data = conn.assigns.data
+    #data = conn.assigns.data
     capabilities = conn.assigns.capabilities
     cdmi_security_access_control = Map.get(capabilities, :cdmi_security_access_control, false)
     cdmi_acl = Map.get(capabilities, :cdmi_acl, false)

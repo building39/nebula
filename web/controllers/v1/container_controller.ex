@@ -16,14 +16,31 @@ defmodule Nebula.V1.ContainerController do
     |> check_content_type_header("container")
     |> check_for_dup()
     |> get_parent()
-    |> check_capabilities()
-    |> check_acls()
+    |> check_capabilities(conn.method)
+    |> check_acls(conn.method)
     |> create_new_container()
     |> write_container()
+    |> update_parent(conn.method)
     if not c.halted do
       c
       |> put_status(:ok)
       |> render("container.json", container: c.assigns.newobject)
+    else
+      c
+    end
+  end
+
+  def delete(conn, _params) do
+    c = conn
+    |> get_parent()
+    |> check_capabilities(conn.method)
+    |> check_acls(conn.method)
+    |> delete_object()
+    |> update_parent(conn.method)
+    if not c.halted do
+      c
+      |> put_status(:no_content)
+      |> json(nil)
     else
       c
     end
@@ -46,44 +63,13 @@ defmodule Nebula.V1.ContainerController do
     data = conn.assigns.data
     data = process_query_string(conn, data)
     conn
-    |> check_acls()
+    |> check_acls(conn.method)
     |> put_status(:ok)
     |> render("container.json", container: data)
   end
 
   def update(conn, %{"id" => _id, "container" => _container_params}) do
     request_fail(conn, :not_implemented, "Update Not Implemented")
-  end
-
-  def delete(conn, %{"id" => _id}) do
-    request_fail(conn, :not_implemented, "Delete Not Implemented")
-  end
-
-  @spec check_acls(map) :: map
-  defp check_acls(conn) do
-    if conn.halted do
-      conn
-    else
-      conn
-    end
-  end
-
-  @spec check_capabilities(map) :: map
-  defp check_capabilities(conn) do
-    if conn.halted do
-      conn
-    else
-      parent = conn.assigns.parent
-      query = "sp:" <> get_domain_hash(parent.domainURI) <> parent.capabilitiesURI
-      {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
-      capabilities = Map.get(capabilities, :capabilities)
-      create_container = Map.get(capabilities, :cdmi_create_container, false)
-      if create_container == "true" do
-        conn
-      else
-        request_fail(conn, :forbidden, "Forbidden")
-      end
-    end
   end
 
   @spec check_for_dup(map) :: map
@@ -171,58 +157,10 @@ defmodule Nebula.V1.ContainerController do
       parent = conn.assigns.parent
       {rc, data} = GenServer.call(Metadata, {:put, key, new_container})
       if rc == :ok do
-        update_parent(conn)
+        conn
       else
         request_fail(conn, :service_unavailable, "Service Unavailable")
       end
-    end
-  end
-
-  @spec get_parent(map) :: map
-  defp get_parent(conn) do
-    if conn.halted do
-      conn
-    else
-      container_path = Enum.drop(conn.path_info, 3)
-      parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
-      parent_uri = if String.ends_with?(parent_path, "/") do
-        parent_path
-      else
-        parent_path <> "/"
-      end
-      conn = assign(conn, :parentURI, parent_uri)
-      domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
-      query = "sp:" <> domain_hash <> parent_uri
-      parent_obj = GenServer.call(Metadata, {:search, query})
-      case parent_obj do
-        {:ok, data} ->
-          assign(conn, :parent, data)
-        {_, _} ->
-          request_fail(conn, :not_found, "Parent container does not exist")
-      end
-    end
-  end
-
-  @spec update_parent(map) :: map
-  defp update_parent(conn) do
-    if conn.halted do
-      conn
-    else
-      child = conn.assigns.newobject
-      parent = conn.assigns.parent
-      children = Enum.concat([child.objectName], Map.get(parent, :children, []))
-      parent = Map.put(parent, :children, children)
-      children_range = Map.get(parent, :childrenrange, "")
-      new_range = case children_range do
-        "" ->
-          "0-0"
-        _ ->
-          [first, last] = String.split(children_range, "-")
-          "0-" <> Integer.to_string(String.to_integer(last) + 1)
-      end
-      parent = Map.put(parent, :childrenrange, new_range)
-      result = GenServer.call(Metadata, {:update, parent.objectID, parent})
-      assign(conn, :parent, parent)
     end
   end
 

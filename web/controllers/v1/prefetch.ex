@@ -19,23 +19,13 @@ defmodule Nebula.V1.Prefetch do
   Document the prefetch function
   """
   def call(conn, _opts) do
-    domain_hash = get_domain_hash(system_domain_uri())
-    query = "sp:" <> domain_hash
-                  <> system_capabilities_uri()
-    {rc, data} = GenServer.call(Metadata, {:search, query})
-    if rc == :ok do
-      Logger.debug("Prefetch sys cap: #{inspect data}")
-      fetch_for_method(conn, conn.method)
-    else
-      request_fail(conn, :not_found, "Not found")
-    end
+    fetch_for_method(conn, conn.method)
   end
 
   defp fetch_for_method(conn, method) when method == "DELETE" do
-    conn
+    handle_object_get(conn, Enum.at(conn.path_info, 2))
   end
   defp fetch_for_method(conn, method) when method == "GET" do
-    Logger.debug("Fetching: #{inspect Enum.at(conn.path_info, 2)}")
     handle_object_get(conn, Enum.at(conn.path_info, 2))
   end
   defp fetch_for_method(conn, method) when method == "OPTIONS" do
@@ -52,7 +42,6 @@ defmodule Nebula.V1.Prefetch do
   end
 
   defp handle_object_get(conn, object_type) when object_type == "cdmi_objectid" do
-    Logger.debug("in get")
     conn
   end
 
@@ -62,7 +51,6 @@ defmodule Nebula.V1.Prefetch do
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash
                   <> String.replace_prefix(req_path, "/api/v1/container", "")
-    Logger.debug("query: #{inspect query}")
     {rc, data} = GenServer.call(Metadata, {:search, query})
     if rc == :ok and data.objectType == container_object() do
       if not String.ends_with?(conn.request_path, "/") do

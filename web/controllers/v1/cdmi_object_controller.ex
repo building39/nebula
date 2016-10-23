@@ -75,8 +75,27 @@ defmodule Nebula.V1.CdmiObjectController do
   end
 
   @spec delete(map, map) :: map
-  def delete(conn, %{"id" => _id}) do
-    request_fail(conn, :not_implemented, "Not Implemented")
+  def delete(conn, %{"id" => id}) do
+    response = GenServer.call(Metadata, {:get, id})
+    conn = case response do
+      {:ok, data} ->
+        assign(conn, :data, data)
+      _ ->
+        request_fail(conn, :not_found, "Not Found")
+    end
+    c = conn
+    |> get_parent()
+    |> check_capabilities(conn.method)
+    |> check_acls(conn.method)
+    |> delete_object()
+    |> update_parent(conn.method)
+    if not c.halted do
+      c
+      |> put_status(:no_content)
+      |> json(nil)
+    else
+      c
+    end
   end
 
 end

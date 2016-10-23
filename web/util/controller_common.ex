@@ -11,17 +11,98 @@ defmodule Nebula.ControllerCommon do
       require Logger
 
       @doc """
-      Check ACLs for this object
+      Delete an object and all of its children
       """
-      @spec check_acls(map, map) :: map
-      def check_acls(conn, data) do
-        acls = data.metadata.cdmi_acl
-        owner = data.metadata.cdmi_owner
-        user = conn.assigns.authenticated_as
-        #Logger.debug("ACLs: #{inspect acls}")
-        #Logger.debug("Owner: #{inspect owner}")
-        #Logger.debug("User: #{inspect user}")
-        conn
+      @spec delete_object(map) :: map
+      def delete_object(conn) do
+        if conn.halted do
+          conn
+        else
+          oid = conn.assigns.data.objectID
+          handle_delete(conn.assigns.data)
+          conn
+        end
+      end
+
+      @spec handle_delete(map) :: atom
+      defp handle_delete(obj) do
+        Logger.debug("working on #{inspect obj.objectName}")
+        oid = obj.objectID
+        if obj.objectType == dataobject_object() do
+          Logger.debug("deleting data_object #{inspect oid}")
+          GenServer.call(Metadata, {:delete, oid})
+        else
+          children = Map.get(obj, :children, [])
+          hash = get_domain_hash(obj.domainURI)
+          query = "sp:" <> hash <> obj.parentURI <> obj.objectName
+          if length(children) == 0 do
+            GenServer.call(Metadata, {:delete, oid})
+          else
+            for child <- children do
+              Logger.debug("working on child #{inspect child}")
+              query = query <> child
+              case GenServer.call(Metadata, {:search, query}) do
+                {:ok, data} ->
+                  handle_delete(data)
+                _ ->
+                  :ok
+              end
+              Logger.debug("deleting #{inspect obj.objectType} #{inspect oid}")
+              GenServer.call(Metadata, {:delete, oid})
+            end
+          end
+        end
+        :ok
+      end
+
+      @doc """
+      Check ACLs.
+      This is a TODO.
+      """
+      @spec check_acls(map, charlist) :: map
+      def check_acls(conn, _method) do
+        if conn.halted do
+          conn
+        else
+          conn
+        end
+      end
+
+      @doc """
+      Check object capabilities.
+      """
+      @spec check_capabilities(map, charlist) :: map
+      def check_capabilities(conn, "DELETE") do
+        if conn.halted do
+          conn
+        else
+          container = conn.assigns.data
+          query = "sp:" <> get_domain_hash(container.domainURI) <> container.capabilitiesURI
+          {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
+          capabilities = Map.get(capabilities, :capabilities)
+          delete_container = Map.get(capabilities, :cdmi_delete_container, false)
+          if delete_container == "true" do
+            conn
+          else
+            request_fail(conn, :bad_request, "Bad Request")
+          end
+        end
+      end
+      def check_capabilities(conn, "PUT") do
+        if conn.halted do
+          conn
+        else
+          parent = conn.assigns.parent
+          query = "sp:" <> get_domain_hash(parent.domainURI) <> parent.capabilitiesURI
+          {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
+          capabilities = Map.get(capabilities, :capabilities)
+          create_container = Map.get(capabilities, :cdmi_create_container, false)
+          if create_container == "true" do
+            conn
+          else
+            request_fail(conn, :bad_request, "Bad Request")
+          end
+        end
       end
 
       @doc """
@@ -66,6 +147,34 @@ defmodule Nebula.ControllerCommon do
       end
 
       @doc """
+      Get the parent of an object.
+      """
+      @spec get_parent(map) :: map
+      def get_parent(conn) do
+        if conn.halted do
+          conn
+        else
+          container_path = Enum.drop(conn.path_info, 3)
+          parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
+          parent_uri = if String.ends_with?(parent_path, "/") do
+            parent_path
+          else
+            parent_path <> "/"
+          end
+          conn = assign(conn, :parentURI, parent_uri)
+          domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
+          query = "sp:" <> domain_hash <> parent_uri
+          parent_obj = GenServer.call(Metadata, {:search, query})
+          case parent_obj do
+            {:ok, data} ->
+              assign(conn, :parent, data)
+            {_, _} ->
+              request_fail(conn, :not_found, "Parent container does not exist")
+          end
+        end
+      end
+
+      @doc """
       Process the query string.
       """
       @spec process_query_string(map, map) :: {atom, map}
@@ -96,6 +205,59 @@ defmodule Nebula.ControllerCommon do
       @spec query_parm_exists?(map, atom) :: boolean
       def query_parm_exists?(data, parm) do
         Map.has_key?(data, parm)
+      end
+
+      @doc """
+      Update an object's parent.
+      """
+      @spec update_parent(map, charlist) :: map
+      def update_parent(conn, "DELETE") do
+        if conn.halted do
+          conn
+        else
+          child = conn.assigns.data
+          parent = conn.assigns.parent
+          index = Enum.find_index(Map.get(parent, :children), fn(x) -> x == child.objectName end)
+          Logger.debug("Child at index #{inspect index}")
+          children = Enum.drop(Map.get(parent, :children), index + 1)
+          Logger.debug("New child list: #{inspect children}")
+          parent = Map.put(parent, :children, children)
+          children_range = Map.get(parent, :childrenrange)
+          new_range = case children_range do
+            "0-0" ->
+              ""
+            _ ->
+              [first, last] = String.split(children_range, "-")
+              "0-" <> Integer.to_string(String.to_integer(last) - 1)
+          end
+          parent = Map.put(parent, :childrenrange, new_range)
+          result = GenServer.call(Metadata, {:update, parent.objectID, parent})
+          assign(conn, :parent, parent)
+        end
+      end
+      def update_parent(conn, "PUT") do
+        if conn.halted do
+          conn
+        else
+          Logger.debug("In update_parent - PUT")
+          child = conn.assigns.newobject
+          parent = conn.assigns.parent
+          children = Enum.concat([child.objectName], Map.get(parent, :children, []))
+          parent = Map.put(parent, :children, children)
+          children_range = Map.get(parent, :childrenrange, "")
+          new_range = case children_range do
+            "" ->
+              "0-0"
+            _ ->
+              [first, last] = String.split(children_range, "-")
+              "0-" <> Integer.to_string(String.to_integer(last) + 1)
+          end
+          parent = Map.put(parent, :childrenrange, new_range)
+          Logger.debug("About to update parent: #{inspect parent}")
+          result = GenServer.call(Metadata, {:update, parent.objectID, parent})
+          Logger.debug("Parent update result: #{inspect result}")
+          assign(conn, :parent, parent)
+        end
       end
 
       @spec handle_qs(map, map, list) :: list
