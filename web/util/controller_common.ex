@@ -19,13 +19,14 @@ defmodule Nebula.ControllerCommon do
           conn
         else
           oid = conn.assigns.data.objectID
-          Task.start(handle_delete(conn.assigns.data))
+          Task.start(__MODULE__, :handle_delete, [conn.assigns.data])
+#          handle_delete(conn.assigns.data)
           conn
         end
       end
 
       @spec handle_delete(map) :: atom
-      defp handle_delete(obj) do
+      def handle_delete(obj) do
         oid = obj.objectID
         if obj.objectType == dataobject_object() do
           GenServer.call(Metadata, {:delete, oid})
@@ -42,13 +43,13 @@ defmodule Nebula.ControllerCommon do
                 {:ok, data} ->
                   handle_delete(data)
                 _ ->
-                  :ok
+                  nil
               end
               GenServer.call(Metadata, {:delete, oid})
             end
           end
         end
-        :ok
+#        :ok
       end
 
       @doc """
@@ -80,7 +81,7 @@ defmodule Nebula.ControllerCommon do
           if delete_container == "true" do
             conn
           else
-            request_fail(conn, :bad_request, "Bad Request")
+            request_fail(conn, :bad_request, "Bad Request 1")
           end
         end
       end
@@ -96,7 +97,7 @@ defmodule Nebula.ControllerCommon do
           if create_container == "true" do
             conn
           else
-            request_fail(conn, :bad_request, "Bad Request")
+            request_fail(conn, :bad_request, "Bad Request 2")
           end
         end
       end
