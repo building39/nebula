@@ -15,9 +15,10 @@ defmodule Nebula.Router do
   scope "/api", Nebula do
     pipe_through :api
     scope "/v1", V1, as: :v1 do
+      get "/cdmi_objectid/:id", CdmiObjectController, :show
+      get "/cdmi_capabilities/*path", CapabilitiesController, :show
       delete "/container/*path", ContainerController, :delete
       delete "/cdmi_objectid/:id", CdmiObjectController, :delete
-      get "/cdmi_objectid/:id", CdmiObjectController, :show
       get "/container", ContainerController, :show
       get "/container/*path", ContainerController, :show
       put "/container/*path", ContainerController, :create

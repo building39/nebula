@@ -17,6 +17,7 @@ defmodule Nebula.V1.ResolveDomain do
   User domains will be implemented later.
   """
   def call(conn, _opts) do
+    Logger.debug("ResolveDomain plug")
     conn
     |> assign(:cdmi_domain, "system_domain/")
   end

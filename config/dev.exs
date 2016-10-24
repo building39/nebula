@@ -33,6 +33,6 @@ config :pooler, pools:
       group: :riak,
       max_count: 10,
       init_count: 5,
-      start_mfa: { Riak.Connection, :start_link, ['192.168.69.64', 8087] }
+      start_mfa: { Riak.Connection, :start_link, ['riak1.fuzzcat.net', 8087] }
     ]
   ]

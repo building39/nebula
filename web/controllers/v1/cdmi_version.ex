@@ -18,6 +18,7 @@ defmodule Nebula.V1.CDMIVersion do
   Check the X-CDMI-Specification-Version header against the versions in config.
   """
   def call(conn, _opts) do
+    Logger.debug("CDMIVersion plug")
     x_cdmi_header = get_req_header(conn, "x-cdmi-specification-version")
     server_versions = Enum.join(Application.get_env(:nebula, :cdmi_version), ",")
     conn = put_resp_header(conn, "X-CDMI-Specification-Version", server_versions)

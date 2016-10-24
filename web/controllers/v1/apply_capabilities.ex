@@ -18,6 +18,7 @@ defmodule Nebula.V1.ApplyCapabilities do
   Document this function
   """
   def call(conn, _opts) do
+    Logger.debug("ApplyCapabilities plug")
     domain_hash = get_domain_hash(system_domain_uri())
     query = "sp:" <> domain_hash
                   <> system_capabilities_uri()

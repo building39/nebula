@@ -16,6 +16,7 @@ defmodule Nebula.V1.Authentication do
   Document the authenticate function
   """
   def call(conn, _opts) do
+    Logger.debug("Authentication plug")
     auth = get_req_header(conn, "authorization")
     case auth do
       [] ->

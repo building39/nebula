@@ -19,6 +19,7 @@ defmodule Nebula.V1.Prefetch do
   Document the prefetch function
   """
   def call(conn, _opts) do
+    Logger.debug("Prefetch plug")
     fetch_for_method(conn, conn.method)
   end
 
@@ -38,6 +39,10 @@ defmodule Nebula.V1.Prefetch do
     conn
   end
   defp fetch_for_method(conn, method) when method == "PUT" do
+    conn
+  end
+
+  defp handle_object_get(conn, object_type) when object_type == "cdmi_capabilities" do
     conn
   end
 
