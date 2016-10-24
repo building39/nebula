@@ -22,6 +22,7 @@ defmodule Nebula.Router do
       get "/container", ContainerController, :show
       get "/container/*path", ContainerController, :show
       put "/container/*path", ContainerController, :create
+      get "/cdmi_domains/*path", DomainController, :show
     end
   end
 end

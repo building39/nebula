@@ -46,6 +46,10 @@ defmodule Nebula.V1.Prefetch do
     conn
   end
 
+  defp handle_object_get(conn, object_type) when object_type == "cdmi_domains" do
+    conn
+  end
+
   defp handle_object_get(conn, object_type) when object_type == "cdmi_objectid" do
     conn
   end
