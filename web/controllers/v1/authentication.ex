@@ -24,7 +24,7 @@ defmodule Nebula.V1.Authentication do
       _ ->
         [method, authstring] = String.split(List.to_string(auth))
         authstring = Base.decode64!(authstring)
-        user = case method do
+        {user, privileges} = case method do
           "Basic" ->
             basic_authentication(conn.assigns.cdmi_domain, authstring)
           _ -> {"", nil}
@@ -32,6 +32,7 @@ defmodule Nebula.V1.Authentication do
         if user do
           conn
           |> assign(:authenticated_as, user)
+          |> assign(:cdmi_privileges, privileges)
         else
           authentication_failed(conn, method)
         end
@@ -58,7 +59,7 @@ defmodule Nebula.V1.Authentication do
       {:ok, data} ->
         creds = data.metadata.cdmi_member_credentials
         if creds == encrypt(user, password) do
-          user
+          {user, data.metadata.cdmi_member_privileges}
         else
           nil
         end

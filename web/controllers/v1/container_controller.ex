@@ -103,6 +103,81 @@ defmodule Nebula.V1.ContainerController do
     end
   end
 
+  @spec create_new_container(map) :: map
+  defp create_new_container(conn) do
+    if conn.halted do
+      conn
+    else
+      {object_oid, object_key} = Cdmioid.generate(45241)
+      object_name = List.last(conn.path_info) <> "/"
+      parent = conn.assigns.parent
+      metadata = if Map.has_key?(conn.body_params, "metadata") do
+        Map.merge(construct_metadata(conn), conn.body_params["metadata"])
+      else
+        construct_metadata(conn)
+      end
+      Logger.debug("About to construct a new domainURI")
+      domain_uri = if Map.has_key?(conn.body_params, "domainURI") do
+        construct_domain(conn, conn.body_params["domainURI"])
+      else
+        {:ok, conn.assigns.cdmi_domain}
+      end
+      case domain_uri do
+          {:ok, domain} ->
+            new_container =
+              %{
+                objectType: container_object(),
+                objectID: object_oid,
+                objectName: object_name,
+                parentURI: conn.assigns.parentURI,
+                parentID: conn.assigns.parent.objectID,
+                domainURI: "/cdmi_domains/" <> domain,
+                capabilitiesURI: container_capabilities_uri(),
+                completionStatus: "Complete",
+                children: [],
+                metadata: metadata
+              }
+            assign(conn, :newobject, new_container)
+          {:not_found, _} ->
+            request_fail(conn, :bad_request, "Specified domain not found")
+          {_, _} ->
+            request_fail(conn, :bad_request, "Bad request")
+      end
+    end
+  end
+
+  @spec construct_domain(map, charlist) :: {:ok, charlist} | {:not_found, charlist} | {:error, charlist}
+  defp construct_domain(conn, domain) do
+    Logger.debug("constructing a new domain URI")
+    if conn.halted do
+      conn
+    else
+      hash = get_domain_hash("/cdmi_domains/" <> domain)
+      query = "sp:" <> hash <> "/" <> domain
+      response = GenServer.call(Metadata, {:search, query})
+      case tuple_size(response) do
+        2 ->
+          {status, _} = response
+          case status do
+            :not_found ->
+              {:not_found, domain}
+            :ok ->
+              if conn.assigns.cdmi_domain == domain do
+                {:ok, domain}
+              else
+                if "cross_domain" in conn.assigns.privileges do
+                  {:ok, domain}
+                else
+                  {:error, domain}
+                end
+              end
+          end
+        _ ->
+          {:error, domain}
+      end
+    end
+  end
+
   @spec construct_metadata(map) :: map
   defp construct_metadata(conn) do
     timestamp = List.to_string(Nebula.Util.Utils.make_timestamp())
@@ -120,31 +195,6 @@ defmodule Nebula.V1.ContainerController do
         }
       ]
     }
-  end
-
-  @spec create_new_container(map) :: map
-  defp create_new_container(conn) do
-    if conn.halted do
-      conn
-    else
-      {object_oid, object_key} = Cdmioid.generate(45241)
-      object_name = List.last(conn.path_info) <> "/"
-      parent = conn.assigns.parent
-      new_container =
-        %{
-          objectType: container_object(),
-          objectID: object_oid,
-          objectName: object_name,
-          parentURI: conn.assigns.parentURI,
-          parentID: conn.assigns.parent.objectID,
-          domainURI: "/cdmi_domains/" <> conn.assigns.cdmi_domain,
-          capabilitiesURI: container_capabilities_uri(),
-          completionStatus: "Complete",
-          children: [],
-          metadata: construct_metadata(conn)
-        }
-      assign(conn, :newobject, new_container)
-    end
   end
 
   @spec write_container(map) :: map
