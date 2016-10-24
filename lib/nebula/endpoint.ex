@@ -21,7 +21,7 @@ defmodule Nebula.Endpoint do
   plug Plug.Logger
 
   plug Plug.Parsers,
-    parsers: [:urlencoded, :multipart, :json, :cdmic],
+    parsers: [:urlencoded, :multipart, :json, :cdmic, :cdmid],
     pass: ["*/*"],
     json_decoder: Poison
 
