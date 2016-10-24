@@ -2,7 +2,7 @@ defmodule Nebula.Router do
   use Nebula.Web, :router
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug :accepts, ["json", "cdmia", "cdmic", "cdmid", "cdmio", "cdmiq"]
     plug Nebula.V1.CDMIVersion
     plug Nebula.V1.ResolveDomain
     plug Nebula.V1.ApplyCapabilities

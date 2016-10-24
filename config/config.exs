@@ -19,8 +19,12 @@ config :logger, :console,
   metadata: [:request_id]
 
 # Configure mime types
-config :plug, :mimes, %{
-  "application/cdmi-capability" => ["json"]
+config :mime, :types, %{
+  "application/cdmi-capability" => ["cdmia"],
+  "application/cdmi-container" => ["cdmic"],
+  "application/cdmi-domain" => ["cdmid"],
+  "application/cdmi-object" => ["cdmio"],
+  "application/cdmi-queue" => ["cdmiq"]
 }
 
 # Import environment specific config. This must remain at the bottom
