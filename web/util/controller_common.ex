@@ -143,6 +143,28 @@ defmodule Nebula.ControllerCommon do
       end
 
       @doc """
+      Construct the basic object metadata
+      """
+      @spec construct_metadata(map) :: map
+      defp construct_metadata(conn) do
+        timestamp = List.to_string(Nebula.Util.Utils.make_timestamp())
+        %{
+          cdmi_owner: conn.assigns.authenticated_as,
+          cdmi_atime: timestamp,
+          cdmi_ctime: timestamp,
+          cdmi_mtime: timestamp,
+          cdmi_acl: [
+            %{
+              aceflags: "0x03",
+              acemask: "0x1f07ff",
+              acetype: "0x00",
+              identifier: "OWNER\@"
+            }
+          ]
+        }
+      end
+
+      @doc """
       Get the parent of an object.
       """
       @spec get_parent(map) :: map
@@ -251,6 +273,23 @@ defmodule Nebula.ControllerCommon do
         end
       end
 
+      @spec write_new_object(map) :: map
+      def write_new_object(conn) do
+        if conn.halted do
+          conn
+        else
+          new_domain = conn.assigns.newobject
+          key = new_domain.objectID
+          parent = conn.assigns.parent
+          {rc, data} = GenServer.call(Metadata, {:put, key, new_domain})
+          if rc == :ok do
+            conn
+          else
+            request_fail(conn, :service_unavailable, "Service Unavailable")
+          end
+        end
+      end
+
       @spec handle_qs(map, map, list) :: list
       defp handle_qs(conn, data, qs) when qs == [""] do
         data
@@ -299,7 +338,6 @@ defmodule Nebula.ControllerCommon do
       defp handle_subparm(acc, _data, qp, _val) do
         acc
       end
-
     end
   end
 end

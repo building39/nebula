@@ -11,7 +11,7 @@ defmodule Plug.Parsers.CDMID do
   require Logger
 
   def parse(conn, "application", subtype, _headers, opts) do
-    Logger.debug("In the CDMIC parser")
+    Logger.debug("In the CDMID parser")
     if subtype == "cdmi-domain" do
       Logger.debug("opts: #{inspect opts}")
       decoder = Keyword.get(opts, :json_decoder) ||

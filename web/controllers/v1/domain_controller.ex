@@ -12,6 +12,28 @@ defmodule Nebula.V1.DomainController do
   require Logger
 
   @doc """
+  Create a new domain
+  """
+  def create(conn, _params) do
+    Logger.debug("creating a new domain")
+    c = conn
+    |> check_content_type_header("domain")
+    |> get_parent()
+    |> check_for_dup()
+    |> check_capabilities(conn.method)
+    |> check_acls(conn.method)
+    |> create_new_domain()
+    |> write_new_object()
+    |> update_parent(conn.method)
+    if not c.halted do
+      c
+      |> put_status(:ok)
+      |> render("container.json", container: c.assigns.newobject)
+    else
+      c
+    end
+  end
+  @doc """
   Return a Domain object.
 
   First, check to be sure that the path ends with a "/" character. If not,
@@ -41,6 +63,108 @@ defmodule Nebula.V1.DomainController do
         request_fail(conn, :not_found, "Not Found #{inspect query}")
     end
 
+  end
+
+  @spec check_for_dup(map) :: map
+  defp check_for_dup(conn) do
+    Logger.debug("Check for dup")
+    if conn.halted do
+      Logger.debug("Halted")
+      conn
+    else
+      object_name = List.last(conn.path_info) <> "/"
+      Logger.debug("Object name: #{inspect object_name}")
+      parent_uri = if Map.has_key?(conn.assigns.parent, :parentURI) do
+        parent_uri = conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
+      else
+        "/" # It's the root
+      end
+      Logger.debug("parent uri: #{inspect parent_uri}")
+      domain_hash = get_domain_hash(parent_uri <> "cdmi_domains/" <> object_name)
+
+      path = parent_uri <> "cdmi_domains/" <> object_name
+      query = "sp:" <> domain_hash <> path
+      Logger.debug("Searching for #{inspect query}")
+      response = GenServer.call(Metadata, {:search, query})
+      Logger.debug("Response from search: #{inspect response}")
+      case tuple_size(response) do
+        2 ->
+          {status, _} = response
+          case status do
+            :not_found ->
+              conn
+            :ok ->
+              request_fail(conn, :conflict, "Domain already exists")
+          end
+        3 ->
+          request_fail(conn, :conflict, "Domain already exists")
+      end
+    end
+  end
+
+  @spec create_new_domain(map) :: map
+  defp create_new_domain(conn) do
+    Logger.debug("Create New Domain")
+    if conn.halted do
+      conn
+    else
+      {object_oid, object_key} = Cdmioid.generate(45241)
+      object_name = List.last(conn.path_info) <> "/"
+      parent = conn.assigns.parent
+      parent_uri = if Map.has_key?(conn.assigns.parent, :parentURI) do
+        parent_uri = conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
+      else
+        "/cdmi_domains/" # It's the top level domain
+      end
+      metadata = if Map.has_key?(conn.body_params, "metadata") do
+        Map.merge(construct_metadata(conn), conn.body_params["metadata"])
+      else
+        construct_metadata(conn)
+      end
+      Logger.debug("allocating new domain object #{inspect parent}")
+      new_domain =
+        %{
+          objectType: domain_object(),
+          objectID: object_oid,
+          objectName: object_name,
+          parentURI: conn.assigns.parentURI,
+          parentID: conn.assigns.parent.objectID,
+          domainURI: "/cdmi_domains/" <> parent <> object_name,
+          capabilitiesURI: domain_capabilities_uri(),
+          completionStatus: "Complete",
+          children: [],
+          metadata: metadata
+        }
+      assign(conn, :newobject, new_domain)
+    end
+  end
+
+  @doc """
+  Get the parent of an object.
+  """
+  @spec get_parent(map) :: map
+  def get_parent(conn) do
+    if conn.halted do
+      conn
+    else
+      container_path = Enum.drop(conn.path_info, 3)
+      parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
+      parent_uri = if String.ends_with?(parent_path, "/") do
+        parent_path
+      else
+        parent_path <> "/cdmi_domains/"
+      end
+      conn = assign(conn, :parentURI, parent_uri)
+      domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
+      query = "sp:" <> domain_hash <> parent_uri
+      parent_obj = GenServer.call(Metadata, {:search, query})
+      case parent_obj do
+        {:ok, data} ->
+          assign(conn, :parent, data)
+        {_, _} ->
+          request_fail(conn, :not_found, "Parent container does not exist")
+      end
+    end
   end
 
 end

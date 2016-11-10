@@ -19,7 +19,7 @@ defmodule Nebula.V1.ContainerController do
     |> check_capabilities(conn.method)
     |> check_acls(conn.method)
     |> create_new_container()
-    |> write_container()
+    |> write_new_object()
     |> update_parent(conn.method)
     if not c.halted do
       c
@@ -105,7 +105,7 @@ defmodule Nebula.V1.ContainerController do
 
   @spec create_new_container(map) :: map
   defp create_new_container(conn) do
-    if conn.halted do
+    if conn.halted == true do
       conn
     else
       {object_oid, object_key} = Cdmioid.generate(45241)
@@ -123,25 +123,25 @@ defmodule Nebula.V1.ContainerController do
         {:ok, conn.assigns.cdmi_domain}
       end
       case domain_uri do
-          {:ok, domain} ->
-            new_container =
-              %{
-                objectType: container_object(),
-                objectID: object_oid,
-                objectName: object_name,
-                parentURI: conn.assigns.parentURI,
-                parentID: conn.assigns.parent.objectID,
-                domainURI: "/cdmi_domains/" <> domain,
-                capabilitiesURI: container_capabilities_uri(),
-                completionStatus: "Complete",
-                children: [],
-                metadata: metadata
-              }
-            assign(conn, :newobject, new_container)
-          {:not_found, _} ->
-            request_fail(conn, :bad_request, "Specified domain not found")
-          {_, _} ->
-            request_fail(conn, :bad_request, "Bad request")
+        {:ok, domain} ->
+          new_container =
+            %{
+              objectType: container_object(),
+              objectID: object_oid,
+              objectName: object_name,
+              parentURI: conn.assigns.parentURI,
+              parentID: conn.assigns.parent.objectID,
+              domainURI: "/cdmi_domains/" <> domain,
+              capabilitiesURI: container_capabilities_uri(),
+              completionStatus: "Complete",
+              children: [],
+              metadata: metadata
+            }
+          assign(conn, :newobject, new_container)
+        {:not_found, _} ->
+          request_fail(conn, :bad_request, "Specified domain not found")
+        {_, _} ->
+          request_fail(conn, :bad_request, "Bad request")
       end
     end
   end
@@ -174,42 +174,6 @@ defmodule Nebula.V1.ContainerController do
           end
         _ ->
           {:error, domain}
-      end
-    end
-  end
-
-  @spec construct_metadata(map) :: map
-  defp construct_metadata(conn) do
-    timestamp = List.to_string(Nebula.Util.Utils.make_timestamp())
-    %{
-      cdmi_owner: conn.assigns.authenticated_as,
-      cdmi_atime: timestamp,
-      cdmi_ctime: timestamp,
-      cdmi_mtime: timestamp,
-      cdmi_acl: [
-        %{
-          aceflags: "0x03",
-          acemask: "0x1f07ff",
-          acetype: "0x00",
-          identifier: "OWNER\@"
-        }
-      ]
-    }
-  end
-
-  @spec write_container(map) :: map
-  defp write_container(conn) do
-    if conn.halted do
-      conn
-    else
-      new_container = conn.assigns.newobject
-      key = new_container.objectID
-      parent = conn.assigns.parent
-      {rc, data} = GenServer.call(Metadata, {:put, key, new_container})
-      if rc == :ok do
-        conn
-      else
-        request_fail(conn, :service_unavailable, "Service Unavailable")
       end
     end
   end
