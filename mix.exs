@@ -36,17 +36,17 @@ defmodule Nebula.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.2.1"},
+    [{:phoenix, "~> 1.3"},
      {:phoenix_pubsub, "~> 1.0"},
      {:gettext, "~> 0.11"},
-     {:cowboy, "~> 1.0"},
+     {:cowboy, "~> 1.1"},
      {:logger_file_backend, "~> 0.0"},
      {:comeonin, "~> 2.0"},
      {:uuid, "~> 1.1" },
      {:hexate,  ">= 0.6.0"},
-     {:memcache_client, "~> 1.1.0"},
+     {:memcache_client, git: "https://github.com/tsharju/memcache_client.git", tag: "master"},
      {:cdmioid, git: "https://github.com/building39/cdmioid.git", tag: "0.1.1"},
-     {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "0.2.0"}
+     {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "v0.2.5"}
    ]
   end
 end
