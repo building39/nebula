@@ -18,7 +18,7 @@ defmodule Nebula.V1.DomainController do
     Logger.debug("creating a new domain")
     c = conn
     |> check_content_type_header("domain")
-    |> get_parent()
+    |> get_domain_parent()
     |> check_for_dup()
     |> check_capabilities(conn.method)
     |> check_acls(conn.method)
@@ -75,7 +75,7 @@ defmodule Nebula.V1.DomainController do
       object_name = List.last(conn.path_info) <> "/"
       Logger.debug("Object name: #{inspect object_name}")
       parent_uri = if Map.has_key?(conn.assigns.parent, :parentURI) do
-        parent_uri = conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
+        conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
       else
         "/" # It's the root
       end
@@ -108,11 +108,11 @@ defmodule Nebula.V1.DomainController do
     if conn.halted do
       conn
     else
-      {object_oid, object_key} = Cdmioid.generate(45241)
+      {object_oid, _object_key} = Cdmioid.generate(45241)
       object_name = List.last(conn.path_info) <> "/"
       parent = conn.assigns.parent
       parent_uri = if Map.has_key?(conn.assigns.parent, :parentURI) do
-        parent_uri = conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
+        conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
       else
         "/cdmi_domains/" # It's the top level domain
       end
@@ -127,7 +127,7 @@ defmodule Nebula.V1.DomainController do
           objectType: domain_object(),
           objectID: object_oid,
           objectName: object_name,
-          parentURI: conn.assigns.parentURI,
+          parentURI: parent_uri,
           parentID: conn.assigns.parent.objectID,
           domainURI: "/cdmi_domains/" <> parent <> object_name,
           capabilitiesURI: domain_capabilities_uri(),
@@ -142,8 +142,8 @@ defmodule Nebula.V1.DomainController do
   @doc """
   Get the parent of an object.
   """
-  @spec get_parent(map) :: map
-  def get_parent(conn) do
+  @spec get_domain_parent(map) :: map
+  def get_domain_parent(conn) do
     if conn.halted do
       conn
     else

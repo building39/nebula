@@ -142,9 +142,9 @@ defmodule Nebula.ControllerCommon do
         end
       end
 
-      @doc """
-      Construct the basic object metadata
-      """
+      #
+      # Construct the basic object metadata
+      #
       @spec construct_metadata(map) :: map
       defp construct_metadata(conn) do
         timestamp = List.to_string(Nebula.Util.Utils.make_timestamp())

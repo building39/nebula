@@ -108,9 +108,9 @@ defmodule Nebula.V1.ContainerController do
     if conn.halted == true do
       conn
     else
-      {object_oid, object_key} = Cdmioid.generate(45241)
+      {object_oid, _object_key} = Cdmioid.generate(45241)
       object_name = List.last(conn.path_info) <> "/"
-      parent = conn.assigns.parent
+      # parent = conn.assigns.parent
       metadata = if Map.has_key?(conn.body_params, "metadata") do
         Map.merge(construct_metadata(conn), conn.body_params["metadata"])
       else

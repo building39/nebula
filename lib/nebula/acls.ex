@@ -363,7 +363,7 @@ defmodule ACLs do
   @doc """
   Allow basic read/write permissions.
   """
-  defmacro cdmi_read_write_all_perms do
+  defmacro cdmi_read_write do
     0x0000001F
   end
 
