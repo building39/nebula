@@ -19,8 +19,33 @@ config :nebula,
 config :memcache_client,
   transcoder: Memcache.Client.Transcoder.Erlang
 
-# Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n"
+  config :logger,
+    format: "[$level] $message\n",
+    metadata: [:file, :line],
+    backends: [{LoggerFileBackend, :info},
+               {LoggerFileBackend, :debug},
+               {LoggerFileBackend, :error}]
+
+  config :logger, :debug,
+    colors: [enabled: :true],
+    metadata: [:pid, :file, :line],
+    path: "/var/log/nebula/debug.log",
+    format: "$time $date [$level] $levelpad $metadata $message\n",
+    level: :debug
+
+  config :logger, :error,
+    colors: [enabled: :true],
+    metadata: [:pid],
+    path: "/var/log/nebula/error.log",
+    format: "$time $date [$level] $levelpad $metadata $message\n",
+    level: :error
+
+  config :logger, :info,
+    colors: [enabled: :true],
+    metadata: [:pid],
+    path: "/var/log/nebula/info.log",
+    format: "$time $date [$level] $levelpad $metadata $message\n",
+    level: :info
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
@@ -33,6 +58,6 @@ config :pooler, pools:
       group: :riak,
       max_count: 10,
       init_count: 5,
-      start_mfa: { Riak.Connection, :start_link, ['riak1.fuzzcat.net', 8087] }
+      start_mfa: { Riak.Connection, :start_link, ['nebriak1.fuzzcat.loc', 8087] }
     ]
   ]
