@@ -4,7 +4,7 @@ defmodule Nebula.V1.ContainerController do
   """
 
   use Nebula.Web, :controller
-  use Nebula.ControllerCommon
+  use Nebula.Util.ControllerCommon
 
   import Nebula.Macros, only: [set_mandatory_response_headers: 2]
   import Nebula.Util.Utils, only: [get_domain_hash: 1]

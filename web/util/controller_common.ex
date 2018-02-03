@@ -1,4 +1,4 @@
-defmodule Nebula.ControllerCommon do
+defmodule Nebula.Util.ControllerCommon do
   @moduledoc """
   Functions common to all of the application's controllers
   """
@@ -114,6 +114,7 @@ defmodule Nebula.ControllerCommon do
       """
       @spec check_content_type_header(map, charlist) :: map
       def check_content_type_header(conn, resource) do
+        Logger.debug(fn -> "In check_content_type_header" end)
         if List.keymember?(conn.req_headers, "content-type", 0) and
              List.keyfind(conn.req_headers, "content-type", 0) ==
                {"content-type", "application/cdmi-#{resource}"} do
@@ -185,7 +186,7 @@ defmodule Nebula.ControllerCommon do
           conn
         else
           container_path = Enum.drop(conn.path_info, 3)
-          parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
+          parent_path = "/container/" <> Enum.join(Enum.drop(container_path, -1), "/")
 
           parent_uri =
             if String.ends_with?(parent_path, "/") do

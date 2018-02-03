@@ -27,6 +27,7 @@ defmodule Nebula.Router do
       get("/cdmi_domains/*path", DomainController, :show)
       put("/cdmi_domains/*path", DomainController, :create)
       get("/", ContainerController, :show)
+      put("/*path", ContainerController, :create)
     end
   end
 end

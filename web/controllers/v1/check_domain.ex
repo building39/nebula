@@ -3,7 +3,7 @@ defmodule Nebula.V1.CheckDomain do
   import Phoenix.Controller
   import Nebula.Constants
   import Nebula.Util.Utils, only: [get_domain_hash: 1]
-  use Nebula.ControllerCommon
+  use Nebula.Util.ControllerCommon
   require Logger
 
   def init(opts) do

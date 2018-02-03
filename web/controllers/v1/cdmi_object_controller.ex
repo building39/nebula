@@ -4,7 +4,7 @@ defmodule Nebula.V1.CdmiObjectController do
   """
 
   use Nebula.Web, :controller
-  use Nebula.ControllerCommon
+  use Nebula.Util.ControllerCommon
   import Nebula.Constants
   import Nebula.Macros, only: [set_mandatory_response_headers: 2]
   @api_prefix api_prefix()
