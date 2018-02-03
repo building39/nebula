@@ -5,4 +5,7 @@ defmodule Nebula.V1.ContainerView do
   def render("container.json", %{container: container}) do
     container
   end
+  def render("container.cdmic", %{container: container}) do
+    container
+  end
 end
