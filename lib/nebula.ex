@@ -9,7 +9,7 @@ defmodule Nebula do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
-      supervisor(Nebula.Endpoint, []),
+      supervisor(Nebula.Endpoint, [])
       # Start your own worker by calling: Nebula.Worker.start_link(arg1, arg2, arg3)
       # worker(Nebula.Worker, [arg1, arg2, arg3]),
     ]

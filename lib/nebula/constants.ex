@@ -42,5 +42,4 @@ defmodule Nebula.Constants do
   defmacro system_domain_uri do
     "/cdmi_domains/system_domain/"
   end
-
 end

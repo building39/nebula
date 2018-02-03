@@ -5,5 +5,4 @@ defmodule Nebula.V1.DomainView do
   def render("cdmi_domain.json", %{cdmi_domain: cdmi_domain}) do
     cdmi_domain
   end
-
 end

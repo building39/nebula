@@ -22,18 +22,26 @@ defmodule Nebula.V1.CDMIVersion do
     x_cdmi_header = get_req_header(conn, "x-cdmi-specification-version")
     server_versions = Enum.join(Application.get_env(:nebula, :cdmi_version), ",")
     conn = put_resp_header(conn, "X-CDMI-Specification-Version", server_versions)
+
     if length(x_cdmi_header) == 0 do
-      request_fail(conn, :bad_request,
-                   "Bad Request: Must supply X-CDMI-Specification-Version header")
+      request_fail(
+        conn,
+        :bad_request,
+        "Bad Request: Must supply X-CDMI-Specification-Version header"
+      )
     else
       client_cdmi_versions = MapSet.new(x_cdmi_header)
       server_cdmi_versions = MapSet.new(Application.get_env(:nebula, :cdmi_version))
       valid_versions = MapSet.intersection(client_cdmi_versions, server_cdmi_versions)
+
       if MapSet.size(valid_versions) > 0 do
         conn
       else
-        request_fail(conn, :bad_request,
-                     "Bad Request: Supplied CDMI Specification Version not supported")
+        request_fail(
+          conn,
+          :bad_request,
+          "Bad Request: Supplied CDMI Specification Version not supported"
+        )
       end
     end
   end

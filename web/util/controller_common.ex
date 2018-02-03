@@ -4,7 +4,6 @@ defmodule Nebula.ControllerCommon do
   """
 
   defmacro __using__(_) do
-
     quote do
       import Nebula.Constants
       import Nebula.Util.Utils
@@ -27,28 +26,34 @@ defmodule Nebula.ControllerCommon do
       @spec handle_delete(map) :: atom
       def handle_delete(obj) do
         oid = obj.objectID
+
         if obj.objectType == dataobject_object() do
           GenServer.call(Metadata, {:delete, oid})
         else
           children = Map.get(obj, :children, [])
           hash = get_domain_hash(obj.domainURI)
           query = "sp:" <> hash <> obj.parentURI <> obj.objectName
+
           if length(children) == 0 do
             GenServer.call(Metadata, {:delete, oid})
           else
             for child <- children do
               query = query <> child
+
               case GenServer.call(Metadata, {:search, query}) do
                 {:ok, data} ->
                   handle_delete(data)
+
                 _ ->
                   nil
               end
+
               GenServer.call(Metadata, {:delete, oid})
             end
           end
         end
-#        :ok
+
+        #        :ok
       end
 
       @doc """
@@ -77,6 +82,7 @@ defmodule Nebula.ControllerCommon do
           {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
           capabilities = Map.get(capabilities, :capabilities)
           delete_container = Map.get(capabilities, :cdmi_delete_container, false)
+
           if delete_container == "true" do
             conn
           else
@@ -84,6 +90,7 @@ defmodule Nebula.ControllerCommon do
           end
         end
       end
+
       def check_capabilities(conn, "PUT") do
         if conn.halted do
           conn
@@ -93,6 +100,7 @@ defmodule Nebula.ControllerCommon do
           {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
           capabilities = Map.get(capabilities, :capabilities)
           create_container = Map.get(capabilities, :cdmi_create_container, false)
+
           if create_container == "true" do
             conn
           else
@@ -106,13 +114,16 @@ defmodule Nebula.ControllerCommon do
       """
       @spec check_content_type_header(map, charlist) :: map
       def check_content_type_header(conn, resource) do
-        if (List.keymember?(conn.req_headers, "content-type", 0) and
-               List.keyfind(conn.req_headers, "content-type", 0) ==
-                 {"content-type", "application/cdmi-#{resource}"}) do
+        if List.keymember?(conn.req_headers, "content-type", 0) and
+             List.keyfind(conn.req_headers, "content-type", 0) ==
+               {"content-type", "application/cdmi-#{resource}"} do
           conn
         else
-          request_fail(conn, :bad_request,
-                       "Missing Header: Content-Type: application/cdmi-#{resource}")
+          request_fail(
+            conn,
+            :bad_request,
+            "Missing Header: Content-Type: application/cdmi-#{resource}"
+          )
         end
       end
 
@@ -127,9 +138,9 @@ defmodule Nebula.ControllerCommon do
         else
           domain = conn.assigns.cdmi_domain
           domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
-          query = "sp:" <> domain_hash
-                        <> "/cdmi_domains/#{domain}"
+          query = "sp:" <> domain_hash <> "/cdmi_domains/#{domain}"
           {rc, data} = GenServer.call(Metadata, {:search, query})
+
           if rc == :ok and data.objectType == domain_object() do
             if Map.get(data.metadata, :cdmi_domain_enabled, false) do
               conn
@@ -148,6 +159,7 @@ defmodule Nebula.ControllerCommon do
       @spec construct_metadata(map) :: map
       defp construct_metadata(conn) do
         timestamp = List.to_string(Nebula.Util.Utils.make_timestamp())
+
         %{
           cdmi_owner: conn.assigns.authenticated_as,
           cdmi_atime: timestamp,
@@ -174,18 +186,23 @@ defmodule Nebula.ControllerCommon do
         else
           container_path = Enum.drop(conn.path_info, 3)
           parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
-          parent_uri = if String.ends_with?(parent_path, "/") do
-            parent_path
-          else
-            parent_path <> "/"
-          end
+
+          parent_uri =
+            if String.ends_with?(parent_path, "/") do
+              parent_path
+            else
+              parent_path <> "/"
+            end
+
           conn = assign(conn, :parentURI, parent_uri)
           domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
           query = "sp:" <> domain_hash <> parent_uri
           parent_obj = GenServer.call(Metadata, {:search, query})
+
           case parent_obj do
             {:ok, data} ->
               assign(conn, :parent, data)
+
             {_, _} ->
               request_fail(conn, :not_found, "Parent container does not exist")
           end
@@ -206,9 +223,9 @@ defmodule Nebula.ControllerCommon do
       @spec request_fail(map, atom, charlist, list) :: map
       def request_fail(conn, status, message, headers \\ []) do
         if length(headers) > 0 do
-          Enum.reduce headers, conn, fn {k, v}, acc ->
+          Enum.reduce(headers, conn, fn {k, v}, acc ->
             put_resp_header(acc, k, v)
-          end
+          end)
         else
           conn
         end
@@ -235,22 +252,27 @@ defmodule Nebula.ControllerCommon do
         else
           child = conn.assigns.data
           parent = conn.assigns.parent
-          index = Enum.find_index(Map.get(parent, :children), fn(x) -> x == child.objectName end)
+          index = Enum.find_index(Map.get(parent, :children), fn x -> x == child.objectName end)
           children = Enum.drop(Map.get(parent, :children), index + 1)
           parent = Map.put(parent, :children, children)
           children_range = Map.get(parent, :childrenrange)
-          new_range = case children_range do
-            "0-0" ->
-              ""
-            _ ->
-              [first, last] = String.split(children_range, "-")
-              "0-" <> Integer.to_string(String.to_integer(last) - 1)
-          end
+
+          new_range =
+            case children_range do
+              "0-0" ->
+                ""
+
+              _ ->
+                [first, last] = String.split(children_range, "-")
+                "0-" <> Integer.to_string(String.to_integer(last) - 1)
+            end
+
           parent = Map.put(parent, :childrenrange, new_range)
           result = GenServer.call(Metadata, {:update, parent.objectID, parent})
           assign(conn, :parent, parent)
         end
       end
+
       def update_parent(conn, "PUT") do
         if conn.halted do
           conn
@@ -260,13 +282,17 @@ defmodule Nebula.ControllerCommon do
           children = Enum.concat([child.objectName], Map.get(parent, :children, []))
           parent = Map.put(parent, :children, children)
           children_range = Map.get(parent, :childrenrange, "")
-          new_range = case children_range do
-            "" ->
-              "0-0"
-            _ ->
-              [first, last] = String.split(children_range, "-")
-              "0-" <> Integer.to_string(String.to_integer(last) + 1)
-          end
+
+          new_range =
+            case children_range do
+              "" ->
+                "0-0"
+
+              _ ->
+                [first, last] = String.split(children_range, "-")
+                "0-" <> Integer.to_string(String.to_integer(last) + 1)
+            end
+
           parent = Map.put(parent, :childrenrange, new_range)
           result = GenServer.call(Metadata, {:update, parent.objectID, parent})
           assign(conn, :parent, parent)
@@ -282,6 +308,7 @@ defmodule Nebula.ControllerCommon do
           key = new_domain.objectID
           parent = conn.assigns.parent
           {rc, data} = GenServer.call(Metadata, {:put, key, new_domain})
+
           if rc == :ok do
             conn
           else
@@ -294,8 +321,9 @@ defmodule Nebula.ControllerCommon do
       defp handle_qs(conn, data, qs) when qs == [""] do
         data
       end
+
       defp handle_qs(conn, data, qs) do
-        Enum.reduce(qs, %{}, fn(qp, acc) ->
+        Enum.reduce(qs, %{}, fn qp, acc ->
           if String.contains?(qp, ":") do
             handle_subparms(qp, acc, data)
           else
@@ -309,6 +337,7 @@ defmodule Nebula.ControllerCommon do
       @spec handle_subparms(charlist, list, map) :: list
       defp handle_subparms(qp, acc, data) do
         [qp2, val] = String.split(qp, ":")
+
         if query_parm_exists?(data, String.to_atom(qp2)) do
           handle_subparm(acc, data, qp2, val)
         end
@@ -319,22 +348,28 @@ defmodule Nebula.ControllerCommon do
         [idx0, idx1] = String.split(val, "-")
         s = String.to_integer(idx0)
         e = String.to_integer(idx1)
-        childlist = Enum.reduce(s..e, [], fn(i, acc) ->
-          acc ++ List.wrap(Enum.at(data.children, i))
-        end)
-        Map.put(acc, String.to_atom(qp), childlist)
 
+        childlist =
+          Enum.reduce(s..e, [], fn i, acc ->
+            acc ++ List.wrap(Enum.at(data.children, i))
+          end)
+
+        Map.put(acc, String.to_atom(qp), childlist)
       end
+
       defp handle_subparm(acc, data, qp, val) when qp == "metadata" do
-        metadata = Enum.reduce(data.metadata, %{}, fn({k, v}, md) ->
-          if String.starts_with?(Atom.to_string(k), val) do
-            Map.put(md, k, v)
-          else
-            md
-          end
-        end)
+        metadata =
+          Enum.reduce(data.metadata, %{}, fn {k, v}, md ->
+            if String.starts_with?(Atom.to_string(k), val) do
+              Map.put(md, k, v)
+            else
+              md
+            end
+          end)
+
         Map.put(acc, :metadata, metadata)
       end
+
       defp handle_subparm(acc, _data, qp, _val) do
         acc
       end

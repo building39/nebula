@@ -377,6 +377,4 @@ defmodule ACLs do
     |> bor(cdmi_ace_traverse_container())
     |> bor(cdmi_ace_read_attributes())
   end
-
-
 end

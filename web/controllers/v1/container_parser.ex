@@ -12,10 +12,14 @@ defmodule Plug.Parsers.CDMIC do
 
   def parse(conn, "application", subtype, _headers, opts) do
     Logger.debug("In the CDMIC parser")
+
     if subtype == "cdmi-container" do
-      Logger.debug("opts: #{inspect opts}")
-      decoder = Keyword.get(opts, :json_decoder) ||
-                  raise ArgumentError, "JSON parser expects a :json_decoder option"
+      Logger.debug("opts: #{inspect(opts)}")
+
+      decoder =
+        Keyword.get(opts, :json_decoder) ||
+          raise ArgumentError, "JSON parser expects a :json_decoder option"
+
       conn
       |> read_body(opts)
       |> decode(decoder)
@@ -48,6 +52,7 @@ defmodule Plug.Parsers.CDMIC do
     case decoder.decode!(body) do
       terms when is_map(terms) ->
         {:ok, terms, conn}
+
       terms ->
         {:ok, %{"_json" => terms}, conn}
     end

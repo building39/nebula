@@ -6,12 +6,11 @@ defmodule Nebula.V1.CapabilitiesController do
   use Nebula.Web, :controller
   use Nebula.ControllerCommon
 
-  import Nebula.Macros, only: [
-    set_mandatory_response_headers: 2]
+  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
   import Nebula.Util.Utils, only: [get_domain_hash: 1]
   require Logger
 
-    @doc """
+  @doc """
   Return a capability object.
 
   First, check to be sure that the path ends with a "/" character. If not,
@@ -25,22 +24,23 @@ defmodule Nebula.V1.CapabilitiesController do
   """
   def show(conn, _params) do
     Logger.debug("Made it into the capabilities controller")
-    Logger.debug("Conn: #{inspect conn}")
+    Logger.debug("Conn: #{inspect(conn)}")
     set_mandatory_response_headers(conn, "cdmi-capability")
     hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
     path_parts = Enum.drop(conn.path_info, 2)
     query = "sp:" <> hash <> "/" <> Enum.join(path_parts, "/") <> "/"
     {rc, data} = GenServer.call(Metadata, {:search, query})
+
     case rc do
       :ok ->
         data = process_query_string(conn, data)
+
         conn
         |> put_status(:ok)
         |> render("cdmi_capabilities.json", cdmi_capabilities: data)
+
       :not_found ->
-        request_fail(conn, :not_found, "Not Found #{inspect query}")
+        request_fail(conn, :not_found, "Not Found #{inspect(query)}")
     end
-
   end
-
 end
