@@ -9,7 +9,7 @@ use Mix.Config
 config :nebula, Nebula.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "VCK6/hzwTbL5DeSDYLLoPgPOyGEmutHYkr7nl4zDBrGVsTvebsMbOJO6Rl59UD0u",
-  render_errors: [view: Nebula.ErrorView, accepts: ~w(json)],
+  render_errors: [view: Nebula.ErrorView, accepts: ~w(json cdmic)],
   pubsub: [name: Nebula.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
@@ -29,7 +29,7 @@ config :mime, :types, %{
 
 config :memcache_client,
   transcoder: Memcache.Client.Transcoder.Erlang
-  
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"
