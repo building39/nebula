@@ -45,22 +45,25 @@ defmodule Nebula.V1.Prefetch do
   defp handle_object_get(conn, object_type) when object_type == "cdmi_capabilities" do
     conn
   end
-
   defp handle_object_get(conn, object_type) when object_type == "cdmi_domains" do
     conn
   end
-
   defp handle_object_get(conn, object_type) when object_type == "cdmi_objectid" do
     conn
   end
-
-  defp handle_object_get(conn, object_type) when object_type == "container" do
+  defp handle_object_get(conn, object_type) when object_type == "container" or object_type == nil do
     Logger.debug("Prefetch: handle_object_get container")
     req_path = fix_container_path(conn)
+    req_path2 = if req_path == "/api/v1/" do
+      req_path <> "container/"
+    else
+      req_path
+    end
+    Logger.debug(fn -> "req_path: #{inspect req_path2}" end)
     domain = conn.assigns.cdmi_domain
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash
-                  <> String.replace_prefix(req_path, "/api/v1/container", "")
+                  <> String.replace_prefix(req_path2, "/api/v1/container", "")
     {rc, data} = GenServer.call(Metadata, {:search, query})
     if rc == :ok and data.objectType == container_object() do
       if not String.ends_with?(conn.request_path, "/") do
@@ -72,6 +75,11 @@ defmodule Nebula.V1.Prefetch do
     assign_map = conn.assigns
     assign_map = Map.put_new(assign_map, :data, data)
     Map.put(conn, :assigns, assign_map)
+  end
+  defp handle_object_get(conn, object_type) do
+    Logger.debug(fn -> "handle_object_get got object type: #{inspect object_type}" end)
+    Logger.debug(fn -> "connection: #{inspect conn}" end)
+    conn
   end
 
 end

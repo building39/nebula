@@ -21,9 +21,11 @@ defmodule Nebula.Router do
       delete "/cdmi_objectid/:id", CdmiObjectController, :delete
       get "/container", ContainerController, :show
       get "/container/*path", ContainerController, :show
+      # get "/*path", GetController, :show
       put "/container/*path", ContainerController, :create
       get "/cdmi_domains/*path", DomainController, :show
       put "/cdmi_domains/*path", DomainController, :create
+      get "/", ContainerController, :show
     end
   end
 end
