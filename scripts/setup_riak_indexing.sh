@@ -2,7 +2,7 @@
 
 pushd $NEBULA_PATH/scripts
 
-RIAK_HOST=riak1
+RIAK_HOST=nebriak1.fuzzcat.loc
 RIAK_HTTP_PORT=8098
 DELAY=5
 
