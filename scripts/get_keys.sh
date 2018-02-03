@@ -1,1 +1,1 @@
-curl http://riak1.fuzzcat.net:8098/types/cdmi/bucketsdmi/keys/?keys=true
+curl http://nebriak1.fuzzcat.loc:8098/types/cdmi/buckets/cdmi/keys/?keys=true
