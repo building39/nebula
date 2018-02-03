@@ -16,9 +16,6 @@ config :nebula, Nebula.Endpoint,
 config :nebula,
   cdmi_version: ["1.1"]
 
-config :memcache_client,
-  transcoder: Memcache.Client.Transcoder.Erlang
-
   config :logger,
     format: "[$level] $message\n",
     metadata: [:file, :line],
