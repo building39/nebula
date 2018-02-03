@@ -4,9 +4,9 @@ import riak
 import sys
 import base64
 
-NODES = [{'host': 'riak1', 'pb_port': 8087},
-         {'host': 'riak2', 'pb_port': 8087},
-         {'host': 'riak3', 'pb_port': 8087}]
+NODES = [{'host': 'nebriak1.fuzzcat.loc', 'pb_port': 8087},
+         {'host': 'nebriak2.fuzzcat.loc', 'pb_port': 8087},
+         {'host': 'nebriak3.fuzzcat.loc', 'pb_port': 8087}]
 
 BUCKET_TYPE = 'cdmi'
 BUCKET_NAME = 'cdmi'
