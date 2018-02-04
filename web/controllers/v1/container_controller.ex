@@ -11,6 +11,7 @@ defmodule Nebula.V1.ContainerController do
   require Logger
 
   def create(conn, _params) do
+    Logger.debug(fn -> "In create container" end)
     c =
       conn
       |> check_content_type_header("container")
@@ -78,6 +79,7 @@ defmodule Nebula.V1.ContainerController do
 
   @spec check_for_dup(map) :: map
   defp check_for_dup(conn) do
+    Logger.debug(fn -> "In check_for_dup" end)
     if conn.halted do
       conn
     else
@@ -116,6 +118,7 @@ defmodule Nebula.V1.ContainerController do
 
   @spec create_new_container(map) :: map
   defp create_new_container(conn) do
+    Logger.debug(fn -> "In create_new_container" end)
     if conn.halted == true do
       conn
     else
