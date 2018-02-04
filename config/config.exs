@@ -6,11 +6,11 @@
 use Mix.Config
 
 # Configures the endpoint
-config :nebula, Nebula.Endpoint,
+config :nebula, NebulaWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "VCK6/hzwTbL5DeSDYLLoPgPOyGEmutHYkr7nl4zDBrGVsTvebsMbOJO6Rl59UD0u",
-  render_errors: [view: Nebula.ErrorView, accepts: ~w(json cdmic)],
-  pubsub: [name: Nebula.PubSub,
+  render_errors: [view: NebulaWeb.ErrorView, accepts: ~w(json cdmic)],
+  pubsub: [name: NebulaWeb.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger

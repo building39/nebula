@@ -1,1 +1,1 @@
-curl http://nebriak3:8098/types/cdmi/bucketsdmi/keys/$1
+curl http://nebriak3:8098/types/cdmi/buckets/cdmi/keys/$1

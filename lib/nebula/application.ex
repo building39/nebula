@@ -1,4 +1,4 @@
-defmodule Nebula do
+defmodule Nebula.Application do
   use Application
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
@@ -9,7 +9,7 @@ defmodule Nebula do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
-      supervisor(Nebula.Endpoint, [])
+      supervisor(NebulaWeb.Endpoint, [])
       # Start your own worker by calling: Nebula.Worker.start_link(arg1, arg2, arg3)
       # worker(Nebula.Worker, [arg1, arg2, arg3]),
     ]

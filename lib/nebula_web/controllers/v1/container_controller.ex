@@ -1,9 +1,9 @@
-defmodule Nebula.V1.ContainerController do
+defmodule NebulaWeb.V1.ContainerController do
   @moduledoc """
   Handle cdmi containers
   """
 
-  use Nebula.Web, :controller
+  use NebulaWeb, :controller
   use Nebula.Util.ControllerCommon
 
   import Nebula.Macros, only: [set_mandatory_response_headers: 2]

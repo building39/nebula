@@ -1,5 +1,5 @@
-defmodule Nebula.Router do
-  use Nebula.Web, :router
+defmodule NebulaWeb.Router do
+  use NebulaWeb, :router
 
   pipeline :api do
     plug(:accepts, ["json", "cdmia", "cdmic", "cdmid", "cdmio", "cdmiq"])
@@ -12,7 +12,7 @@ defmodule Nebula.Router do
     # plug Nebula.V1.ApplyACLs
   end
 
-  scope "/api", Nebula do
+  scope "/api", NebulaWeb do
     pipe_through(:api)
 
     scope "/v1", V1, as: :v1 do

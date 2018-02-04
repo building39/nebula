@@ -1,12 +1,12 @@
-defmodule Nebula.Web do
+defmodule NebulaWeb do
   @moduledoc """
   A module that keeps using definitions for controllers,
   views and so on.
 
   This can be used in your application as:
 
-      use Nebula.Web, :controller
-      use Nebula.Web, :view
+      use NebulaWeb, :controller
+      use NebulaWeb, :view
 
   The definitions below will be executed for every view,
   controller, etc, so keep them short and clean, focused
@@ -24,23 +24,24 @@ defmodule Nebula.Web do
 
   def controller do
     quote do
-      use Phoenix.Controller
+      use Phoenix.Controller, namespace: NebulaWeb
 
-      import Nebula.Router.Helpers
-      import Nebula.Gettext
+      import NebulaWeb.Router.Helpers
+      import NebulaWeb.Gettext
     end
   end
 
   def view do
     quote do
-      use Phoenix.View, root: "web/templates"
+      use Phoenix.View, root: "lib/nebula_web/templates",
+                        namespace: NebulaWeb
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_csrf_token: 0, get_flash: 2, view_module: 1]
 
-      import Nebula.Router.Helpers
-      import Nebula.ErrorHelpers
-      import Nebula.Gettext
+      import NebulaWeb.Router.Helpers
+      import NebulaWeb.ErrorHelpers
+      import NebulaWeb.Gettext
     end
   end
 
@@ -53,7 +54,7 @@ defmodule Nebula.Web do
   def channel do
     quote do
       use Phoenix.Channel
-      import Nebula.Gettext
+      import NebulaWeb.Gettext
     end
   end
 

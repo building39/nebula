@@ -1,9 +1,9 @@
-defmodule Nebula.V1.DomainController do
+defmodule NebulaWeb.V1.DomainController do
   @moduledoc """
   Handle cdmi domains
   """
 
-  use Nebula.Web, :controller
+  use NebulaWeb, :controller
   use Nebula.Util.ControllerCommon
 
   import Nebula.Macros, only: [set_mandatory_response_headers: 2]

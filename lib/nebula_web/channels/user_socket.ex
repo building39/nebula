@@ -1,4 +1,4 @@
-defmodule Nebula.UserSocket do
+defmodule NebulaWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels

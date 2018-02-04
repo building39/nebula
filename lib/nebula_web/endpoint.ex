@@ -1,7 +1,7 @@
-defmodule Nebula.Endpoint do
+defmodule NebulaWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :nebula
 
-  socket("/socket", Nebula.UserSocket)
+  socket("/socket", NebulaWeb.UserSocket)
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -44,5 +44,5 @@ defmodule Nebula.Endpoint do
     signing_salt: "5r8RhTHc"
   )
 
-  plug(Nebula.Router)
+  plug(NebulaWeb.Router)
 end

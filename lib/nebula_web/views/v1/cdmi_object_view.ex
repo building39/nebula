@@ -1,5 +1,5 @@
-defmodule Nebula.V1.CdmiObjectView do
-  use Nebula.Web, :view
+defmodule NebulaWeb.V1.CdmiObjectView do
+  use NebulaWeb, :view
   require Logger
 
   def render("cdmi_object.json", %{cdmi_object: cdmi_object}) do

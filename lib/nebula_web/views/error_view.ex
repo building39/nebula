@@ -1,5 +1,5 @@
-defmodule Nebula.ErrorView do
-  use Nebula.Web, :view
+defmodule NebulaWeb.ErrorView do
+  use NebulaWeb, :view
 
   def render("404.json", _assigns) do
     %{errors: %{detail: "Page not found"}}

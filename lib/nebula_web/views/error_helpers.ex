@@ -1,4 +1,4 @@
-defmodule Nebula.ErrorHelpers do
+defmodule NebulaWeb.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """

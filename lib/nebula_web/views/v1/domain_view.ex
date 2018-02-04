@@ -1,5 +1,5 @@
-defmodule Nebula.V1.DomainView do
-  use Nebula.Web, :view
+defmodule NebulaWeb.V1.DomainView do
+  use NebulaWeb, :view
   require Logger
 
   def render("cdmi_domain.json", %{cdmi_domain: cdmi_domain}) do

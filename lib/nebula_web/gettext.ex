@@ -1,4 +1,4 @@
-defmodule Nebula.Gettext do
+defmodule NebulaWeb.Gettext do
   @moduledoc """
   A module providing Internationalization with a gettext-based API.
 
