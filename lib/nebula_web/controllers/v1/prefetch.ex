@@ -19,17 +19,37 @@ defmodule Nebula.V1.Prefetch do
   @doc """
   Document the prefetch function
   """
+  @spec call(Plug.Conn.t, any) :: Plug.Conn.t
   def call(conn, _opts) do
     Logger.debug("Prefetch plug")
     fetch_for_method(conn, conn.method)
   end
 
+  @spec fetch_for_method(Plug.Conn.t, String.t) :: Plug.Conn.t
   defp fetch_for_method(conn, method) when method == "DELETE" do
     handle_object_get(conn, Enum.at(conn.path_info, 2))
   end
 
   defp fetch_for_method(conn, method) when method == "GET" do
-    handle_object_get(conn, Enum.at(conn.path_info, 2))
+    Logger.debug(fn -> "In fetch_for_method #{inspect conn, pretty: true}" end)
+    req_headers = conn.req_headers
+    Logger.debug("req_headers: #{inspect req_headers}")
+    {_, object_type} = List.keyfind(req_headers, "accept", 0, {"", ""})
+    object_type2 = case object_type do
+      "" ->
+        Logger.debug("no accept header")
+        ""
+      "application/cdmi-container" ->
+        Logger.debug("accepting cdmi-container")
+        "container"
+      "application/cdmi-domain" ->
+        Logger.debug("accepting cdmi-domain")
+        "domain"
+      other ->
+        Logger.error("Unknown accept header: #{inspect other}")
+    end
+    Logger.debug("object type is #{inspect object_type2}")
+    handle_object_get(conn, object_type2)
   end
 
   defp fetch_for_method(conn, method) when method == "OPTIONS" do
@@ -64,17 +84,10 @@ defmodule Nebula.V1.Prefetch do
     Logger.debug("Prefetch: handle_object_get container")
     req_path = fix_container_path(conn)
 
-    req_path2 =
-      if req_path == "/api/v1/" do
-        req_path <> "container/"
-      else
-        req_path
-      end
-
-    Logger.debug(fn -> "req_path: #{inspect(req_path2)}" end)
+    Logger.debug(fn -> "req_path: #{inspect(req_path)}" end)
     domain = conn.assigns.cdmi_domain
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
-    query = "sp:" <> domain_hash <> String.replace_prefix(req_path2, "/api/v1/container", "")
+    query = "sp:" <> domain_hash <> String.replace_prefix(req_path, "/api/v1", "")
     {rc, data} = GenServer.call(Metadata, {:search, query})
 
     if rc == :ok and data.objectType == container_object() do

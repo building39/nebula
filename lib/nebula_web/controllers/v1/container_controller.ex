@@ -128,23 +128,15 @@ defmodule NebulaWeb.V1.ContainerController do
     else
       {object_oid, _object_key} = Cdmioid.generate(45241)
       object_name = List.last(conn.path_info) <> "/"
-      # parent = conn.assigns.parent
-      Logger.debug(fn -> "body_params: #{inspect conn.body_params}" end)
       auth_as = conn.assigns.authenticated_as
-      Logger.debug(fn -> "authenticated as #{inspect auth_as}" end)
       metadata =
         if Map.has_key?(conn.body_params, "metadata") do
           new_metadata = construct_metadata(auth_as)
-          Logger.debug(fn -> "new_metadata: #{inspect new_metadata}" end)
-          supplied_metadata = conn.body_params.metadata
-          Logger.debug(fn -> "supplied_metadata: #{inspect supplied_metadata}" end)
+          supplied_metadata = conn.body_params["metadata"]
           merged_metadata = Map.merge(new_metadata, supplied_metadata)
-          Logger.debug(fn -> "merged_metadata: #{inspect merged_metadata}" end)
           merged_metadata
         else
-          Logger.debug(fn -> "conn.body_params didn't have metadata" end)
           new_metadata = construct_metadata(auth_as)
-          Logger.debug(fn -> "new_metadata: #{inspect new_metadata}" end)
           new_metadata
         end
 
