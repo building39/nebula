@@ -22,17 +22,28 @@ defmodule NebulaWeb.V1.DomainController do
       |> check_content_type_header("domain")
       |> get_domain_parent()
       |> check_for_dup()
-      |> check_capabilities(conn.method)
+      |> check_capabilities(:domain, conn.method)
       |> check_acls(conn.method)
       |> create_new_domain()
       |> write_new_object()
       |> update_parent(conn.method)
 
+    Logger.debug("XYZ new_conn: #{inspect(c, pretty: true)}")
+    new_domain = c.assigns.newobject
+    Logger.debug("XYZ new_domain: #{inspect(new_domain)}")
+
     if not c.halted do
-      c
-      |> put_status(:ok)
-      |> render("container.json", container: c.assigns.newobject)
+      Logger.debug("XYZ not halted")
+      # c
+      # |> put_status(:ok)
+      # |> render("domain.json", container: new_domain)
+      c2 = put_status(c, :ok)
+      Logger.debug("XYZ c2: #{inspect(c2, pretty: true)}")
+      c3 = render(c2, "cdmi_domain.json", cdmi_domain: new_domain)
+      Logger.debug("XYZ c3: #{inspect(c3, pretty: true)}")
+      c3
     else
+      Logger.debug("XYZ halted")
       c
     end
   end
@@ -52,12 +63,9 @@ defmodule NebulaWeb.V1.DomainController do
   @spec show(Plug.Conn.t(), any) :: Plug.Conn.t()
   def show(conn, _params) do
     Logger.debug("Made it into the domain controller")
-    Logger.debug("Conn: #{inspect(conn)}")
+    Logger.debug("Conn: #{inspect(conn, pretty: true)}")
     set_mandatory_response_headers(conn, "cdmi-domain")
-    hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
-    path_parts = Enum.drop(conn.path_info, 2)
-    query = "sp:" <> hash <> "/" <> Enum.join(path_parts, "/") <> "/"
-    {rc, data} = GenServer.call(Metadata, {:search, query})
+    {rc, data} = get_domain(conn)
 
     case rc do
       :ok ->
@@ -68,7 +76,24 @@ defmodule NebulaWeb.V1.DomainController do
         |> render("cdmi_domain.json", cdmi_domain: data)
 
       :not_found ->
-        request_fail(conn, :not_found, "Not Found #{inspect(query)}")
+        request_fail(conn, :not_found, data)
+    end
+  end
+
+  @spec get_domain(Plug.Conn.t()) :: {:ok, map} | {:not_found, String.t()}
+  def get_domain(conn) do
+    path_parts = Enum.drop(conn.path_info, 2)
+    domain = "/" <> Enum.join(path_parts, "/") <> "/"
+    hash = get_domain_hash(domain)
+    query = "sp:" <> hash <> domain
+    {rc, data} = GenServer.call(Metadata, {:search, query})
+
+    case rc do
+      :ok ->
+        {:ok, data}
+
+      :not_found ->
+        {:not_found, "Not Found #{inspect(query)}"}
     end
   end
 
@@ -83,18 +108,13 @@ defmodule NebulaWeb.V1.DomainController do
       object_name = List.last(conn.path_info) <> "/"
       Logger.debug("Object name: #{inspect(object_name)}")
 
-      parent_uri =
-        if Map.has_key?(conn.assigns.parent, :parentURI) do
-          conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
-        else
-          # It's the root
-          "/"
-        end
+      parent_uri = conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
 
       Logger.debug("parent uri: #{inspect(parent_uri)}")
-      domain_hash = get_domain_hash(parent_uri <> "cdmi_domains/" <> object_name)
+      Logger.debug("XYZ calling get_domain_hash")
+      domain_hash = get_domain_hash(parent_uri <> object_name)
 
-      path = parent_uri <> "cdmi_domains/" <> object_name
+      path = parent_uri <> object_name
       query = "sp:" <> domain_hash <> path
       Logger.debug("Searching for #{inspect(query)}")
       response = GenServer.call(Metadata, {:search, query})
@@ -127,7 +147,6 @@ defmodule NebulaWeb.V1.DomainController do
     else
       {object_oid, _object_key} = Cdmioid.generate(45241)
       object_name = List.last(conn.path_info) <> "/"
-      parent = conn.assigns.parent
 
       parent_uri =
         if Map.has_key?(conn.assigns.parent, :parentURI) do
@@ -138,32 +157,73 @@ defmodule NebulaWeb.V1.DomainController do
         end
 
       auth_as = conn.assigns.authenticated_as
-      Logger.debug(fn -> "authenticated as #{inspect(auth_as)}" end)
       new_metadata = construct_metadata(auth_as)
 
       metadata =
         if Map.has_key?(conn.body_params, "metadata") do
-          Map.merge(construct_metadata(auth_as), conn.body_params["metadata"])
+          Map.merge(new_metadata, conn.body_params["metadata"])
         else
-          construct_metadata(auth_as)
+          new_metadata
         end
 
-      Logger.debug("allocating new domain object #{inspect(parent)}")
+      parent_id = conn.assigns.parent.objectID
+
+      domainURI =
+        if String.starts_with?(parent_uri, "/") do
+          parent_uri <> object_name
+        else
+          "/" <> parent_uri <> object_name
+        end
 
       new_domain = %{
         objectType: domain_object(),
         objectID: object_oid,
         objectName: object_name,
         parentURI: parent_uri,
-        parentID: conn.assigns.parent.objectID,
-        domainURI: "/cdmi_domains/" <> parent <> object_name,
+        parentID: parent_id,
+        domainURI: domainURI,
         capabilitiesURI: domain_capabilities_uri(),
         completionStatus: "Complete",
         children: [],
         metadata: metadata
       }
 
-      assign(conn, :newobject, new_domain)
+      Logger.debug("new domain: #{inspect(new_domain, pretty: true)}")
+
+      new_conn = assign(conn, :newobject, new_domain)
+      Logger.debug("new conn: #{inspect(new_conn, pretty: true)}")
+      new_conn
+    end
+  end
+
+  @spec delete(Plug.Conn.t(), any) :: Plug.Conn.t()
+  def delete(conn, _params) do
+    Logger.debug("In delete domain")
+    {rc, data} = get_domain(conn)
+    case rc do
+      :ok ->
+        c =
+          conn
+          |> assign(:data, data)
+          |> get_domain_parent()
+          |> check_capabilities(:domain, conn.method)
+          |> check_acls(conn.method)
+          |> delete_object()
+          |> update_parent(conn.method)
+
+          if not c.halted do
+            Logger.debug("did something")
+
+            c
+            |> put_status(:no_content)
+            |> json(nil)
+          else
+            Logger.debug("delete domain halted")
+            c
+          end
+
+      :not_found ->
+        request_fail(conn, :not_found, data)
     end
   end
 
@@ -172,21 +232,30 @@ defmodule NebulaWeb.V1.DomainController do
   """
   @spec get_domain_parent(Plug.Conn.t()) :: Plug.Conn.t()
   def get_domain_parent(conn) do
+    Logger.debug("In get_domain_parent")
+
     if conn.halted do
+      Logger.debug("rats. halted.")
       conn
     else
-      container_path = Enum.drop(conn.path_info, 3)
-      parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
+      Logger.debug("XYZ path_info: #{inspect(conn.path_info)}")
+      domain_path = Enum.drop(conn.path_info, 2)
+      parent_uri = "/" <> Enum.join(Enum.drop(domain_path, -1), "/") <> "/"
+      Logger.debug("XYZ parent_uri: #{inspect(parent_uri)}")
+      conn = assign(conn, :parentURI, parent_uri)
+      Logger.debug("XYZ cdmi_domain: #{inspect(conn.assigns.cdmi_domain)}")
+      Logger.debug("XYZ calling get_domain_hash")
 
-      parent_uri =
-        if String.ends_with?(parent_path, "/") do
-          parent_path
-        else
-          parent_path <> "/cdmi_domains/"
+      domain_hash =
+        case parent_uri do
+          "/cdmi_domains/" ->
+            get_domain_hash(parent_uri <> "system_domain/")
+
+          _other ->
+            get_domain_hash(parent_uri)
         end
 
-      conn = assign(conn, :parentURI, parent_uri)
-      domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
+      Logger.debug("XYZ calling get_domain_hash")
       query = "sp:" <> domain_hash <> parent_uri
       parent_obj = GenServer.call(Metadata, {:search, query})
 

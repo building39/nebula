@@ -20,9 +20,12 @@ defmodule Nebula.Util.Utils do
   """
   @spec get_domain_hash(String.t() | binary) :: String.t()
   def get_domain_hash(domain) when is_binary(domain) do
-    :crypto.hmac(:sha, <<"domain">>, domain)
+    Logger.debug("generating hash for #{inspect domain}")
+    hash = :crypto.hmac(:sha, <<"domain">>, domain)
     |> Base.encode16()
     |> String.downcase()
+    Logger.debug("hash is #{inspect hash}")
+    hash
   end
 
   def get_domain_hash(domain) do

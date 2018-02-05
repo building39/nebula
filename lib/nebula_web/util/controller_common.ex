@@ -31,6 +31,7 @@ defmodule Nebula.Util.ControllerCommon do
           GenServer.call(Metadata, {:delete, oid})
         else
           children = Map.get(obj, :children, [])
+          Logger.debug("XYZ calling get_domain_hash")
           hash = get_domain_hash(obj.domainURI)
           query = "sp:" <> hash <> obj.parentURI <> obj.objectName
 
@@ -65,6 +66,7 @@ defmodule Nebula.Util.ControllerCommon do
         Logger.debug(fn -> "In check_acls" end)
 
         if conn.halted do
+          Logger.debug("acls. halted.")
           conn
         else
           conn
@@ -74,43 +76,62 @@ defmodule Nebula.Util.ControllerCommon do
       @doc """
       Check object capabilities.
       """
-      @spec check_capabilities(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
-      def check_capabilities(conn, "DELETE") do
+      @spec check_capabilities(Plug.Conn.t(), atom, String.t()) :: Plug.Conn.t()
+      def check_capabilities(conn, object_type, "DELETE") do
         Logger.debug(fn -> "In check_capabilities DELETE" end)
+        Logger.debug("conn: #{inspect conn, pretty: true}")
 
         if conn.halted do
+          Logger.debug("capabilities. halted.")
           conn
         else
           container = conn.assigns.data
-          query = "sp:" <> get_domain_hash(container.domainURI) <> container.capabilitiesURI
+          Logger.debug("XYZ calling get_domain_hash")
+          query = "sp:" <> get_domain_hash("/cdmi_domains/system_domain/") <> container.capabilitiesURI
           {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
           capabilities = Map.get(capabilities, :capabilities)
-          delete_container = Map.get(capabilities, :cdmi_delete_container, false)
-
-          if delete_container == "true" do
+          can_delete = case object_type do
+            :cdmi_object ->
+              # TODO: fix this
+              false
+            :container ->
+              Map.get(capabilities, :cdmi_delete_container, false)
+            :domain ->
+              Map.get(capabilities, :cdmi_delete_domain, false)
+          end
+          if can_delete == "true" do
             conn
           else
-            request_fail(conn, :bad_request, "Bad Request 1")
+            request_fail(conn, :bad_request, "Deletion of #{inspect object_type} is forbidden")
           end
         end
       end
 
-      def check_capabilities(conn, "PUT") do
+      def check_capabilities(conn, object_type, "PUT") do
         Logger.debug(fn -> "In check_capabilities PUT" end)
 
         if conn.halted do
           conn
         else
           parent = conn.assigns.parent
-          query = "sp:" <> get_domain_hash(parent.domainURI) <> parent.capabilitiesURI
+          Logger.debug("XYZ calling get_domain_hash")
+          Logger.debug("parent capabilitiesURI: #{inspect parent.capabilitiesURI}")
+          query = "sp:" <> get_domain_hash("/cdmi_domains/system_domain/") <> parent.capabilitiesURI
           {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
           capabilities = Map.get(capabilities, :capabilities)
-          create_container = Map.get(capabilities, :cdmi_create_container, false)
-
-          if create_container == "true" do
+          can_create = case object_type do
+            :cdmi_object ->
+              # TODO: fix this
+              false
+            :container ->
+              Map.get(capabilities, :cdmi_delete_container, false)
+            :domain ->
+              Map.get(capabilities, :cdmi_delete_domain, false)
+          end
+          if can_create == "true" do
             conn
           else
-            request_fail(conn, :bad_request, "Bad Request 2")
+            request_fail(conn, :bad_request, "Creation of #{inspect object_type} is forbidden")
           end
         end
       end
@@ -145,6 +166,7 @@ defmodule Nebula.Util.ControllerCommon do
           conn
         else
           domain = conn.assigns.cdmi_domain
+          Logger.debug("XYZ calling get_domain_hash")
           domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
           query = "sp:" <> domain_hash <> "/cdmi_domains/#{domain}"
           {rc, data} = GenServer.call(Metadata, {:search, query})
@@ -199,7 +221,7 @@ defmodule Nebula.Util.ControllerCommon do
         if conn.halted do
           conn
         else
-          container_path = Enum.drop(conn.path_info, 3)
+          container_path = Enum.drop(conn.path_info, 2)
           parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
 
           parent_uri =
@@ -209,15 +231,17 @@ defmodule Nebula.Util.ControllerCommon do
               parent_path <> "/"
             end
 
-          conn = assign(conn, :parentURI, parent_uri)
-          domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
+          Logger.debug("container's parent is #{inspect parent_uri}")
+          conn2 = assign(conn, :parentURI, parent_uri)
+          Logger.debug("XYZ calling get_domain_hash")
+          domain_hash = get_domain_hash("/cdmi_domains/" <> conn2.assigns.cdmi_domain)
           query = "sp:" <> domain_hash <> parent_uri
           parent_obj = GenServer.call(Metadata, {:search, query})
 
           case parent_obj do
             {:ok, data} ->
               Logger.debug(fn -> "get_parent found parent #{inspect(data, pretty: true)}" end)
-              assign(conn, :parent, data)
+              assign(conn2, :parent, data)
 
             {_, _} ->
               request_fail(conn, :not_found, "Parent container does not exist")
@@ -266,10 +290,12 @@ defmodule Nebula.Util.ControllerCommon do
         Logger.debug(fn -> "In update_parent DELETE" end)
 
         if conn.halted do
+          Logger.debug("ouch, we're halted")
           conn
         else
           child = conn.assigns.data
           parent = conn.assigns.parent
+          Logger.debug("parent is #{inspect parent}")
           index = Enum.find_index(Map.get(parent, :children), fn x -> x == child.objectName end)
           children = Enum.drop(Map.get(parent, :children), index + 1)
           parent = Map.put(parent, :children, children)
@@ -292,19 +318,21 @@ defmodule Nebula.Util.ControllerCommon do
       end
 
       def update_parent(conn, "PUT") do
-        Logger.debug(fn -> "In update_parent PUT" end)
+        Logger.debug(fn -> "XYZ In update_parent PUT" end)
 
         if conn.halted do
+          Logger.debug("ouch, we're halted")
           conn
         else
           child = conn.assigns.newobject
           parent = conn.assigns.parent
           children = Enum.concat([child.objectName], Map.get(parent, :children, []))
           parent = Map.put(parent, :children, children)
+          Logger.debug("parent is #{inspect parent}")
           children_range = Map.get(parent, :childrenrange, "")
 
           Logger.debug(fn ->
-            "parent: #{inspect(parent)} children: #{inspect(children)} range: #{
+            "XYZ parent: #{inspect(parent)} children: #{inspect(children)} range: #{
               inspect(children_range)
             }"
           end)
@@ -320,24 +348,36 @@ defmodule Nebula.Util.ControllerCommon do
             end
 
           parent = Map.put(parent, :childrenrange, new_range)
-          result = GenServer.call(Metadata, {:update, parent.objectID, parent})
-          assign(conn, :parent, parent)
+          case GenServer.call(Metadata, {:update, parent.objectID, parent})do
+            {:ok, new_parent} ->
+              Logger.debug("XYZ parent update succeeded: #{inspect new_parent, pretty: true}")
+              new_conn = assign(conn, :parent, new_parent)
+              Logger.debug("XYZ New conn: #{inspect new_conn}")
+              new_conn
+            {other, reason} ->
+              # TODO: handle errors here
+              Logger.debug("XYZ update parent failed: #{inspect other} #{inspect reason}")
+              conn
+          end
         end
       end
 
       @spec write_new_object(Plug.Conn.t()) :: Plug.Conn.t()
       def write_new_object(conn) do
-        Logger.debug(fn -> "In write_new_object" end)
+        Logger.debug(fn -> "XYZ In write_new_object" end)
 
         if conn.halted do
+          Logger.debug("bummer. halted.")
           conn
         else
           new_domain = conn.assigns.newobject
           key = new_domain.objectID
           parent = conn.assigns.parent
+          Logger.debug("parent is #{inspect parent}")
           {rc, data} = GenServer.call(Metadata, {:put, key, new_domain})
 
           if rc == :ok do
+            Logger.debug("wrote the new object")
             conn
           else
             request_fail(conn, :service_unavailable, "Service Unavailable")

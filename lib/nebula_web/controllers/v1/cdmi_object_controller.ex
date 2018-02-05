@@ -88,7 +88,7 @@ defmodule NebulaWeb.V1.CdmiObjectController do
     conn3 =
       conn2
       |> get_parent()
-      |> check_capabilities(conn2.method)
+      |> check_capabilities(:cdmi_object, conn2.method)
       |> check_acls(conn2.method)
       |> delete_object()
       |> update_parent(conn2.method)

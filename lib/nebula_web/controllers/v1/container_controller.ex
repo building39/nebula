@@ -19,7 +19,7 @@ defmodule NebulaWeb.V1.ContainerController do
       |> check_content_type_header("container")
       |> check_for_dup()
       |> get_parent()
-      |> check_capabilities(conn.method)
+      |> check_capabilities(:container, conn.method)
       |> check_acls(conn.method)
       |> create_new_container()
       |> write_new_object()
@@ -39,7 +39,7 @@ defmodule NebulaWeb.V1.ContainerController do
     c =
       conn
       |> get_parent()
-      |> check_capabilities(conn.method)
+      |> check_capabilities(:container, conn.method)
       |> check_acls(conn.method)
       |> delete_object()
       |> update_parent(conn.method)

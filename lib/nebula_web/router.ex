@@ -20,6 +20,7 @@ defmodule NebulaWeb.Router do
       get("/cdmi_capabilities/*path", CapabilitiesController, :show)
       delete("/container/*path", ContainerController, :delete)
       delete("/cdmi_objectid/:id", CdmiObjectController, :delete)
+      delete("/cdmi_domains/*path", DomainController, :delete)
       get("/container", ContainerController, :show)
       get("/container/*path", ContainerController, :show)
       # get "/*path", GetController, :show
