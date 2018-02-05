@@ -9,7 +9,7 @@ use Mix.Config
 config :nebula, NebulaWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "VCK6/hzwTbL5DeSDYLLoPgPOyGEmutHYkr7nl4zDBrGVsTvebsMbOJO6Rl59UD0u",
-  render_errors: [view: NebulaWeb.ErrorView, accepts: ~w(json cdmic)],
+  render_errors: [view: NebulaWeb.ErrorView, accepts: ~w(json cdmia cdmic cdmid cdmio cdmiq)],
   pubsub: [name: NebulaWeb.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
