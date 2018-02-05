@@ -88,9 +88,12 @@ defmodule Nebula.V1.Authentication do
     [user, rest] = String.split(authstring, ":")
     [password | _] = String.split(rest, ";")
     Logger.debug("password is #{inspect password}")
+    Logger.debug("user is #{inspect user}")
+    Logger.debug("domain is #{inspect domain}")
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash <> "/cdmi_domains/" <> domain <> "cdmi_domain_members/" <> user
     user_obj = GenServer.call(Metadata, {:search, query})
+    Logger.debug("response from search: #{inspect user_obj}")
 
     case user_obj do
       {:ok, data} ->
@@ -99,11 +102,23 @@ defmodule Nebula.V1.Authentication do
         if creds == encrypt(user, password) do
           {user, data.metadata.cdmi_member_privileges, domain}
         else
-          nil
+          if user == "administrator" and domain != "system_domain/" do
+            Logger.debug("Try to authenticate as administrator")
+            basic_authentication("system_domain/", authstring)
+          else
+            Logger.debug("wtf? user: #{inspect user} domain: #{inspect domain}")
+            nil
+          end
         end
 
-      {_, _} ->
-        nil
+      {:not_found, _} ->
+        if user == "administrator" and domain != "system_domain/" do
+          Logger.debug("Try to authenticate as administrator")
+          basic_authentication("system_domain/", authstring)
+        else
+          Logger.debug("wtf? user: #{inspect user} domain: #{inspect domain}")
+          nil
+        end
     end
   end
 end
