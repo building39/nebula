@@ -15,6 +15,7 @@ defmodule Nebula.V1.Authentication do
   @doc """
   Document the authenticate function
   """
+  @spec call(Plug.Conn.t, any) :: Plug.Conn.t
   def call(conn, _opts) do
     Logger.debug("Authentication plug")
     auth = get_req_header(conn, "authorization")
@@ -27,19 +28,33 @@ defmodule Nebula.V1.Authentication do
         [method, authstring] = String.split(List.to_string(auth))
         authstring = Base.decode64!(authstring)
 
-        {user, privileges} =
+        {user, privileges, domain} =
           case method do
             "Basic" ->
-              basic_authentication(conn.assigns.cdmi_domain, authstring)
-
+              Logger.debug("doing basic authentication")
+              options = authstring
+              |> String.split(";")
+              |> List.last()
+              |> String.split(",")
+              Logger.debug("XYZ options: #{inspect options}")
+              domain = get_realm(options)
+              Logger.debug("Resolved domain: #{inspect domain}")
+              result = if domain != nil do
+                basic_authentication(domain, authstring)
+              else
+                basic_authentication(conn.assigns.cdmi_domain, authstring)
+              end
+              Logger.debug("Authentication result: #{inspect result}")
+              result
             _ ->
-              {"", nil}
+              {"", nil, "system_domain/"}
           end
 
         if user != "" do
           conn
           |> assign(:authenticated_as, user)
           |> assign(:cdmi_privileges, privileges)
+          |> assign(:cdmi_domain, domain)
         else
           authentication_failed(conn, method)
         end
@@ -51,9 +66,28 @@ defmodule Nebula.V1.Authentication do
     request_fail(conn, :unauthorized, "Unauthorized", [{"WWW-Authenticate", method}])
   end
 
+  @spec get_realm(list) :: String.t | nil
+  defp get_realm([]) do
+    nil
+  end
+  defp get_realm([option|rest]) do
+    if String.starts_with?(option, "realm=") do
+      [_, domain] = String.split(option, "=")
+      if String.ends_with?(domain, "/") do
+        domain
+      else
+        domain <> "/"
+      end
+    else
+      get_realm(rest)
+    end
+  end
+
   @spec basic_authentication(String.t(), String.t()) :: tuple | nil
   defp basic_authentication(domain, authstring) do
-    [user, password] = String.split(authstring, ":")
+    [user, rest] = String.split(authstring, ":")
+    [password | _] = String.split(rest, ";")
+    Logger.debug("password is #{inspect password}")
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash <> "/cdmi_domains/" <> domain <> "cdmi_domain_members/" <> user
     user_obj = GenServer.call(Metadata, {:search, query})
@@ -63,7 +97,7 @@ defmodule Nebula.V1.Authentication do
         creds = data.metadata.cdmi_member_credentials
 
         if creds == encrypt(user, password) do
-          {user, data.metadata.cdmi_member_privileges}
+          {user, data.metadata.cdmi_member_privileges, domain}
         else
           nil
         end
