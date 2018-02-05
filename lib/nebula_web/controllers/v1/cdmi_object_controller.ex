@@ -10,17 +10,17 @@ defmodule NebulaWeb.V1.CdmiObjectController do
   @api_prefix api_prefix()
   require Logger
 
-  @spec create(Plug.Conn.t, map) :: Plug.Conn.t
+  @spec create(Plug.Conn.t(), map) :: Plug.Conn.t()
   def create(conn, %{"cdmi_object" => _params}) do
     request_fail(conn, :not_implemented, "Not Implemented")
   end
 
-  @spec show(Plug.Conn.t, map) :: Plug.Conn.t
+  @spec show(Plug.Conn.t(), map) :: Plug.Conn.t()
   def show(conn, %{"id" => id}) do
     handle_show(conn, GenServer.call(Metadata, {:get, id}))
   end
 
-  @spec handle_show(Plug.Conn.t, {atom, map}) :: Plug.Conn.t
+  @spec handle_show(Plug.Conn.t(), {atom, map}) :: Plug.Conn.t()
   defp handle_show(conn, {:ok, data}) do
     handle_show_object_type(data.objectType, conn, data)
   end
@@ -33,7 +33,7 @@ defmodule NebulaWeb.V1.CdmiObjectController do
     request_fail(conn, :im_a_teapot, "Not found teapot")
   end
 
-  @spec handle_show_object_type(String.t, Plug.Conn.t, map) :: Plug.Conn.t
+  @spec handle_show_object_type(String.t(), Plug.Conn.t(), map) :: Plug.Conn.t()
   defp handle_show_object_type(container_object(), conn, data) do
     Logger.debug("handle_show_object_type")
     set_mandatory_response_headers(conn, "container")
@@ -67,12 +67,12 @@ defmodule NebulaWeb.V1.CdmiObjectController do
     request_fail(conn, :bad_request, "Unknown object type: #{inspect(object_type)}")
   end
 
-  @spec update(Plug.Conn.t, map) :: Plug.Conn.t
+  @spec update(Plug.Conn.t(), map) :: Plug.Conn.t()
   def update(conn, %{"id" => _id, "cdmi_object" => _params}) do
     request_fail(conn, :not_implemented, "Not Implemented")
   end
 
-  @spec delete(Plug.Conn.t, map) :: Plug.Conn.t
+  @spec delete(Plug.Conn.t(), map) :: Plug.Conn.t()
   def delete(conn, %{"id" => id}) do
     response = GenServer.call(Metadata, {:get, id})
 

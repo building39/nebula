@@ -46,12 +46,12 @@ defmodule Nebula.V1.Authentication do
     end
   end
 
-  @spec authentication_failed(map, String.t) :: map
+  @spec authentication_failed(map, String.t()) :: map
   defp authentication_failed(conn, method) do
     request_fail(conn, :unauthorized, "Unauthorized", [{"WWW-Authenticate", method}])
   end
 
-  @spec basic_authentication(String.t, String.t) :: tuple | nil
+  @spec basic_authentication(String.t(), String.t()) :: tuple | nil
   defp basic_authentication(domain, authstring) do
     [user, password] = String.split(authstring, ":")
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)

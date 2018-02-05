@@ -12,7 +12,7 @@ defmodule Nebula.Util.ControllerCommon do
       @doc """
       Delete an object and all of its children
       """
-      @spec delete_object(Plug.Conn.t) :: Plug.Conn.t
+      @spec delete_object(Plug.Conn.t()) :: Plug.Conn.t()
       def delete_object(conn) do
         if conn.halted do
           conn
@@ -60,9 +60,10 @@ defmodule Nebula.Util.ControllerCommon do
       Check ACLs.
       This is a TODO.
       """
-      @spec check_acls(Plug.Conn.t, String.t) :: Plug.Conn.t
+      @spec check_acls(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
       def check_acls(conn, _method) do
         Logger.debug(fn -> "In check_acls" end)
+
         if conn.halted do
           conn
         else
@@ -73,9 +74,10 @@ defmodule Nebula.Util.ControllerCommon do
       @doc """
       Check object capabilities.
       """
-      @spec check_capabilities(Plug.Conn.t, String.t) :: Plug.Conn.t
+      @spec check_capabilities(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
       def check_capabilities(conn, "DELETE") do
         Logger.debug(fn -> "In check_capabilities DELETE" end)
+
         if conn.halted do
           conn
         else
@@ -95,6 +97,7 @@ defmodule Nebula.Util.ControllerCommon do
 
       def check_capabilities(conn, "PUT") do
         Logger.debug(fn -> "In check_capabilities PUT" end)
+
         if conn.halted do
           conn
         else
@@ -115,9 +118,10 @@ defmodule Nebula.Util.ControllerCommon do
       @doc """
       Check for mandatory Content-Type header.
       """
-      @spec check_content_type_header(Plug.Conn.t, String.t) :: Plug.Conn.t
+      @spec check_content_type_header(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
       def check_content_type_header(conn, resource) do
         Logger.debug(fn -> "In check_content_type_header" end)
+
         if List.keymember?(conn.req_headers, "content-type", 0) and
              List.keyfind(conn.req_headers, "content-type", 0) ==
                {"content-type", "application/cdmi-#{resource}"} do
@@ -134,7 +138,7 @@ defmodule Nebula.Util.ControllerCommon do
       @doc """
       Document the Check Domain function
       """
-      @spec check_domain(Plug.Conn.t, map) :: Plug.Conn.t
+      @spec check_domain(Plug.Conn.t(), map) :: Plug.Conn.t()
       def check_domain(conn, data) do
         if data.objectType == capabilities_object() do
           # Capability objects don't have a domain object
@@ -160,15 +164,15 @@ defmodule Nebula.Util.ControllerCommon do
       #
       # Construct the basic object metadata
       #
-      @spec construct_metadata(String.t) :: map
+      @spec construct_metadata(String.t()) :: map
       defp construct_metadata(auth_as) do
         Logger.debug(fn -> "In construct_metadata" end)
-        Logger.debug(fn -> "auth_as: #{inspect auth_as}" end)
+        Logger.debug(fn -> "auth_as: #{inspect(auth_as)}" end)
         timestamp = "1"
         # timestamp = List.to_string(Nebula.Util.Utils.make_timestamp())
         Logger.debug(fn -> "Hi there!" end)
-        Logger.debug(fn -> "timestamp: #{inspect timestamp}" end)
-        #Logger.debug(fn -> "assigns: #{inspect conn.assigns}" end)
+        Logger.debug(fn -> "timestamp: #{inspect(timestamp)}" end)
+        # Logger.debug(fn -> "assigns: #{inspect conn.assigns}" end)
         %{
           cdmi_owner: auth_as,
           cdmi_atime: timestamp,
@@ -188,9 +192,10 @@ defmodule Nebula.Util.ControllerCommon do
       @doc """
       Get the parent of an object.
       """
-      @spec get_parent(Plug.Conn.t) :: map
+      @spec get_parent(Plug.Conn.t()) :: map
       def get_parent(conn) do
         Logger.debug(fn -> "In get_parent" end)
+
         if conn.halted do
           conn
         else
@@ -203,6 +208,7 @@ defmodule Nebula.Util.ControllerCommon do
             else
               parent_path <> "/"
             end
+
           conn = assign(conn, :parentURI, parent_uri)
           domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
           query = "sp:" <> domain_hash <> parent_uri
@@ -210,7 +216,7 @@ defmodule Nebula.Util.ControllerCommon do
 
           case parent_obj do
             {:ok, data} ->
-              Logger.debug(fn -> "get_parent found parent #{inspect data, pretty: true}" end)
+              Logger.debug(fn -> "get_parent found parent #{inspect(data, pretty: true)}" end)
               assign(conn, :parent, data)
 
             {_, _} ->
@@ -222,7 +228,7 @@ defmodule Nebula.Util.ControllerCommon do
       @doc """
       Process the query string.
       """
-      @spec process_query_string(Plug.Conn.t, map) :: map
+      @spec process_query_string(Plug.Conn.t(), map) :: map
       def process_query_string(conn, data) do
         handle_qs(conn, data, String.split(conn.query_string, ";"))
       end
@@ -230,7 +236,7 @@ defmodule Nebula.Util.ControllerCommon do
       @doc """
       Fail a request.
       """
-      @spec request_fail(Plug.Conn.t, atom, String.t, list) :: map
+      @spec request_fail(Plug.Conn.t(), atom, String.t(), list) :: map
       def request_fail(conn, status, message, headers \\ []) do
         if length(headers) > 0 do
           Enum.reduce(headers, conn, fn {k, v}, acc ->
@@ -255,9 +261,10 @@ defmodule Nebula.Util.ControllerCommon do
       @doc """
       Update an object's parent.
       """
-      @spec update_parent(Plug.Conn.t, String.t) :: Plug.Conn.t
+      @spec update_parent(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
       def update_parent(conn, "DELETE") do
         Logger.debug(fn -> "In update_parent DELETE" end)
+
         if conn.halted do
           conn
         else
@@ -286,6 +293,7 @@ defmodule Nebula.Util.ControllerCommon do
 
       def update_parent(conn, "PUT") do
         Logger.debug(fn -> "In update_parent PUT" end)
+
         if conn.halted do
           conn
         else
@@ -294,7 +302,12 @@ defmodule Nebula.Util.ControllerCommon do
           children = Enum.concat([child.objectName], Map.get(parent, :children, []))
           parent = Map.put(parent, :children, children)
           children_range = Map.get(parent, :childrenrange, "")
-          Logger.debug(fn -> "parent: #{inspect parent} children: #{inspect children} range: #{inspect children_range}" end)
+
+          Logger.debug(fn ->
+            "parent: #{inspect(parent)} children: #{inspect(children)} range: #{
+              inspect(children_range)
+            }"
+          end)
 
           new_range =
             case children_range do
@@ -312,9 +325,10 @@ defmodule Nebula.Util.ControllerCommon do
         end
       end
 
-      @spec write_new_object(Plug.Conn.t) :: Plug.Conn.t
+      @spec write_new_object(Plug.Conn.t()) :: Plug.Conn.t()
       def write_new_object(conn) do
         Logger.debug(fn -> "In write_new_object" end)
+
         if conn.halted do
           conn
         else
@@ -331,7 +345,7 @@ defmodule Nebula.Util.ControllerCommon do
         end
       end
 
-      @spec handle_qs(Plug.Conn.t, map, list) :: map
+      @spec handle_qs(Plug.Conn.t(), map, list) :: map
       defp handle_qs(conn, data, qs) when qs == [""] do
         data
       end
@@ -348,20 +362,21 @@ defmodule Nebula.Util.ControllerCommon do
         end)
       end
 
-      @spec handle_subparms(String.t, list, map) :: map
+      @spec handle_subparms(String.t(), list, map) :: map
       defp handle_subparms(qp, acc, data) do
         [qp2, val] = String.split(qp, ":")
+
         if query_parm_exists?(data, String.to_atom(qp2)) do
           handle_subparm(acc, data, qp2, val)
         else
-            %{}
+          %{}
         end
       end
 
-      @spec handle_subparm(list, map, String.t, String.t) :: list
+      @spec handle_subparm(list, map, String.t(), String.t()) :: list
       defp handle_subparm(acc, data, qp, val) when qp == "children" do
-      [idx0, idx1] = String.split(val, "-")
-      s = String.to_integer(idx0)
+        [idx0, idx1] = String.split(val, "-")
+        s = String.to_integer(idx0)
         e = String.to_integer(idx1)
 
         childlist =

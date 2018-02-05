@@ -63,6 +63,7 @@ defmodule Nebula.Util.ControllerCommon do
       @spec check_acls(map, charlist) :: map
       def check_acls(conn, _method) do
         Logger.debug(fn -> "In check_acls" end)
+
         if conn.halted do
           conn
         else
@@ -76,6 +77,7 @@ defmodule Nebula.Util.ControllerCommon do
       @spec check_capabilities(map, charlist) :: map
       def check_capabilities(conn, "DELETE") do
         Logger.debug(fn -> "In check_capabilities DELETE" end)
+
         if conn.halted do
           conn
         else
@@ -95,6 +97,7 @@ defmodule Nebula.Util.ControllerCommon do
 
       def check_capabilities(conn, "PUT") do
         Logger.debug(fn -> "In check_capabilities PUT" end)
+
         if conn.halted do
           conn
         else
@@ -118,6 +121,7 @@ defmodule Nebula.Util.ControllerCommon do
       @spec check_content_type_header(map, charlist) :: map
       def check_content_type_header(conn, resource) do
         Logger.debug(fn -> "In check_content_type_header" end)
+
         if List.keymember?(conn.req_headers, "content-type", 0) and
              List.keyfind(conn.req_headers, "content-type", 0) ==
                {"content-type", "application/cdmi-#{resource}"} do
@@ -186,6 +190,7 @@ defmodule Nebula.Util.ControllerCommon do
       @spec get_parent(map) :: map
       def get_parent(conn) do
         Logger.debug(fn -> "In get_parent" end)
+
         if conn.halted do
           conn
         else
@@ -206,7 +211,7 @@ defmodule Nebula.Util.ControllerCommon do
 
           case parent_obj do
             {:ok, data} ->
-              Logger.debug(fn -> "get_parent found parent #{inspect data, pretty: true}" end)
+              Logger.debug(fn -> "get_parent found parent #{inspect(data, pretty: true)}" end)
               assign(conn, :parent, data)
 
             {_, _} ->
@@ -254,6 +259,7 @@ defmodule Nebula.Util.ControllerCommon do
       @spec update_parent(map, charlist) :: map
       def update_parent(conn, "DELETE") do
         Logger.debug(fn -> "In update_parent DELETE" end)
+
         if conn.halted do
           conn
         else
@@ -282,6 +288,7 @@ defmodule Nebula.Util.ControllerCommon do
 
       def update_parent(conn, "PUT") do
         Logger.debug(fn -> "In update_parent PUT" end)
+
         if conn.halted do
           conn
         else
@@ -290,7 +297,12 @@ defmodule Nebula.Util.ControllerCommon do
           children = Enum.concat([child.objectName], Map.get(parent, :children, []))
           parent = Map.put(parent, :children, children)
           children_range = Map.get(parent, :childrenrange, "")
-          Logger.debug(fn -> "parent: #{inspect parent} children: #{inspect children} range: #{inspect children_range}" end)
+
+          Logger.debug(fn ->
+            "parent: #{inspect(parent)} children: #{inspect(children)} range: #{
+              inspect(children_range)
+            }"
+          end)
 
           new_range =
             case children_range do
@@ -311,6 +323,7 @@ defmodule Nebula.Util.ControllerCommon do
       @spec write_new_object(map) :: map
       def write_new_object(conn) do
         Logger.debug(fn -> "In write_new_object" end)
+
         if conn.halted do
           conn
         else

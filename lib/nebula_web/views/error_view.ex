@@ -4,6 +4,7 @@ defmodule NebulaWeb.ErrorView do
   def render("404.json", _assigns) do
     %{errors: %{detail: "Page not found"}}
   end
+
   def render("404.cdmic", _assigns) do
     %{errors: %{detail: "Container not found"}}
   end

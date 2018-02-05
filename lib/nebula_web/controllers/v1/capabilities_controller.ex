@@ -22,7 +22,7 @@ defmodule NebulaWeb.V1.CapabilitiesController do
   Otherwise, return the container with a 200 status.
 
   """
-  @spec show(Plug.Conn.t, any) :: Plug.Conn.t
+  @spec show(Plug.Conn.t(), any) :: Plug.Conn.t()
   def show(conn, _params) do
     Logger.debug("Made it into the capabilities controller")
     Logger.debug("Conn: #{inspect(conn)}")

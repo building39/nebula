@@ -19,36 +19,42 @@ defmodule Nebula.V1.Prefetch do
   @doc """
   Document the prefetch function
   """
-  @spec call(Plug.Conn.t, any) :: Plug.Conn.t
+  @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
   def call(conn, _opts) do
     Logger.debug("Prefetch plug")
     fetch_for_method(conn, conn.method)
   end
 
-  @spec fetch_for_method(Plug.Conn.t, String.t) :: Plug.Conn.t
+  @spec fetch_for_method(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
   defp fetch_for_method(conn, method) when method == "DELETE" do
     handle_object_get(conn, Enum.at(conn.path_info, 2))
   end
 
   defp fetch_for_method(conn, method) when method == "GET" do
-    Logger.debug(fn -> "In fetch_for_method #{inspect conn, pretty: true}" end)
+    Logger.debug(fn -> "In fetch_for_method #{inspect(conn, pretty: true)}" end)
     req_headers = conn.req_headers
-    Logger.debug("req_headers: #{inspect req_headers}")
+    Logger.debug("req_headers: #{inspect(req_headers)}")
     {_, object_type} = List.keyfind(req_headers, "accept", 0, {"", ""})
-    object_type2 = case object_type do
-      "" ->
-        Logger.debug("no accept header")
-        ""
-      "application/cdmi-container" ->
-        Logger.debug("accepting cdmi-container")
-        "container"
-      "application/cdmi-domain" ->
-        Logger.debug("accepting cdmi-domain")
-        "domain"
-      other ->
-        Logger.error("Unknown accept header: #{inspect other}")
-    end
-    Logger.debug("object type is #{inspect object_type2}")
+
+    object_type2 =
+      case object_type do
+        "" ->
+          Logger.debug("no accept header")
+          ""
+
+        "application/cdmi-container" ->
+          Logger.debug("accepting cdmi-container")
+          "container"
+
+        "application/cdmi-domain" ->
+          Logger.debug("accepting cdmi-domain")
+          "domain"
+
+        other ->
+          Logger.error("Unknown accept header: #{inspect(other)}")
+      end
+
+    Logger.debug("object type is #{inspect(object_type2)}")
     handle_object_get(conn, object_type2)
   end
 

@@ -13,7 +13,7 @@ defmodule NebulaWeb.V1.DomainController do
   @doc """
   Create a new domain
   """
-  @spec create(Plug.Conn.t, any) :: Plug.Conn.t
+  @spec create(Plug.Conn.t(), any) :: Plug.Conn.t()
   def create(conn, _params) do
     Logger.debug("creating a new domain")
 
@@ -49,7 +49,7 @@ defmodule NebulaWeb.V1.DomainController do
   Otherwise, return the container with a 200 status.
 
   """
-  @spec show(Plug.Conn.t, any) :: Plug.Conn.t
+  @spec show(Plug.Conn.t(), any) :: Plug.Conn.t()
   def show(conn, _params) do
     Logger.debug("Made it into the domain controller")
     Logger.debug("Conn: #{inspect(conn)}")
@@ -72,7 +72,7 @@ defmodule NebulaWeb.V1.DomainController do
     end
   end
 
-  @spec check_for_dup(Plug.Conn.t) :: Plug.Conn.t
+  @spec check_for_dup(Plug.Conn.t()) :: Plug.Conn.t()
   defp check_for_dup(conn) do
     Logger.debug("Check for dup")
 
@@ -118,7 +118,7 @@ defmodule NebulaWeb.V1.DomainController do
     end
   end
 
-  @spec create_new_domain(Plug.Conn.t) :: Plug.Conn.t
+  @spec create_new_domain(Plug.Conn.t()) :: Plug.Conn.t()
   defp create_new_domain(conn) do
     Logger.debug("Create New Domain")
 
@@ -138,8 +138,9 @@ defmodule NebulaWeb.V1.DomainController do
         end
 
       auth_as = conn.assigns.authenticated_as
-      Logger.debug(fn -> "authenticated as #{inspect auth_as}" end)
+      Logger.debug(fn -> "authenticated as #{inspect(auth_as)}" end)
       new_metadata = construct_metadata(auth_as)
+
       metadata =
         if Map.has_key?(conn.body_params, "metadata") do
           Map.merge(construct_metadata(auth_as), conn.body_params["metadata"])
@@ -169,7 +170,7 @@ defmodule NebulaWeb.V1.DomainController do
   @doc """
   Get the parent of an object.
   """
-  @spec get_domain_parent(Plug.Conn.t) :: Plug.Conn.t
+  @spec get_domain_parent(Plug.Conn.t()) :: Plug.Conn.t()
   def get_domain_parent(conn) do
     if conn.halted do
       conn
