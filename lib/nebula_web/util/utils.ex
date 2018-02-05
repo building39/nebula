@@ -3,10 +3,12 @@ defmodule Nebula.Util.Utils do
   Various utility functions
   """
 
+  require Logger
+
   @doc """
   Encrypt.
   """
-  @spec encrypt(charlist, charlist) :: charlist
+  @spec encrypt(String.t, String.t) :: String.t
   def encrypt(key, message) do
     :crypto.hmac(:sha, key, message)
     |> Base.encode16()
@@ -16,27 +18,26 @@ defmodule Nebula.Util.Utils do
   @doc """
   Calculate a hash for a domain.
   """
-  @spec get_domain_hash(charlist) :: charlist
-  def get_domain_hash(domain) when is_list(domain) do
-    get_domain_hash(<<domain>>)
-  end
-
-  @spec get_domain_hash(binary) :: charlist
+  @spec get_domain_hash(String.t | binary) :: String.t
   def get_domain_hash(domain) when is_binary(domain) do
     :crypto.hmac(:sha, <<"domain">>, domain)
     |> Base.encode16()
     |> String.downcase()
   end
+  def get_domain_hash(domain) do
+    get_domain_hash(<<domain>>)
+  end
 
   @doc """
   Return a timestamp in the form of "2015-12-25T16:39:1451083144.000000Z"
   """
-  @spec make_timestamp() :: charlist
+  @spec make_timestamp() :: String.t
   def make_timestamp() do
+    Logger.debug(fn -> "making a timestamp" end)
     {{year, month, day}, {hour, minute, second}} =
       :calendar.now_to_universal_time(:os.timestamp())
 
-    List.flatten(
+    timestamp = List.flatten(
       :io_lib.format("~4..0w-~2..0w-~2..0wT~2..0w:~2..0w:~2..0w.000000Z", [
         year,
         month,
@@ -46,5 +47,8 @@ defmodule Nebula.Util.Utils do
         second
       ])
     )
+    |> List.to_string()
+    Logger.debug(fn -> "made timestamp: #{inspect timestamp}" end)
+    timestamp
   end
 end

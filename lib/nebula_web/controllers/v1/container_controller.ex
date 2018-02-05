@@ -10,6 +10,7 @@ defmodule NebulaWeb.V1.ContainerController do
   import Nebula.Util.Utils, only: [get_domain_hash: 1]
   require Logger
 
+  @spec create(Plug.Conn.t, any) :: Plug.Conn.t
   def create(conn, _params) do
     Logger.debug(fn -> "In create container" end)
     c =
@@ -32,6 +33,7 @@ defmodule NebulaWeb.V1.ContainerController do
     end
   end
 
+  @spec delete(Plug.Conn.t, any) :: Plug.Conn.t
   def delete(conn, _params) do
     c =
       conn
@@ -62,22 +64,24 @@ defmodule NebulaWeb.V1.ContainerController do
   Otherwise, return the container with a 200 status.
 
   """
+  @spec show(Plug.Conn.t, any) :: Plug.Conn.t
   def show(conn, _params) do
     set_mandatory_response_headers(conn, "container")
     data = conn.assigns.data
-    data = process_query_string(conn, data)
+    data2 = process_query_string(conn, data)
 
     conn
     |> check_acls(conn.method)
     |> put_status(:ok)
-    |> render("container.json", container: data)
+    |> render("container.json", container: data2)
   end
 
+  @spec update(Plug.Conn.t, map) :: Plug.Conn.t
   def update(conn, %{"id" => _id, "container" => _container_params}) do
     request_fail(conn, :not_implemented, "Update Not Implemented")
   end
 
-  @spec check_for_dup(map) :: map
+  @spec check_for_dup(Plug.Conn.t) :: Plug.Conn.t
   defp check_for_dup(conn) do
     Logger.debug(fn -> "In check_for_dup" end)
     if conn.halted do
@@ -116,7 +120,7 @@ defmodule NebulaWeb.V1.ContainerController do
     end
   end
 
-  @spec create_new_container(map) :: map
+  @spec create_new_container(Plug.Conn.t) :: Plug.Conn.t
   defp create_new_container(conn) do
     Logger.debug(fn -> "In create_new_container" end)
     if conn.halted == true do
@@ -125,11 +129,23 @@ defmodule NebulaWeb.V1.ContainerController do
       {object_oid, _object_key} = Cdmioid.generate(45241)
       object_name = List.last(conn.path_info) <> "/"
       # parent = conn.assigns.parent
+      Logger.debug(fn -> "body_params: #{inspect conn.body_params}" end)
+      auth_as = conn.assigns.authenticated_as
+      Logger.debug(fn -> "authenticated as #{inspect auth_as}" end)
       metadata =
         if Map.has_key?(conn.body_params, "metadata") do
-          Map.merge(construct_metadata(conn), conn.body_params["metadata"])
+          new_metadata = construct_metadata(auth_as)
+          Logger.debug(fn -> "new_metadata: #{inspect new_metadata}" end)
+          supplied_metadata = conn.body_params.metadata
+          Logger.debug(fn -> "supplied_metadata: #{inspect supplied_metadata}" end)
+          merged_metadata = Map.merge(new_metadata, supplied_metadata)
+          Logger.debug(fn -> "merged_metadata: #{inspect merged_metadata}" end)
+          merged_metadata
         else
-          construct_metadata(conn)
+          Logger.debug(fn -> "conn.body_params didn't have metadata" end)
+          new_metadata = construct_metadata(auth_as)
+          Logger.debug(fn -> "new_metadata: #{inspect new_metadata}" end)
+          new_metadata
         end
 
       Logger.debug("About to construct a new domainURI")
@@ -167,8 +183,8 @@ defmodule NebulaWeb.V1.ContainerController do
     end
   end
 
-  @spec construct_domain(map, charlist) ::
-          {:ok, charlist} | {:not_found, charlist} | {:error, charlist}
+  @spec construct_domain(Plug.Conn.t, String.t) ::
+          {:ok, String.t} | {:not_found, String.t} | {:error, String.t}
   defp construct_domain(conn, domain) do
     Logger.debug("constructing a new domain URI")
 

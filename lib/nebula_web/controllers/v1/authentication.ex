@@ -36,7 +36,7 @@ defmodule Nebula.V1.Authentication do
               {"", nil}
           end
 
-        if user do
+        if user != "" do
           conn
           |> assign(:authenticated_as, user)
           |> assign(:cdmi_privileges, privileges)
@@ -46,12 +46,12 @@ defmodule Nebula.V1.Authentication do
     end
   end
 
-  @spec authentication_failed(map, charlist) :: map
+  @spec authentication_failed(map, String.t) :: map
   defp authentication_failed(conn, method) do
     request_fail(conn, :unauthorized, "Unauthorized", [{"WWW-Authenticate", method}])
   end
 
-  @spec basic_authentication(charlist, charlist) :: charlist | nil
+  @spec basic_authentication(String.t, String.t) :: tuple | nil
   defp basic_authentication(domain, authstring) do
     [user, password] = String.split(authstring, ":")
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)

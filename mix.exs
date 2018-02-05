@@ -7,6 +7,7 @@ defmodule Nebula.Mixfile do
       version: "0.0.2",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
+      dialyzer: [plt_add_deps: :transitive],
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -44,6 +45,7 @@ defmodule Nebula.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:linguist, "~> 0.1"},
       {:pooler, "~> 1.5"},
       {:phoenix, "~> 1.3"},
