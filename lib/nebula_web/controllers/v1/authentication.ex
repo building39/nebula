@@ -17,7 +17,7 @@ defmodule Nebula.V1.Authentication do
   """
   @spec call(Plug.Conn.t, any) :: Plug.Conn.t
   def call(conn, _opts) do
-    Logger.debug("Authentication plug")
+    Logger.debug("Authentication plug. Conn: #{inspect conn, pretty: true}")
     auth = get_req_header(conn, "authorization")
 
     case auth do
@@ -32,18 +32,7 @@ defmodule Nebula.V1.Authentication do
           case method do
             "Basic" ->
               Logger.debug("doing basic authentication")
-              options = authstring
-              |> String.split(";")
-              |> List.last()
-              |> String.split(",")
-              Logger.debug("XYZ options: #{inspect options}")
-              domain = get_realm(options)
-              Logger.debug("Resolved domain: #{inspect domain}")
-              result = if domain != nil do
-                basic_authentication(domain, authstring)
-              else
-                basic_authentication(conn.assigns.cdmi_domain, authstring)
-              end
+              result = basic_authentication(conn.assigns.cdmi_domain, authstring)
               Logger.debug("Authentication result: #{inspect result}")
               result
             _ ->
@@ -54,7 +43,6 @@ defmodule Nebula.V1.Authentication do
           conn
           |> assign(:authenticated_as, user)
           |> assign(:cdmi_privileges, privileges)
-          |> assign(:cdmi_domain, domain)
         else
           authentication_failed(conn, method)
         end
@@ -64,23 +52,6 @@ defmodule Nebula.V1.Authentication do
   @spec authentication_failed(map, String.t()) :: map
   defp authentication_failed(conn, method) do
     request_fail(conn, :unauthorized, "Unauthorized", [{"WWW-Authenticate", method}])
-  end
-
-  @spec get_realm(list) :: String.t | nil
-  defp get_realm([]) do
-    nil
-  end
-  defp get_realm([option|rest]) do
-    if String.starts_with?(option, "realm=") do
-      [_, domain] = String.split(option, "=")
-      if String.ends_with?(domain, "/") do
-        domain
-      else
-        domain <> "/"
-      end
-    else
-      get_realm(rest)
-    end
   end
 
   @spec basic_authentication(String.t(), String.t()) :: tuple | nil
