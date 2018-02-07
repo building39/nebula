@@ -19,33 +19,38 @@ defmodule Nebula.V1.ResolveDomain do
   def call(conn, _opts) do
     Logger.debug("ResolveDomain plug")
     auth = get_req_header(conn, "authorization")
-    new_conn = case auth do
-      [] ->
-        conn
-        |> assign(:cdmi_domain, "system_domain/")
-      _ ->
-        [method, authstring] = String.split(List.to_string(auth))
-        authstring = Base.decode64!(authstring)
-        domain = case method do
-          "Basic" ->
-            options = authstring
-            |> String.split(";")
-            |> List.last()
-            |> String.split(",")
-            Logger.debug("XYZ options: #{inspect options}")
-            domain = get_realm(options)
-            Logger.debug("Resolved domain: #{inspect domain}")
-            if domain == nil do
-              get_domain_from_realm_map(conn)
-            else
-              domain
-            end
-        end
+    if Enum.member?(["cdmi_domains", "/"], Enum.at(conn.path_info, 2)) do
       conn
-      |> assign(:cdmi_domain, domain)
+      |> assign(:cdmi_domain, "system_domain/")
+    else
+      new_conn = case auth do
+        [] ->
+          conn
+          |> assign(:cdmi_domain, "system_domain/")
+        _ ->
+          [method, authstring] = String.split(List.to_string(auth))
+          authstring = Base.decode64!(authstring)
+          domain = case method do
+            "Basic" ->
+              options = authstring
+              |> String.split(";")
+              |> List.last()
+              |> String.split(",")
+              Logger.debug("XYZ options: #{inspect options}")
+              domain = get_realm(options)
+              Logger.debug("Resolved domain: #{inspect domain}")
+              if domain == nil do
+                get_domain_from_realm_map(conn)
+              else
+                domain
+              end
+          end
+          conn
+          |> assign(:cdmi_domain, domain)
+      end
+      Logger.debug("New conn: #{inspect new_conn, pretty: true}")
+      new_conn
     end
-    Logger.debug("New conn: #{inspect new_conn, pretty: true}")
-    new_conn
   end
 
   @spec get_domain_from_realm_map(Plug.Conn.t) :: String.t
