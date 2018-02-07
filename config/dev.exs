@@ -14,7 +14,7 @@ config :nebula, NebulaWeb.Endpoint,
   watchers: []
 
 config :nebula,
-  cdmi_version: ["1.1"]
+  cdmi_version: ["1.1", "1.1.1"]
 
   config :logger,
     format: "[$level] $message\n",
