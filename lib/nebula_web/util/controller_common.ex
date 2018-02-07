@@ -234,12 +234,14 @@ defmodule Nebula.Util.ControllerCommon do
           Logger.debug("container's parent is #{inspect parent_uri}")
           conn2 = assign(conn, :parentURI, parent_uri)
           Logger.debug("XYZ calling get_domain_hash")
+          # domain_hash = get_domain_hash("/cdmi_domains/" <> conn2.assigns.cdmi_domain)
           domain_hash = if parent_uri == "/" do
             # Root container always resides in system_domain
             get_domain_hash("/cdmi_domains/system_domain/")
           else
             get_domain_hash("/cdmi_domains/" <> conn2.assigns.cdmi_domain)
           end
+          Logger.debug("domain_hash #{inspect domain_hash}")
           query = "sp:" <> domain_hash <> parent_uri
           parent_obj = GenServer.call(Metadata, {:search, query})
 

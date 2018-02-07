@@ -26,7 +26,7 @@ defmodule Nebula.Macros do
         put_resp_header(
           unquote(conn),
           unquote("content-type"),
-          unquote("application/cdmi-#{resource}")
+          unquote(resource)
         )
     end
   end

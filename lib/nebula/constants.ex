@@ -23,6 +23,10 @@ defmodule Nebula.Constants do
     "application/cdmi-domain"
   end
 
+  defmacro multipart_mixed do
+    "application/cdmi-domain"
+  end
+
   defmacro container_capabilities_uri do
     "/cdmi_capabilities/container/"
   end
@@ -42,4 +46,14 @@ defmodule Nebula.Constants do
   defmacro system_domain_uri do
     "/cdmi_domains/system_domain/"
   end
+
+  defmacro render_object_type do
+    [
+      {capabilities_object(), "cdmi_capabilities.json"},
+      {container_object(), "cdmi_container.json"},
+      {dataobject_object(), "_cdmi_dataobject.json"},
+      {domain_object(), "cdmi_domain.json"}
+    ]
+  end
+
 end
