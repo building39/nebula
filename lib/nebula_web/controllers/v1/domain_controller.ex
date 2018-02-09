@@ -6,7 +6,6 @@ defmodule NebulaWeb.V1.DomainController do
   use NebulaWeb, :controller
   use Nebula.Util.ControllerCommon
 
-  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
   import Nebula.Util.Utils, only: [get_domain_hash: 1]
   require Logger
 
@@ -28,20 +27,11 @@ defmodule NebulaWeb.V1.DomainController do
       |> write_new_object()
       |> update_parent(conn.method)
 
-    Logger.debug("XYZ new_conn: #{inspect(c, pretty: true)}")
-    new_domain = c.assigns.newobject
-    Logger.debug("XYZ new_domain: #{inspect(new_domain)}")
-
     if not c.halted do
-      Logger.debug("XYZ not halted")
-      # c
-      # |> put_status(:ok)
-      # |> render("domain.json", container: new_domain)
-      c2 = put_status(c, :ok)
-      Logger.debug("XYZ c2: #{inspect(c2, pretty: true)}")
-      c3 = render(c2, "cdmi_domain.json", cdmi_domain: new_domain)
-      Logger.debug("XYZ c3: #{inspect(c3, pretty: true)}")
-      c3
+      Logger.debug("Not halted")
+      c
+      |> put_status(:ok)
+      |> render("cdmi_domain.json", object: c.assigns.newobject)
     else
       Logger.debug("XYZ halted")
       c

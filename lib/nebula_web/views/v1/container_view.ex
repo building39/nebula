@@ -2,11 +2,12 @@ defmodule NebulaWeb.V1.ContainerView do
   use NebulaWeb, :view
   require Logger
 
-  def render("container.json", %{container: container}) do
-    container
+  def render("cdmi_container.json", %{object: object}) do
+    object
   end
 
-  def render("container.cdmic", %{container: container}) do
-    container
+  def render("cdmi_container.cdmic", %{object: object}) do
+    object
   end
+
 end

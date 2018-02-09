@@ -68,10 +68,10 @@ defmodule Nebula.V1.Authentication do
 
     case user_obj do
       {:ok, data} ->
-        creds = data.metadata.cdmi_member_credentials
+        creds = data.cdmi_member_credentials
 
         if creds == encrypt(user, password) do
-          {user, data.metadata.cdmi_member_privileges, domain}
+          {user, data.cdmi_member_privileges, domain}
         else
           if user == "administrator" and domain != "system_domain/" do
             Logger.debug("Try to authenticate as administrator")

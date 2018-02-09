@@ -111,6 +111,7 @@ defmodule Nebula.Util.ControllerCommon do
         Logger.debug(fn -> "In check_capabilities PUT" end)
 
         if conn.halted do
+          Logger.debug("check_capabilities halted")
           conn
         else
           parent = conn.assigns.parent
@@ -164,7 +165,7 @@ defmodule Nebula.Util.ControllerCommon do
         if Map.has_key?(conn.assigns, :cdmi_domain) do
           domain = conn.assigns.cdmi_domain
           Logger.debug("XYZ calling get_domain_hash")
-          domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
+          domain_hash = get_domain_hash("/cdmi_domains/system_domain/")
           query = "sp:" <> domain_hash <> "/cdmi_domains/#{domain}"
           {rc, data} = GenServer.call(Metadata, {:search, query})
 
@@ -172,10 +173,10 @@ defmodule Nebula.Util.ControllerCommon do
             if Map.get(data.metadata, :cdmi_domain_enabled, false) do
               conn
             else
-              request_fail(conn, :forbidden, "Forbidden")
+              request_fail(conn, :forbidden, "Forbidden1")
             end
           else
-            request_fail(conn, :forbidden, "Forbidden")
+            request_fail(conn, :forbidden, "Forbidden2")
           end
         else
           # Capability objects don't have a domain object
@@ -209,6 +210,61 @@ defmodule Nebula.Util.ControllerCommon do
             }
           ]
         }
+      end
+
+      @spec create_new_container(Plug.Conn.t()) :: Plug.Conn.t()
+      defp create_new_container(conn) do
+        Logger.debug(fn -> "In create_new_container" end)
+
+        if conn.halted == true do
+          conn
+        else
+          {object_oid, _object_key} = Cdmioid.generate(45241)
+          object_name = List.last(conn.path_info) <> "/"
+          auth_as = conn.assigns.authenticated_as
+
+          metadata =
+            if Map.has_key?(conn.body_params, "metadata") do
+              new_metadata = construct_metadata(auth_as)
+              supplied_metadata = conn.body_params["metadata"]
+              merged_metadata = Map.merge(new_metadata, supplied_metadata)
+              merged_metadata
+            else
+              new_metadata = construct_metadata(auth_as)
+              new_metadata
+            end
+
+          domain_uri =
+            if Map.has_key?(conn.body_params, "domainURI") do
+              construct_domain(conn, conn.body_params["domainURI"])
+            else
+              {:ok, conn.assigns.cdmi_domain}
+            end
+
+          case domain_uri do
+            {:ok, domain} ->
+              new_container = %{
+                objectType: container_object(),
+                objectID: object_oid,
+                objectName: object_name,
+                parentURI: conn.assigns.parentURI,
+                parentID: conn.assigns.parent.objectID,
+                domainURI: "/cdmi_domains/" <> domain,
+                capabilitiesURI: container_capabilities_uri(),
+                completionStatus: "Complete",
+                children: [],
+                metadata: metadata
+              }
+
+              assign(conn, :newobject, new_container)
+
+            {:not_found, _} ->
+              request_fail(conn, :bad_request, "Specified domain not found")
+
+            {_, _} ->
+              request_fail(conn, :bad_request, "Bad request")
+          end
+        end
       end
 
       @doc """

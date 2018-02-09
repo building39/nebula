@@ -30,7 +30,7 @@ defmodule NebulaWeb.V1.ContainerController do
     if not c.halted do
       c
       |> put_status(:ok)
-      |> render("container.json", container: c.assigns.newobject)
+      |> render("cdmi_container.json", object: c.assigns.newobject)
     else
       c
     end
@@ -120,63 +120,6 @@ defmodule NebulaWeb.V1.ContainerController do
 
         3 ->
           request_fail(conn, :conflict, "Container already exists")
-      end
-    end
-  end
-
-  @spec create_new_container(Plug.Conn.t()) :: Plug.Conn.t()
-  defp create_new_container(conn) do
-    Logger.debug(fn -> "In create_new_container" end)
-
-    if conn.halted == true do
-      conn
-    else
-      {object_oid, _object_key} = Cdmioid.generate(45241)
-      object_name = List.last(conn.path_info) <> "/"
-      auth_as = conn.assigns.authenticated_as
-
-      metadata =
-        if Map.has_key?(conn.body_params, "metadata") do
-          new_metadata = construct_metadata(auth_as)
-          supplied_metadata = conn.body_params["metadata"]
-          merged_metadata = Map.merge(new_metadata, supplied_metadata)
-          merged_metadata
-        else
-          new_metadata = construct_metadata(auth_as)
-          new_metadata
-        end
-
-      Logger.debug("About to construct a new domainURI")
-
-      domain_uri =
-        if Map.has_key?(conn.body_params, "domainURI") do
-          construct_domain(conn, conn.body_params["domainURI"])
-        else
-          {:ok, conn.assigns.cdmi_domain}
-        end
-
-      case domain_uri do
-        {:ok, domain} ->
-          new_container = %{
-            objectType: container_object(),
-            objectID: object_oid,
-            objectName: object_name,
-            parentURI: conn.assigns.parentURI,
-            parentID: conn.assigns.parent.objectID,
-            domainURI: "/cdmi_domains/" <> domain,
-            capabilitiesURI: container_capabilities_uri(),
-            completionStatus: "Complete",
-            children: [],
-            metadata: metadata
-          }
-
-          assign(conn, :newobject, new_container)
-
-        {:not_found, _} ->
-          request_fail(conn, :bad_request, "Specified domain not found")
-
-        {_, _} ->
-          request_fail(conn, :bad_request, "Bad request")
       end
     end
   end

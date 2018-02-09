@@ -29,7 +29,7 @@ defmodule NebulaWeb.V1.GetController do
     Logger.debug("render_type: #{inspect render_type}")
 
     conn2
-    |> check_acls(conn.method)
+    |> check_acls(conn2.method)
     |> put_status(:ok)
     |> render(render_type, cdmi_object: data)
   end
