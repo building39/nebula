@@ -227,9 +227,12 @@ defmodule NebulaWeb.V1.ContainerController do
       conn
     else
       path = conn.request_path
+      object_name = List.last(conn.path_info)
       cond do
         not String.ends_with?(path, "/") ->
           request_fail(conn, :bad_request, "Container name must end with a \"/\"")
+        String.starts_with?(object_name, "cdmi_") ->
+          request_fail(conn, :bad_request, "Container name must must not start with \"cdmi_\"")
         true ->
           conn
       end
