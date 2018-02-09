@@ -159,12 +159,9 @@ defmodule Nebula.Util.ControllerCommon do
       @doc """
       Document the Check Domain function
       """
-      @spec check_domain(Plug.Conn.t(), map) :: Plug.Conn.t()
-      def check_domain(conn, data) do
-        if data.objectType == capabilities_object() do
-          # Capability objects don't have a domain object
-          conn
-        else
+      @spec check_domain(Plug.Conn.t()) :: Plug.Conn.t()
+      def check_domain(conn) do
+        if Map.has_key?(conn.assigns, :cdmi_domain) do
           domain = conn.assigns.cdmi_domain
           Logger.debug("XYZ calling get_domain_hash")
           domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
@@ -180,6 +177,9 @@ defmodule Nebula.Util.ControllerCommon do
           else
             request_fail(conn, :forbidden, "Forbidden")
           end
+        else
+          # Capability objects don't have a domain object
+          conn
         end
       end
 

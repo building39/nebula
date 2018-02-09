@@ -16,6 +16,8 @@ defmodule NebulaWeb.V1.ContainerController do
 
     c =
       conn
+      |> validity_check()
+      |> check_domain()
       |> check_content_type_header("container")
       |> check_for_dup()
       |> get_parent()
@@ -213,6 +215,23 @@ defmodule NebulaWeb.V1.ContainerController do
 
         _ ->
           {:error, domain}
+      end
+    end
+  end
+
+  @spec validity_check(Plug.Conn.t()) :: Plug.Conn.t()
+  defp validity_check(conn) do
+    Logger.debug(fn -> "In validity_check" end)
+
+    if conn.halted == true do
+      conn
+    else
+      path = conn.request_path
+      cond do
+        not String.ends_with?(path, "/") ->
+          request_fail(conn, :bad_request, "Container name must end with a \"/\"")
+        true ->
+          conn
       end
     end
   end
