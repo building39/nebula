@@ -191,7 +191,7 @@ defmodule Nebula.Util.ControllerCommon do
       defp construct_metadata(auth_as) do
         Logger.debug(fn -> "In construct_metadata" end)
         Logger.debug(fn -> "auth_as: #{inspect(auth_as)}" end)
-        timestamp = "1"
+        timestamp = make_timestamp()
         # timestamp = List.to_string(Nebula.Util.Utils.make_timestamp())
         Logger.debug(fn -> "Hi there!" end)
         Logger.debug(fn -> "timestamp: #{inspect(timestamp)}" end)
