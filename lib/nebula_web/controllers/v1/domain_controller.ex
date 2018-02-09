@@ -153,6 +153,7 @@ defmodule NebulaWeb.V1.DomainController do
         capabilitiesURI: domain_capabilities_uri(),
         completionStatus: "Complete",
         children: [],
+        childrenrange: "",
         metadata: metadata
       }
 
