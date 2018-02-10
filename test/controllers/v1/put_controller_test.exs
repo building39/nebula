@@ -1,4 +1,4 @@
-defmodule Noecto.V1.ContainerControllerTest do
+defmodule Noecto.V1.PutControllerTest do
   use Noecto.ConnCase
 
   alias Noecto.Container

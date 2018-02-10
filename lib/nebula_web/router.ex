@@ -18,12 +18,12 @@ defmodule NebulaWeb.Router do
     scope "/v1", V1, as: :v1 do
       get("/cdmi_objectid/:id", CdmiObjectController, :show)
       get("/*path", GetController, :show)
-      delete("/container/*path", ContainerController, :delete)
+      delete("/container/*path", PutController, :delete)
       delete("/cdmi_objectid/:id", CdmiObjectController, :delete)
       delete("/cdmi_domains/*path", DomainController, :delete)
-      put("/container/*path", ContainerController, :create)
+      put("/container/*path", PutController, :create)
       put("/cdmi_domains/*path", DomainController, :create)
-      put("/*path", ContainerController, :create)
+      put("/*path", PutController, :create)
     end
   end
 end

@@ -1,4 +1,4 @@
-defmodule NebulaWeb.V1.ContainerController do
+defmodule NebulaWeb.V1.PutController do
   @moduledoc """
   Handle cdmi containers
   """

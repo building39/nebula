@@ -91,7 +91,7 @@ defmodule NebulaWeb.V1.DomainController do
           end
 
         3 ->
-          request_fail(conn, :conflict, "Domain already exists")
+          request_fail(conn, :conflict, "Domain already exists.")
       end
     end
   end
