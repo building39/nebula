@@ -124,44 +124,6 @@ defmodule NebulaWeb.V1.ContainerController do
     end
   end
 
-  @spec construct_domain(Plug.Conn.t(), String.t()) ::
-          {:ok, String.t()} | {:not_found, String.t()} | {:error, String.t()}
-  defp construct_domain(conn, domain) do
-    Logger.debug("constructing a new domain URI")
-
-    if conn.halted do
-      conn
-    else
-      hash = get_domain_hash("/cdmi_domains/" <> domain)
-      query = "sp:" <> hash <> "/" <> domain
-      response = GenServer.call(Metadata, {:search, query})
-
-      case tuple_size(response) do
-        2 ->
-          {status, _} = response
-
-          case status do
-            :not_found ->
-              {:not_found, domain}
-
-            :ok ->
-              if conn.assigns.cdmi_domain == domain do
-                {:ok, domain}
-              else
-                if "cross_domain" in conn.assigns.privileges do
-                  {:ok, domain}
-                else
-                  {:error, domain}
-                end
-              end
-          end
-
-        _ ->
-          {:error, domain}
-      end
-    end
-  end
-
   @spec validity_check(Plug.Conn.t()) :: Plug.Conn.t()
   defp validity_check(conn) do
     Logger.debug(fn -> "In validity_check" end)

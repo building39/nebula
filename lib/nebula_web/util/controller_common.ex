@@ -184,6 +184,44 @@ defmodule Nebula.Util.ControllerCommon do
         end
       end
 
+      @spec construct_domain(Plug.Conn.t(), String.t()) ::
+              {:ok, String.t()} | {:not_found, String.t()} | {:error, String.t()}
+      defp construct_domain(conn, domain) do
+        Logger.debug("constructing a new domain URI")
+
+        if conn.halted do
+          conn
+        else
+          hash = get_domain_hash("/cdmi_domains/" <> domain)
+          query = "sp:" <> hash <> "/" <> domain
+          response = GenServer.call(Metadata, {:search, query})
+
+          case tuple_size(response) do
+            2 ->
+              {status, _} = response
+
+              case status do
+                :not_found ->
+                  {:not_found, domain}
+
+                :ok ->
+                  if conn.assigns.cdmi_domain == domain do
+                    {:ok, domain}
+                  else
+                    if "cross_domain" in conn.assigns.privileges do
+                      {:ok, domain}
+                    else
+                      {:error, domain}
+                    end
+                  end
+              end
+
+            _ ->
+              {:error, domain}
+          end
+        end
+      end
+
       #
       # Construct the basic object metadata
       #
@@ -207,6 +245,24 @@ defmodule Nebula.Util.ControllerCommon do
               acemask: "0x1f07ff",
               acetype: "0x00",
               identifier: "OWNER\@"
+            },
+            %{
+              "aceflags": "0x03",
+              "acemask": "0x1F",
+              "acetype": "0x00",
+              "identifier": "AUTHENTICATED\@"
+            },
+            %{
+              "aceflags": "0x83",
+              "acemask": "0x1f07ff",
+              "acetype": "0x00",
+              "identifier": "OWNER\@",
+            },
+            %{
+              "aceflags": "0x83",
+              "acemask": "0x1F",
+              "acetype": "0x00",
+              "identifier": "AUTHENTICATED\@"
             }
           ]
         }
@@ -253,6 +309,7 @@ defmodule Nebula.Util.ControllerCommon do
                 capabilitiesURI: container_capabilities_uri(),
                 completionStatus: "Complete",
                 children: [],
+                childrenrange: "",
                 metadata: metadata
               }
 
@@ -290,11 +347,11 @@ defmodule Nebula.Util.ControllerCommon do
           Logger.debug("container's parent is #{inspect parent_uri}")
           conn2 = assign(conn, :parentURI, parent_uri)
           Logger.debug("XYZ calling get_domain_hash")
-          # domain_hash = get_domain_hash("/cdmi_domains/" <> conn2.assigns.cdmi_domain)
           domain_hash = if parent_uri == "/" do
             # Root container always resides in system_domain
             get_domain_hash("/cdmi_domains/system_domain/")
           else
+            Logger.debug("conn2.assigns.cdmi_domain: #{inspect conn2.assigns.cdmi_domain}")
             get_domain_hash("/cdmi_domains/" <> conn2.assigns.cdmi_domain)
           end
           Logger.debug("domain_hash #{inspect domain_hash}")
@@ -307,6 +364,7 @@ defmodule Nebula.Util.ControllerCommon do
               assign(conn2, :parent, data)
 
             {_, _} ->
+              Logger.debug("couldn't find parent container #{inspect query}")
               request_fail(conn, :not_found, "Parent container does not exist")
           end
         end
@@ -382,20 +440,25 @@ defmodule Nebula.Util.ControllerCommon do
 
       def update_parent(conn, "PUT") do
         Logger.debug(fn -> "XYZ In update_parent PUT" end)
+        Logger.debug("update parent conn: #{inspect conn, pretty: true}")
 
         if conn.halted do
           Logger.debug("ouch, we're halted")
           conn
         else
           child = conn.assigns.newobject
-          parent = conn.assigns.parent
+          parent_obj = get_parent(conn)
+          Logger.debug("parent_obj: #{inspect parent_obj, pretty: true}")
+          parent = parent_obj.assigns.parent
+          Logger.debug("updating parent #{inspect parent, pretty: true}")
           children = Enum.concat([child.objectName], Map.get(parent, :children, []))
-          parent = Map.put(parent, :children, children)
-          Logger.debug("parent is #{inspect parent}")
-          children_range = Map.get(parent, :childrenrange, "")
+          Logger.debug("new child list: #{inspect children}")
+          new_parent = Map.put(parent, :children, children)
+          Logger.debug("parent is #{inspect new_parent}")
+          children_range = Map.get(new_parent, :childrenrange, "")
 
           Logger.debug(fn ->
-            "XYZ parent: #{inspect(parent)} children: #{inspect(children)} range: #{
+            "XYZ parent: #{inspect(new_parent)} children: #{inspect(children)} range: #{
               inspect(children_range)
             }"
           end)
@@ -410,11 +473,11 @@ defmodule Nebula.Util.ControllerCommon do
                 "0-" <> Integer.to_string(String.to_integer(last) + 1)
             end
 
-          parent = Map.put(parent, :childrenrange, new_range)
-          case GenServer.call(Metadata, {:update, parent.objectID, parent})do
-            {:ok, new_parent} ->
-              Logger.debug("XYZ parent update succeeded: #{inspect new_parent, pretty: true}")
-              new_conn = assign(conn, :parent, new_parent)
+          new_parent2 = Map.put(new_parent, :childrenrange, new_range)
+          case GenServer.call(Metadata, {:update, new_parent2.objectID, new_parent2})do
+            {:ok, new_parent2} ->
+              Logger.debug("XYZ parent update succeeded: #{inspect new_parent2, pretty: true}")
+              new_conn = assign(conn, :parent, new_parent2)
               Logger.debug("XYZ New conn: #{inspect new_conn}")
               new_conn
             {other, reason} ->
