@@ -42,7 +42,7 @@ defmodule Nebula.V1.Authentication do
         if user != "" do
           conn
           |> assign(:authenticated_as, user)
-          |> assign(:cdmi_privileges, privileges)
+          |> assign(:cdmi_member_privileges, privileges)
         else
           authentication_failed(conn, method)
         end

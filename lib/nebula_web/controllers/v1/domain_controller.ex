@@ -151,6 +151,7 @@ defmodule NebulaWeb.V1.DomainController do
       |> update_parent(conn.method)
 
       domain_name = Enum.join(Enum.drop(new_conn.path_info, 3), "/") <> "/"
+      Logger.debug("MLM domain_name #{inspect domain_name}")
       Task.start(fn -> create_new_domain_children(new_conn, domain_name) end)
 
       new_conn
@@ -167,7 +168,7 @@ defmodule NebulaWeb.V1.DomainController do
 
   @spec create_new_domain_child(Plug.Conn.t(), binary, String.t) :: nil
   defp create_new_domain_child(conn, name, domain_name) do
-    Logger.debug("creating domain child #{inspect name} for domain #{inspect conn.assigns.cdmi_domain}")
+    Logger.debug("creating domain child #{inspect name} for domain #{inspect domain_name}")
     temp_parentURI = "/" <> Enum.join(Enum.drop(conn.path_info, 2), "/") <> "/"
     temp_path_info = List.flatten(conn.path_info ++ [name])
     Logger.debug("temp_parentURI: #{inspect temp_parentURI}")
@@ -176,14 +177,14 @@ defmodule NebulaWeb.V1.DomainController do
     # |> assign(:cdmi_domain, domain_name)
     |> assign(:parent, conn.assigns.newobject)
     |> assign(:parentURI, temp_parentURI)
-    |> Map.put(:body_params, %{})
+    |> Map.put(:body_params, %{"domainURI" => domain_name})
     |> Map.put(:params, %{})
     |> Map.put(:path_info, temp_path_info)
     |> Map.put(:request_path, conn.request_path <> name <> "/")
     |> create_new_container()
     |> write_new_object()
     Logger.debug("new_conn: #{inspect new_conn, pretty: true}")
-    :timer.sleep(1)
+    :timer.sleep(1_000)
     new_conn = new_conn
     |> update_parent(conn.method)
     if name == "cdmi_domain_summary" do
@@ -245,12 +246,10 @@ defmodule NebulaWeb.V1.DomainController do
       Logger.debug("XYZ calling get_domain_hash")
 
       domain_hash =
-        case parent_uri do
-          "/cdmi_domains/" ->
-            get_domain_hash(parent_uri <> "system_domain/")
-
-          _other ->
-            get_domain_hash(parent_uri)
+        if String.starts_with?(parent_uri, "/cdmi_domains/") do
+          get_domain_hash("/cdmi_domains/system_domain/")
+        else
+          get_domain_hash(parent_uri)
         end
 
       Logger.debug("XYZ calling get_domain_hash")

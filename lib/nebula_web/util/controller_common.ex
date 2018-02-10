@@ -187,14 +187,17 @@ defmodule Nebula.Util.ControllerCommon do
       @spec construct_domain(Plug.Conn.t(), String.t()) ::
               {:ok, String.t()} | {:not_found, String.t()} | {:error, String.t()}
       defp construct_domain(conn, domain) do
-        Logger.debug("constructing a new domain URI")
+        Logger.debug("constructing a new domain URI for domain: #{inspect domain}")
 
         if conn.halted do
+          Logger.debug("construct_domain halted")
           conn
         else
-          hash = get_domain_hash("/cdmi_domains/" <> domain)
-          query = "sp:" <> hash <> "/" <> domain
+          hash = get_domain_hash("/cdmi_domains/system_domain/")
+          query = "sp:" <> hash <> "/cdmi_domains/" <> domain
+          Logger.debug("query: #{inspect query}")
           response = GenServer.call(Metadata, {:search, query})
+          Logger.debug("search results: #{inspect response}")
 
           case tuple_size(response) do
             2 ->
@@ -205,10 +208,13 @@ defmodule Nebula.Util.ControllerCommon do
                   {:not_found, domain}
 
                 :ok ->
+                  Logger.debug("MLM conn: #{inspect conn, pretty: true}")
+                  Logger.debug("domain: #{inspect domain}")
                   if conn.assigns.cdmi_domain == domain do
                     {:ok, domain}
                   else
-                    if "cross_domain" in conn.assigns.privileges do
+                    if "cross_domain" in conn.assigns.cdmi_member_privileges do
+                      Logger.debug("cross domain access!")
                       {:ok, domain}
                     else
                       {:error, domain}
@@ -277,6 +283,7 @@ defmodule Nebula.Util.ControllerCommon do
         else
           {object_oid, _object_key} = Cdmioid.generate(45241)
           object_name = List.last(conn.path_info) <> "/"
+          Logger.debug("MLM path_info: #{inspect conn.path_info}")
           auth_as = conn.assigns.authenticated_as
 
           metadata =
@@ -291,12 +298,16 @@ defmodule Nebula.Util.ControllerCommon do
             end
 
           domain_uri =
-            if Map.has_key?(conn.body_params, "domainURI") do
-              construct_domain(conn, conn.body_params["domainURI"])
-            else
-              {:ok, conn.assigns.cdmi_domain}
+            cond do
+              # Enum.at(conn.path_info, 2) == "cdmi_domains" ->
+              #   {:ok, "system_domain/"}
+              Map.has_key?(conn.body_params, "domainURI") ->
+                construct_domain(conn, conn.body_params["domainURI"])
+              true ->
+                {:ok, conn.assigns.cdmi_domain}
             end
 
+          Logger.debug("construct_domain returned #{inspect domain_uri}")
           case domain_uri do
             {:ok, domain} ->
               new_container = %{
