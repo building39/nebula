@@ -16,13 +16,14 @@ defmodule NebulaWeb.Router do
     pipe_through(:api)
 
     scope "/v1", V1, as: :v1 do
-      get("/cdmi_objectid/:id", CdmiObjectController, :show)
+      # get("/cdmi_objectid/:id", CdmiObjectController, :show)
       get("/*path", GetController, :show)
-      delete("/cdmi_objectid/:id", CdmiObjectController, :delete)
-      delete("/cdmi_domains/*path", DomainController, :delete)
+      # delete("/cdmi_objectid/:id", CdmiObjectController, :delete)
+      # delete("/cdmi_domains/*path", DomainController, :delete)
       delete("/*path", PutController, :delete)
-      put("/container/*path", PutController, :create)
-      put("/cdmi_domains/*path", DomainController, :create)
+      # put("/container/*path", PutController, :create)
+      # put("/cdmi_domains/*path", DomainController, :create)
+      post("/*path", PostController, :update)
       put("/*path", PutController, :create)
     end
   end
