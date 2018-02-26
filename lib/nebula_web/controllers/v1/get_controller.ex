@@ -4,11 +4,11 @@ defmodule NebulaWeb.V1.GetController do
   """
 
   use NebulaWeb, :controller
-  use Nebula.Util.ControllerCommon
+  use NebulaWeb.Util.ControllerCommon
 
-  import Nebula.Constants
-  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
-  import Nebula.Util.Utils, only: [get_domain_hash: 1]
+  import NebulaWeb.Util.Constants
+  import NebulaWeb.Util.Macros, only: [set_mandatory_response_headers: 2]
+  import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
   require Logger
 
   @doc """

@@ -1,4 +1,4 @@
-defmodule ACLs do
+defmodule NebulaWeb.Util.ACLs do
   @moduledoc """
   All things related to ACLs
   """

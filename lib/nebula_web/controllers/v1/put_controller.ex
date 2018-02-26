@@ -4,13 +4,16 @@ defmodule NebulaWeb.V1.PutController do
   """
 
   use NebulaWeb, :controller
-  use Nebula.Util.ControllerCommon
+  use NebulaWeb.Util.ControllerCommon
 
-  import Nebula.Macros, only: [
-    set_mandatory_response_headers: 2
-  ]
-  import Nebula.Util.Utils, only: [get_domain_hash: 1]
+  import NebulaWeb.Util.Constants
+
+  import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
   require Logger
+
+  @container_object container_object()
+  @domain_object domain_object()
+  @domain_uri domain_uri()
 
   @spec create(Plug.Conn.t(), any) :: Plug.Conn.t()
   def create(conn, params) do
@@ -27,14 +30,54 @@ defmodule NebulaWeb.V1.PutController do
     end
   end
 
-  @spec(Plug.Conn.t(), String.t, any) :: Plug.Conn.t()
-  defp create(conn, container_object, _params) do
+  @doc """
+  Get the parent of an object.
+  """
+  @spec get_domain_parent(Plug.Conn.t()) :: Plug.Conn.t()
+  def get_domain_parent(conn) do
+    Logger.debug("In get_domain_parent")
+
+    if conn.halted do
+      Logger.debug("rats. halted.")
+      conn
+    else
+      Logger.debug("XYZ path_info: #{inspect(conn.path_info)}")
+      domain_path = Enum.drop(conn.path_info, 2)
+      parent_uri = "/" <> Enum.join(Enum.drop(domain_path, -1), "/") <> "/"
+      Logger.debug("XYZ parent_uri: #{inspect(parent_uri)}")
+      conn = assign(conn, :parentURI, parent_uri)
+      Logger.debug("XYZ cdmi_domain: #{inspect(conn.assigns.cdmi_domain)}")
+      Logger.debug("XYZ calling get_domain_hash")
+
+      domain_hash =
+        if String.starts_with?(parent_uri, "/cdmi_domains/") do
+          get_domain_hash("/cdmi_domains/system_domain/")
+        else
+          get_domain_hash(parent_uri)
+        end
+
+      Logger.debug("XYZ calling get_domain_hash")
+      query = "sp:" <> domain_hash <> parent_uri
+      parent_obj = GenServer.call(Metadata, {:search, query})
+
+      case parent_obj do
+        {:ok, data} ->
+          assign(conn, :parent, data)
+
+        {_, _} ->
+          request_fail(conn, :not_found, "Parent container does not exist!")
+      end
+    end
+  end
+
+  @spec create(Plug.Conn.t(), String.t, any) :: Plug.Conn.t()
+  defp create(conn, @container_object, _params) do
     Logger.debug("creating a new container")
     c =
       conn
       |> validity_check()
       |> check_domain()
-      |> check_for_dup()
+      |> check_for_dup(@container_object)
       |> get_parent()
       |> check_capabilities(:container, conn.method)
       |> check_acls(conn.method)
@@ -50,15 +93,13 @@ defmodule NebulaWeb.V1.PutController do
       c
     end
   end
-  @spec(Plug.Conn.t(), String.t, any) :: Plug.Conn.t()
-  defp create(conn, domain_object, _params) do
+  defp create(conn, @domain_object, _params) do
     Logger.debug("creating a new domain")
 
     c =
       conn
-      |> check_content_type_header("domain")
       |> get_domain_parent()
-      |> check_for_dup()
+      |> check_for_dup(@domain_object)
       |> check_capabilities(:domain, conn.method)
       |> check_acls(conn.method)
       |> create_new_domain()
@@ -77,13 +118,13 @@ defmodule NebulaWeb.V1.PutController do
   end
 
   @spec check_for_dup(Plug.Conn.t(), String.t) :: Plug.Conn.t()
-  defp check_for_dup(conn, container_object) do
-    Logger.debug(fn -> "In check_for_dup" end)
+  defp check_for_dup(conn, @container_object) do
+    Logger.debug(fn -> "Check for duplicate container" end)
 
     if conn.halted do
       conn
     else
-      domain_hash = get_domain_hash("/cdmi_domains/" <> conn.assigns.cdmi_domain)
+      domain_hash = get_domain_hash(@domain_uri <> conn.assigns.cdmi_domain)
       object_name = List.last(conn.path_info) <> "/"
       container_path = Enum.drop(conn.path_info, 3)
       parent_path = "/" <> Enum.join(Enum.drop(container_path, -1), "/")
@@ -115,8 +156,8 @@ defmodule NebulaWeb.V1.PutController do
       end
     end
   end
-  defp check_for_dup(conn, domain_object) do
-    Logger.debug("Check for dup")
+  defp check_for_dup(conn, @domain_object) do
+    Logger.debug("Check for duplicate domain")
 
     if conn.halted do
       Logger.debug("Halted")
@@ -162,7 +203,7 @@ defmodule NebulaWeb.V1.PutController do
     if conn.halted do
       conn
     else
-      {object_oid, _object_key} = Cdmioid.generate(45241)
+      {object_oid, _object_key} = Cdmioid.generate(@enterprise_number)
       object_name = List.last(conn.path_info) <> "/"
 
       parent_uri =
@@ -170,7 +211,7 @@ defmodule NebulaWeb.V1.PutController do
           conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
         else
           # It's the top level domain
-          "/cdmi_domains/"
+          @domain_uri
         end
 
       auth_as = conn.assigns.authenticated_as

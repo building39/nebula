@@ -5,7 +5,7 @@ defmodule Nebula.V1.ResolveDomain do
 
   import Plug.Conn
   import Phoenix.Controller
-  use Nebula.Util.ControllerCommon
+  use NebulaWeb.Util.ControllerCommon
   require Logger
 
   def init(opts) do

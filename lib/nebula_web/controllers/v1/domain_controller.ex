@@ -4,9 +4,9 @@ defmodule NebulaWeb.V1.DomainController do
   """
 
   use NebulaWeb, :controller
-  use Nebula.Util.ControllerCommon
+  use NebulaWeb.Util.ControllerCommon
 
-  import Nebula.Util.Utils, only: [get_domain_hash: 1]
+  import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
   require Logger
 
   @doc """

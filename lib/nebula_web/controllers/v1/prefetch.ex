@@ -1,11 +1,13 @@
 defmodule Nebula.V1.Prefetch do
   import Plug.Conn
   import Phoenix.Controller
-  import Nebula.Constants
+  import NebulaWeb.Util.Constants
 
-  import Nebula.Util.Utils, only: [get_domain_hash: 1]
-  use Nebula.Util.ControllerCommon
+  import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
+  use NebulaWeb.Util.ControllerCommon
   require Logger
+
+  @container_object container_object()
 
   def init(opts) do
     opts
@@ -30,7 +32,7 @@ defmodule Nebula.V1.Prefetch do
 
     if rc == :ok  do
       case data.objectType do
-        container_object() ->
+        @container_object ->
           if not String.ends_with?(conn.request_path, "/") do
             request_fail(conn, :moved_permanently, "Moved Permanently", [{"Location", req_path}])
           else
@@ -53,7 +55,7 @@ defmodule Nebula.V1.Prefetch do
           conn
         "POST" ->
           conn
-        other ->
+        _other ->
           Logger.error("Unhandled method: #{inspect conn.method}")
           conn
       end

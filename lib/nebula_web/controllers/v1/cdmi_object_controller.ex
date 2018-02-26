@@ -4,10 +4,12 @@ defmodule NebulaWeb.V1.CdmiObjectController do
   """
 
   use NebulaWeb, :controller
-  use Nebula.Util.ControllerCommon
-  import Nebula.Constants
-  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
+  use NebulaWeb.Util.ControllerCommon
+  import NebulaWeb.Util.Constants
+  import NebulaWeb.Util.Macros, only: [set_mandatory_response_headers: 2]
   @api_prefix api_prefix()
+  @capabilities_object capabilities_object()
+  @container_object container_object()
   require Logger
 
   @spec create(Plug.Conn.t(), map) :: Plug.Conn.t()
@@ -34,7 +36,7 @@ defmodule NebulaWeb.V1.CdmiObjectController do
   end
 
   @spec handle_show_object_type(String.t(), Plug.Conn.t(), map) :: Plug.Conn.t()
-  defp handle_show_object_type(container_object(), conn, data) do
+  defp handle_show_object_type(@container_object, conn, data) do
     Logger.debug("handle_show_object_type")
     set_mandatory_response_headers(conn, "container")
     data = process_query_string(conn, data)
@@ -49,7 +51,7 @@ defmodule NebulaWeb.V1.CdmiObjectController do
     end
   end
 
-  defp handle_show_object_type(capabilities_object(), conn, data) do
+  defp handle_show_object_type(@capabilities_object, conn, data) do
     set_mandatory_response_headers(conn, "capabilities")
     data = process_query_string(conn, data)
 

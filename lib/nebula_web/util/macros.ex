@@ -1,4 +1,4 @@
-defmodule Nebula.Macros do
+defmodule NebulaWeb.Util.Macros do
   @moduledoc """
   Various and assorted macros used throughout the application.
   """

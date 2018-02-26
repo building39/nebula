@@ -5,7 +5,7 @@ defmodule Nebula.V1.Authentication do
 
   import Plug.Conn
   import Phoenix.Controller
-  use Nebula.Util.ControllerCommon
+  use NebulaWeb.Util.ControllerCommon
   require Logger
 
   def init(opts) do
@@ -28,7 +28,7 @@ defmodule Nebula.V1.Authentication do
         [method, authstring] = String.split(List.to_string(auth))
         authstring = Base.decode64!(authstring)
 
-        {user, privileges, domain} =
+        {user, privileges, _domain} =
           case method do
             "Basic" ->
               Logger.debug("doing basic authentication")

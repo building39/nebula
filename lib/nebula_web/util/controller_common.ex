@@ -1,12 +1,12 @@
-defmodule Nebula.Util.ControllerCommon do
+defmodule NebulaWeb.Util.ControllerCommon do
   @moduledoc """
   Functions common to all of the application's controllers
   """
 
   defmacro __using__(_) do
     quote do
-      import Nebula.Constants
-      import Nebula.Util.Utils
+      import NebulaWeb.Util.Constants
+      import NebulaWeb.Util.Utils
       require Logger
 
       @doc """
@@ -27,7 +27,7 @@ defmodule Nebula.Util.ControllerCommon do
       def handle_delete(obj) do
         oid = obj.objectID
 
-        if obj.objectType == dataobject_object() do
+        if obj.objectType == data_object() do
           GenServer.call(Metadata, {:delete, oid})
         else
           children = Map.get(obj, :children, [])

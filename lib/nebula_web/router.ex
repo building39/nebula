@@ -12,7 +12,7 @@ defmodule NebulaWeb.Router do
     # plug Nebula.V1.ApplyACLs
   end
 
-  scope "/api", NebulaWeb do
+  scope "/cdmi", NebulaWeb do
     pipe_through(:api)
 
     scope "/v1", V1, as: :v1 do
