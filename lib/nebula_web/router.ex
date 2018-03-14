@@ -17,6 +17,7 @@ defmodule NebulaWeb.Router do
 
     scope "/v1", V1, as: :v1 do
       # get("/cdmi_objectid/:id", CdmiObjectController, :show)
+      get("/", GetController, :show)
       get("/*path", GetController, :show)
       # delete("/cdmi_objectid/:id", CdmiObjectController, :delete)
       # delete("/cdmi_domains/*path", DomainController, :delete)
