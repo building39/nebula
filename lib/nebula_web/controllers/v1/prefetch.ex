@@ -20,7 +20,18 @@ defmodule Nebula.V1.Prefetch do
   def call(conn, _opts) do
     Logger.debug("Prefetch plug")
     Logger.debug("Prefetch: handle_object_get")
-    req_path = conn.request_path
+    ap = api_prefix()
+    api_prefix = String.slice(ap, 0, String.length(ap) - 1)
+    req_path = if String.starts_with?(conn.request_path, api_prefix) do
+      t = String.replace_prefix(conn.request_path, api_prefix, "")
+      if t == "" do
+        "/"
+      else
+        t
+      end
+    else
+      conn.request_path
+    end
     Logger.debug(fn -> "req_path: #{inspect(req_path)}" end)
     domain = conn.assigns.cdmi_domain
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
