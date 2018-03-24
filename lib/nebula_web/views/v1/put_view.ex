@@ -1,4 +1,4 @@
-defmodule NebulaWeb.V1.DomainView do
+defmodule NebulaWeb.V1.PutView do
   use NebulaWeb, :view
   require Logger
 
