@@ -15,6 +15,7 @@ defmodule NebulaWeb.V1.GetView do
   end
 
   def render("cdmi_domain.json", %{cdmi_object: object}) do
+    Logger.debug("Hi there")
     object
   end
 end

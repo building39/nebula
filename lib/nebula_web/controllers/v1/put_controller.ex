@@ -14,13 +14,16 @@ defmodule NebulaWeb.V1.PutController do
   @container_object container_object()
   @domain_object domain_object()
   @domain_uri domain_uri()
+  @enterprise_number enterprise_number()
 
   @spec create(Plug.Conn.t(), any) :: Plug.Conn.t()
   def create(conn, params) do
-    Logger.debug(fn -> "In create" end)
+    Logger.debug(fn -> "In create enterprise_number: #{inspect(@enterprise_number)}" end)
+
     if List.keymember?(conn.req_headers, "content-type", 0) do
-         content_type = List.keyfind(conn.req_headers, "content-type", 0)
-         create(conn, content_type, params)
+      {_, content_type} = List.keyfind(conn.req_headers, "content-type", 0)
+      Logger.debug(fn -> "Content-Type: #{inspect(content_type)}" end)
+      do_create(conn, content_type, params)
     else
       request_fail(
         conn,
@@ -70,9 +73,10 @@ defmodule NebulaWeb.V1.PutController do
     end
   end
 
-  @spec create(Plug.Conn.t(), String.t, any) :: Plug.Conn.t()
-  defp create(conn, @container_object, _params) do
+  @spec do_create(Plug.Conn.t(), String.t(), any) :: Plug.Conn.t()
+  defp do_create(conn, @container_object, _params) do
     Logger.debug("creating a new container")
+
     c =
       conn
       |> validity_check()
@@ -93,7 +97,8 @@ defmodule NebulaWeb.V1.PutController do
       c
     end
   end
-  defp create(conn, @domain_object, _params) do
+
+  defp do_create(conn, @domain_object, _params) do
     Logger.debug("creating a new domain")
 
     c =
@@ -104,10 +109,11 @@ defmodule NebulaWeb.V1.PutController do
       |> check_acls(conn.method)
       |> create_new_domain()
 
-    Logger.debug("new c: #{inspect c, pretty: true}")
+    Logger.debug("new c: #{inspect(c, pretty: true)}")
 
     if not c.halted do
       Logger.debug("Not halted")
+
       c
       |> put_status(:ok)
       |> render("cdmi_domain.json", object: c.assigns.newobject)
@@ -117,7 +123,7 @@ defmodule NebulaWeb.V1.PutController do
     end
   end
 
-  @spec check_for_dup(Plug.Conn.t(), String.t) :: Plug.Conn.t()
+  @spec check_for_dup(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
   defp check_for_dup(conn, @container_object) do
     Logger.debug(fn -> "Check for duplicate container" end)
 
@@ -156,6 +162,7 @@ defmodule NebulaWeb.V1.PutController do
       end
     end
   end
+
   defp check_for_dup(conn, @domain_object) do
     Logger.debug("Check for duplicate domain")
 
@@ -203,7 +210,9 @@ defmodule NebulaWeb.V1.PutController do
     if conn.halted do
       conn
     else
-      {object_oid, _object_key} = Cdmioid.generate(@enterprise_number)
+      Logger.debug("enterprise number: #{inspect(@enterprise_number)}")
+      {object_oid, object_key} = Cdmioid.generate(@enterprise_number)
+      Logger.debug("got object_oid: #{inspect(object_oid)} object_key: #{inspect(object_key)}")
       object_name = List.last(conn.path_info) <> "/"
 
       parent_uri =
@@ -246,19 +255,21 @@ defmodule NebulaWeb.V1.PutController do
         childrenrange: "",
         metadata: metadata
       }
-      new_conn = assign(conn, :newobject, new_domain)
-      |> write_new_object()
-      |> update_parent(conn.method)
+
+      new_conn =
+        assign(conn, :newobject, new_domain)
+        |> write_new_object()
+        |> update_parent(conn.method)
 
       domain_name = Enum.join(Enum.drop(new_conn.path_info, 3), "/") <> "/"
-      Logger.debug("MLM domain_name #{inspect domain_name}")
+      Logger.debug("MLM domain_name #{inspect(domain_name)}")
       Task.start(fn -> create_new_domain_children(new_conn, domain_name) end)
 
       new_conn
     end
   end
 
-  @spec create_new_domain_children(Plug.Conn.t, String.t) :: no_return
+  @spec create_new_domain_children(Plug.Conn.t(), String.t()) :: no_return
   defp create_new_domain_children(conn, domain_name) do
     Logger.debug("creating domain children")
     :timer.sleep(1_000)
@@ -266,27 +277,32 @@ defmodule NebulaWeb.V1.PutController do
     create_new_domain_child(conn, "cdmi_domain_summary", domain_name)
   end
 
-  @spec create_new_domain_child(Plug.Conn.t(), binary, String.t) :: nil
+  @spec create_new_domain_child(Plug.Conn.t(), binary, String.t()) :: nil
   defp create_new_domain_child(conn, name, domain_name) do
-    Logger.debug("creating domain child #{inspect name} for domain #{inspect domain_name}")
+    Logger.debug("creating domain child #{inspect(name)} for domain #{inspect(domain_name)}")
     temp_parentURI = "/" <> Enum.join(Enum.drop(conn.path_info, 2), "/") <> "/"
     temp_path_info = List.flatten(conn.path_info ++ [name])
-    Logger.debug("temp_parentURI: #{inspect temp_parentURI}")
-    Logger.debug("temp_path_info: #{inspect temp_path_info}")
-    new_conn = conn
+    Logger.debug("temp_parentURI: #{inspect(temp_parentURI)}")
+    Logger.debug("temp_path_info: #{inspect(temp_path_info)}")
     # |> assign(:cdmi_domain, domain_name)
-    |> assign(:parent, conn.assigns.newobject)
-    |> assign(:parentURI, temp_parentURI)
-    |> Map.put(:body_params, %{"domainURI" => domain_name})
-    |> Map.put(:params, %{})
-    |> Map.put(:path_info, temp_path_info)
-    |> Map.put(:request_path, conn.request_path <> name <> "/")
-    |> create_new_container()
-    |> write_new_object()
-    Logger.debug("new_conn: #{inspect new_conn, pretty: true}")
+    new_conn =
+      conn
+      |> assign(:parent, conn.assigns.newobject)
+      |> assign(:parentURI, temp_parentURI)
+      |> Map.put(:body_params, %{"domainURI" => domain_name})
+      |> Map.put(:params, %{})
+      |> Map.put(:path_info, temp_path_info)
+      |> Map.put(:request_path, conn.request_path <> name <> "/")
+      |> create_new_container()
+      |> write_new_object()
+
+    Logger.debug("new_conn: #{inspect(new_conn, pretty: true)}")
     :timer.sleep(1_000)
-    new_conn = new_conn
-    |> update_parent(conn.method)
+
+    new_conn =
+      new_conn
+      |> update_parent(conn.method)
+
     if name == "cdmi_domain_summary" do
       create_new_domain_child(new_conn, "cumulative", domain_name)
       create_new_domain_child(new_conn, "daily", domain_name)
@@ -304,11 +320,14 @@ defmodule NebulaWeb.V1.PutController do
     else
       path = conn.request_path
       object_name = List.last(conn.path_info)
+
       cond do
         not String.ends_with?(path, "/") ->
           request_fail(conn, :bad_request, "Container name must end with a \"/\"")
+
         String.starts_with?(object_name, "cdmi_") ->
           request_fail(conn, :bad_request, "Container name must must not start with \"cdmi_\"")
+
         true ->
           conn
       end
