@@ -79,7 +79,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
       @spec check_capabilities(Plug.Conn.t(), atom, String.t()) :: Plug.Conn.t()
       def check_capabilities(conn, object_type, "DELETE") do
         Logger.debug(fn -> "In check_capabilities DELETE" end)
-        Logger.debug("conn: #{inspect conn, pretty: true}")
+        Logger.debug("conn: #{inspect(conn, pretty: true)}")
 
         if conn.halted do
           Logger.debug("capabilities. halted.")
@@ -87,22 +87,30 @@ defmodule NebulaWeb.Util.ControllerCommon do
         else
           container = conn.assigns.data
           Logger.debug("XYZ calling get_domain_hash")
-          query = "sp:" <> get_domain_hash("/cdmi_domains/system_domain/") <> container.capabilitiesURI
+
+          query =
+            "sp:" <> get_domain_hash("/cdmi_domains/system_domain/") <> container.capabilitiesURI
+
           {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
           capabilities = Map.get(capabilities, :capabilities)
-          can_delete = case object_type do
-            :cdmi_object ->
-              # TODO: fix this
-              false
-            :container ->
-              Map.get(capabilities, :cdmi_delete_container, false)
-            :domain ->
-              Map.get(capabilities, :cdmi_delete_domain, false)
-          end
+
+          can_delete =
+            case object_type do
+              :cdmi_object ->
+                # TODO: fix this
+                false
+
+              :container ->
+                Map.get(capabilities, :cdmi_delete_container, false)
+
+              :domain ->
+                Map.get(capabilities, :cdmi_delete_domain, false)
+            end
+
           if can_delete == "true" do
             conn
           else
-            request_fail(conn, :bad_request, "Deletion of #{inspect object_type} is forbidden")
+            request_fail(conn, :bad_request, "Deletion of #{inspect(object_type)} is forbidden")
           end
         end
       end
@@ -116,23 +124,31 @@ defmodule NebulaWeb.Util.ControllerCommon do
         else
           parent = conn.assigns.parent
           Logger.debug("XYZ calling get_domain_hash")
-          Logger.debug("parent capabilitiesURI: #{inspect parent.capabilitiesURI}")
-          query = "sp:" <> get_domain_hash("/cdmi_domains/system_domain/") <> parent.capabilitiesURI
+          Logger.debug("parent capabilitiesURI: #{inspect(parent.capabilitiesURI)}")
+
+          query =
+            "sp:" <> get_domain_hash("/cdmi_domains/system_domain/") <> parent.capabilitiesURI
+
           {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
           capabilities = Map.get(capabilities, :capabilities)
-          can_create = case object_type do
-            :cdmi_object ->
-              # TODO: fix this
-              false
-            :container ->
-              Map.get(capabilities, :cdmi_delete_container, false)
-            :domain ->
-              Map.get(capabilities, :cdmi_delete_domain, false)
-          end
+
+          can_create =
+            case object_type do
+              :cdmi_object ->
+                # TODO: fix this
+                false
+
+              :container ->
+                Map.get(capabilities, :cdmi_delete_container, false)
+
+              :domain ->
+                Map.get(capabilities, :cdmi_delete_domain, false)
+            end
+
           if can_create == "true" do
             conn
           else
-            request_fail(conn, :bad_request, "Creation of #{inspect object_type} is forbidden")
+            request_fail(conn, :bad_request, "Creation of #{inspect(object_type)} is forbidden")
           end
         end
       end
@@ -164,9 +180,11 @@ defmodule NebulaWeb.Util.ControllerCommon do
       def check_domain(conn) do
         if Map.has_key?(conn.assigns, :cdmi_domain) do
           domain = conn.assigns.cdmi_domain
-          Logger.debug("XYZ calling get_domain_hash")
-          domain_hash = get_domain_hash("/cdmi_domains/system_domain/")
-          query = "sp:" <> domain_hash <> "/cdmi_domains/#{domain}"
+          Logger.debug(fn -> "Domain is #{inspect(domain)}" end)
+          domain_string = "/cdmi_domains/#{domain}"
+          Logger.debug("XYZ calling get_domain_hash for #{inspect(domain_string)}")
+          domain_hash = get_domain_hash(domain_string)
+          query = "sp:" <> domain_hash <> domain_string
           {rc, data} = GenServer.call(Metadata, {:search, query})
 
           if rc == :ok and data.objectType == domain_object() do
@@ -187,7 +205,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
       @spec construct_domain(Plug.Conn.t(), String.t()) ::
               {:ok, String.t()} | {:not_found, String.t()} | {:error, String.t()}
       defp construct_domain(conn, domain) do
-        Logger.debug("constructing a new domain URI for domain: #{inspect domain}")
+        Logger.debug("constructing a new domain URI for domain: #{inspect(domain)}")
 
         if conn.halted do
           Logger.debug("construct_domain halted")
@@ -195,9 +213,9 @@ defmodule NebulaWeb.Util.ControllerCommon do
         else
           hash = get_domain_hash("/cdmi_domains/system_domain/")
           query = "sp:" <> hash <> "/cdmi_domains/" <> domain
-          Logger.debug("query: #{inspect query}")
+          Logger.debug("query: #{inspect(query)}")
           response = GenServer.call(Metadata, {:search, query})
-          Logger.debug("search results: #{inspect response}")
+          Logger.debug("search results: #{inspect(response)}")
 
           case tuple_size(response) do
             2 ->
@@ -208,8 +226,9 @@ defmodule NebulaWeb.Util.ControllerCommon do
                   {:not_found, domain}
 
                 :ok ->
-                  Logger.debug("MLM conn: #{inspect conn, pretty: true}")
-                  Logger.debug("domain: #{inspect domain}")
+                  Logger.debug("MLM conn: #{inspect(conn, pretty: true)}")
+                  Logger.debug("domain: #{inspect(domain)}")
+
                   if conn.assigns.cdmi_domain == domain do
                     {:ok, domain}
                   else
@@ -253,22 +272,22 @@ defmodule NebulaWeb.Util.ControllerCommon do
               identifier: "OWNER\@"
             },
             %{
-              "aceflags": "0x03",
-              "acemask": "0x1F",
-              "acetype": "0x00",
-              "identifier": "AUTHENTICATED\@"
+              aceflags: "0x03",
+              acemask: "0x1F",
+              acetype: "0x00",
+              identifier: "AUTHENTICATED\@"
             },
             %{
-              "aceflags": "0x83",
-              "acemask": "0x1f07ff",
-              "acetype": "0x00",
-              "identifier": "OWNER\@",
+              aceflags: "0x83",
+              acemask: "0x1f07ff",
+              acetype: "0x00",
+              identifier: "OWNER\@"
             },
             %{
-              "aceflags": "0x83",
-              "acemask": "0x1F",
-              "acetype": "0x00",
-              "identifier": "AUTHENTICATED\@"
+              aceflags: "0x83",
+              acemask: "0x1F",
+              acetype: "0x00",
+              identifier: "AUTHENTICATED\@"
             }
           ]
         }
@@ -283,7 +302,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
         else
           {object_oid, _object_key} = Cdmioid.generate(45241)
           object_name = List.last(conn.path_info) <> "/"
-          Logger.debug("MLM path_info: #{inspect conn.path_info}")
+          Logger.debug("MLM path_info: #{inspect(conn.path_info)}")
           auth_as = conn.assigns.authenticated_as
 
           metadata =
@@ -303,11 +322,13 @@ defmodule NebulaWeb.Util.ControllerCommon do
               #   {:ok, "system_domain/"}
               Map.has_key?(conn.body_params, "domainURI") ->
                 construct_domain(conn, conn.body_params["domainURI"])
+
               true ->
                 {:ok, conn.assigns.cdmi_domain}
             end
 
-          Logger.debug("construct_domain returned #{inspect domain_uri}")
+          Logger.debug("construct_domain returned #{inspect(domain_uri)}")
+
           case domain_uri do
             {:ok, domain} ->
               new_container = %{
@@ -355,17 +376,20 @@ defmodule NebulaWeb.Util.ControllerCommon do
               parent_path <> "/"
             end
 
-          Logger.debug("container's parent is #{inspect parent_uri}")
+          Logger.debug("container's parent is #{inspect(parent_uri)}")
           conn2 = assign(conn, :parentURI, parent_uri)
           Logger.debug("XYZ calling get_domain_hash")
-          domain_hash = if parent_uri == "/" do
-            # Root container always resides in system_domain
-            get_domain_hash("/cdmi_domains/system_domain/")
-          else
-            Logger.debug("conn2.assigns.cdmi_domain: #{inspect conn2.assigns.cdmi_domain}")
-            get_domain_hash("/cdmi_domains/" <> conn2.assigns.cdmi_domain)
-          end
-          Logger.debug("domain_hash #{inspect domain_hash}")
+
+          domain_hash =
+            if parent_uri == "/" do
+              # Root container always resides in system_domain
+              get_domain_hash("/cdmi_domains/system_domain/")
+            else
+              Logger.debug("conn2.assigns.cdmi_domain: #{inspect(conn2.assigns.cdmi_domain)}")
+              get_domain_hash("/cdmi_domains/" <> conn2.assigns.cdmi_domain)
+            end
+
+          Logger.debug("domain_hash #{inspect(domain_hash)}")
           query = "sp:" <> domain_hash <> parent_uri
           parent_obj = GenServer.call(Metadata, {:search, query})
 
@@ -375,7 +399,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
               assign(conn2, :parent, data)
 
             {_, _} ->
-              Logger.debug("couldn't find parent container #{inspect query}")
+              Logger.debug("couldn't find parent container #{inspect(query)}")
               request_fail(conn, :not_found, "Parent container does not exist")
           end
         end
@@ -427,7 +451,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
         else
           child = conn.assigns.data
           parent = conn.assigns.parent
-          Logger.debug("parent is #{inspect parent}")
+          Logger.debug("parent is #{inspect(parent)}")
           index = Enum.find_index(Map.get(parent, :children), fn x -> x == child.objectName end)
           children = Enum.drop(Map.get(parent, :children), index + 1)
           parent = Map.put(parent, :children, children)
@@ -451,7 +475,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
 
       def update_parent(conn, "PUT") do
         Logger.debug(fn -> "XYZ In update_parent PUT" end)
-        Logger.debug("update parent conn: #{inspect conn, pretty: true}")
+        Logger.debug("update parent conn: #{inspect(conn, pretty: true)}")
 
         if conn.halted do
           Logger.debug("ouch, we're halted")
@@ -459,13 +483,13 @@ defmodule NebulaWeb.Util.ControllerCommon do
         else
           child = conn.assigns.newobject
           parent_obj = get_parent(conn)
-          Logger.debug("parent_obj: #{inspect parent_obj, pretty: true}")
+          Logger.debug("parent_obj: #{inspect(parent_obj, pretty: true)}")
           parent = parent_obj.assigns.parent
-          Logger.debug("updating parent #{inspect parent, pretty: true}")
+          Logger.debug("updating parent #{inspect(parent, pretty: true)}")
           children = Enum.concat([child.objectName], Map.get(parent, :children, []))
-          Logger.debug("new child list: #{inspect children}")
+          Logger.debug("new child list: #{inspect(children)}")
           new_parent = Map.put(parent, :children, children)
-          Logger.debug("parent is #{inspect new_parent}")
+          Logger.debug("parent is #{inspect(new_parent)}")
           children_range = Map.get(new_parent, :childrenrange, "")
 
           Logger.debug(fn ->
@@ -485,15 +509,17 @@ defmodule NebulaWeb.Util.ControllerCommon do
             end
 
           new_parent2 = Map.put(new_parent, :childrenrange, new_range)
-          case GenServer.call(Metadata, {:update, new_parent2.objectID, new_parent2})do
+
+          case GenServer.call(Metadata, {:update, new_parent2.objectID, new_parent2}) do
             {:ok, new_parent2} ->
-              Logger.debug("XYZ parent update succeeded: #{inspect new_parent2, pretty: true}")
+              Logger.debug("XYZ parent update succeeded: #{inspect(new_parent2, pretty: true)}")
               new_conn = assign(conn, :parent, new_parent2)
-              Logger.debug("XYZ New conn: #{inspect new_conn}")
+              Logger.debug("XYZ New conn: #{inspect(new_conn)}")
               new_conn
+
             {other, reason} ->
               # TODO: handle errors here
-              Logger.debug("XYZ update parent failed: #{inspect other} #{inspect reason}")
+              Logger.debug("XYZ update parent failed: #{inspect(other)} #{inspect(reason)}")
               conn
           end
         end
@@ -510,7 +536,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
           new_domain = conn.assigns.newobject
           key = new_domain.objectID
           parent = conn.assigns.parent
-          Logger.debug("parent is #{inspect parent}")
+          Logger.debug("parent is #{inspect(parent)}")
           {rc, data} = GenServer.call(Metadata, {:put, key, new_domain})
 
           if rc == :ok do

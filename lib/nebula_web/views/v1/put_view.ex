@@ -2,8 +2,12 @@ defmodule NebulaWeb.V1.PutView do
   use NebulaWeb, :view
   require Logger
 
+  def render("cdmi_container.json", %{cdmi_object: object}) do
+    Logger.debug(fn -> "In cdmi_container render, object: #{inspect(object)}" end)
+    object
+  end
+
   def render("cdmi_domain.json", %{object: object}) do
-    Logger.debug(fn -> "In cdmi_domain render, object: #{inspect(object)}" end)
     object
   end
 
