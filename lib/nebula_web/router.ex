@@ -24,7 +24,9 @@ defmodule NebulaWeb.Router do
       delete("/*path", PutController, :delete)
       # put("/container/*path", PutController, :create)
       # put("/cdmi_domains/*path", DomainController, :create)
+      post("/", PostController, :update)
       post("/*path", PostController, :update)
+      put("/", PutController, :create)
       put("/*path", PutController, :create)
     end
   end

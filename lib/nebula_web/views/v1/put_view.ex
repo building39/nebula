@@ -7,6 +7,10 @@ defmodule NebulaWeb.V1.PutView do
     object
   end
 
+  def render("cdmi_dataobject.json", %{object: object}) do
+    object
+  end
+
   def render("cdmi_domain.json", %{object: object}) do
     object
   end

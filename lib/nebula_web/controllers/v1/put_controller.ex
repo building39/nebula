@@ -12,6 +12,7 @@ defmodule NebulaWeb.V1.PutController do
   require Logger
 
   @container_object container_object()
+  @data_object data_object()
   @domain_object domain_object()
   @domain_uri domain_uri()
   @enterprise_number enterprise_number()
@@ -98,6 +99,31 @@ defmodule NebulaWeb.V1.PutController do
     end
   end
 
+  defp do_create(conn, @data_object, _params) do
+    Logger.debug("creating a new data object")
+
+    c =
+      conn
+      |> get_domain_parent()
+      |> check_for_dup(@data_object)
+      |> check_capabilities(:data_object, conn.method)
+      |> check_acls(conn.method)
+      |> create_new_data_object()
+
+    Logger.debug("new c: #{inspect(c, pretty: true)}")
+
+    if not c.halted do
+      Logger.debug("Not halted")
+
+      c
+      |> put_status(:ok)
+      |> render("cdmi_dataobject.json", object: c.assigns.newobject)
+    else
+      Logger.debug("XYZ halted")
+      c
+    end
+  end
+
   defp do_create(conn, @domain_object, _params) do
     Logger.debug("creating a new domain")
 
@@ -163,6 +189,10 @@ defmodule NebulaWeb.V1.PutController do
     end
   end
 
+  defp check_for_dup(conn, @data_object) do
+    conn
+  end
+
   defp check_for_dup(conn, @domain_object) do
     Logger.debug("Check for duplicate domain")
 
@@ -200,6 +230,57 @@ defmodule NebulaWeb.V1.PutController do
         3 ->
           request_fail(conn, :conflict, "Domain already exists.")
       end
+    end
+  end
+
+  @spec create_new_data_object(Plug.Conn.t()) :: Plug.Conn.t()
+  defp create_new_data_object(conn) do
+    Logger.debug("Create New Data Object")
+
+    if conn.halted do
+      conn
+    else
+      {object_oid, _object_key} = Cdmioid.generate(@enterprise_number)
+      object_name = List.last(conn.path_info)
+      auth_as = conn.assigns.authenticated_as
+
+      domain_uri =
+        cond do
+          # Enum.at(conn.path_info, 2) == "cdmi_domains" ->
+          #   {:ok, "system_domain/"}
+          Map.has_key?(conn.body_params, "domainURI") ->
+            construct_domain(conn, conn.body_params["domainURI"])
+
+          true ->
+            {:ok, conn.assigns.cdmi_domain}
+        end
+
+      metadata =
+        if Map.has_key?(conn.body_params, "metadata") do
+          new_metadata = construct_metadata(auth_as)
+          supplied_metadata = conn.body_params["metadata"]
+          merged_metadata = Map.merge(new_metadata, supplied_metadata)
+          merged_metadata
+        else
+          new_metadata = construct_metadata(auth_as)
+          new_metadata
+        end
+
+      new_data_object = %{
+        objectType: @data_object,
+        objectID: object_oid,
+        objectName: object_name,
+        parentURI: conn.assigns.parentURI,
+        parentID: conn.assigns.parent.objectID,
+        domainURI: domain_uri,
+        capabilitiesURI: dataobject_capabilities_uri(),
+        completionStatus: "Complete",
+        children: [],
+        childrenrange: "",
+        metadata: metadata
+      }
+
+      assign(conn, :newobject, new_data_object)
     end
   end
 
