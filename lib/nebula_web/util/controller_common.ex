@@ -123,26 +123,29 @@ defmodule NebulaWeb.Util.ControllerCommon do
           conn
         else
           parent = conn.assigns.parent
-          Logger.debug("XYZ calling get_domain_hash")
+          Logger.debug("parent is: #{inspect(parent)}")
           Logger.debug("parent capabilitiesURI: #{inspect(parent.capabilitiesURI)}")
 
           query =
             "sp:" <> get_domain_hash("/cdmi_domains/system_domain/") <> parent.capabilitiesURI
 
           {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
+
           capabilities = Map.get(capabilities, :capabilities)
+          Logger.debug("got capabilities: #{inspect(capabilities, pretty: true)}")
+          Logger.debug("object_type: #{inspect(object_type)}")
 
           can_create =
             case object_type do
-              :cdmi_object ->
-                # TODO: fix this
-                false
+              :data_object ->
+                Logger.debug("can create #{object_type}?")
+                Map.get(capabilities, :cdmi_create_dataobject, false)
 
               :container ->
-                Map.get(capabilities, :cdmi_delete_container, false)
+                Map.get(capabilities, :cdmi_create_container, false)
 
               :domain ->
-                Map.get(capabilities, :cdmi_delete_domain, false)
+                Map.get(capabilities, :cdmi_create_domain, false)
             end
 
           if can_create == "true" do

@@ -104,11 +104,14 @@ defmodule NebulaWeb.V1.PutController do
 
     c =
       conn
-      |> get_domain_parent()
+      |> check_domain()
       |> check_for_dup(@data_object)
+      |> get_parent()
       |> check_capabilities(:data_object, conn.method)
       |> check_acls(conn.method)
       |> create_new_data_object()
+      |> write_new_object()
+      |> update_parent(conn.method)
 
     Logger.debug("new c: #{inspect(c, pretty: true)}")
 
@@ -142,7 +145,7 @@ defmodule NebulaWeb.V1.PutController do
 
       c
       |> put_status(:ok)
-      |> render("cdmi_domain.json", object: c.assigns.newobject)
+      |> render("cdmi_domain.cdmio", object: c.assigns.newobject)
     else
       Logger.debug("XYZ halted")
       c
@@ -244,7 +247,7 @@ defmodule NebulaWeb.V1.PutController do
       object_name = List.last(conn.path_info)
       auth_as = conn.assigns.authenticated_as
 
-      domain_uri =
+      {:ok, domain_uri} =
         cond do
           # Enum.at(conn.path_info, 2) == "cdmi_domains" ->
           #   {:ok, "system_domain/"}
@@ -254,6 +257,8 @@ defmodule NebulaWeb.V1.PutController do
           true ->
             {:ok, conn.assigns.cdmi_domain}
         end
+
+      Logger.debug("body params: #{inspect(conn.body_params)}")
 
       metadata =
         if Map.has_key?(conn.body_params, "metadata") do
@@ -275,8 +280,6 @@ defmodule NebulaWeb.V1.PutController do
         domainURI: domain_uri,
         capabilitiesURI: dataobject_capabilities_uri(),
         completionStatus: "Complete",
-        children: [],
-        childrenrange: "",
         metadata: metadata
       }
 

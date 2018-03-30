@@ -1,6 +1,6 @@
-defmodule Plug.Parsers.CDMIC do
+defmodule Plug.Parsers.CDMIO do
   @moduledoc """
-  Parses CDMI container request body.
+  Parses CDMI domain request body.
 
   An empty request body is parsed as an empty map.
   """
@@ -11,9 +11,9 @@ defmodule Plug.Parsers.CDMIC do
   require Logger
 
   def parse(conn, "application", subtype, _headers, opts) do
-    Logger.debug("In the CDMIC parser")
+    Logger.debug("In the CDMIO parser")
 
-    if subtype == "cdmi-container" do
+    if subtype == "cdmi-object" do
       Logger.debug("opts: #{inspect(opts)}")
 
       decoder =
@@ -51,13 +51,19 @@ defmodule Plug.Parsers.CDMIC do
   defp decode({:ok, body, conn}, decoder) do
     Logger.debug("decoding body: #{inspect(body)}")
 
-    case decoder.decode!(body) do
-      terms when is_map(terms) ->
-        {:ok, terms, conn}
+    x =
+      case decoder.decode!(body) do
+        terms when is_map(terms) ->
+          Logger.debug("terms is a map")
+          {:ok, terms, conn}
 
-      terms ->
-        {:ok, %{"_json" => terms}, conn}
-    end
+        terms ->
+          Logger.debug("terms is not a map")
+          {:ok, %{"_json" => terms}, conn}
+      end
+
+    Logger.debug("decoder.decode returned #{inspect(x)}")
+    x
   rescue
     e -> raise Plug.Parsers.ParseError, exception: e
   end

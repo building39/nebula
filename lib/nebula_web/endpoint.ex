@@ -26,7 +26,7 @@ defmodule NebulaWeb.Endpoint do
 
   plug(
     Plug.Parsers,
-    parsers: [:urlencoded, :multipart, :json, :cdmic, :cdmid],
+    parsers: [:urlencoded, :multipart, :json, :cdmic, :cdmid, :cdmio, :cdmiq],
     pass: ["*/*"],
     json_decoder: Poison
   )
