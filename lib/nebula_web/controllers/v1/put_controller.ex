@@ -247,16 +247,16 @@ defmodule NebulaWeb.V1.PutController do
       object_name = List.last(conn.path_info)
       auth_as = conn.assigns.authenticated_as
 
-      {:ok, domain_uri} =
-        cond do
-          # Enum.at(conn.path_info, 2) == "cdmi_domains" ->
-          #   {:ok, "system_domain/"}
-          Map.has_key?(conn.body_params, "domainURI") ->
-            construct_domain(conn, conn.body_params["domainURI"])
-
-          true ->
-            {:ok, conn.assigns.cdmi_domain}
-        end
+      # {:ok, domain_uri} =
+      #   cond do
+      # Enum.at(conn.path_info, 2) == "cdmi_domains" ->
+      #   {:ok, "system_domain/"}
+      #   Map.has_key?(conn.body_params, "domainURI") ->
+      #     construct_domain(conn, conn.body_params["domainURI"])
+      #
+      #   true ->
+      #     {:ok, conn.assigns.cdmi_domain}
+      # end
 
       Logger.debug("body params: #{inspect(conn.body_params)}")
 
@@ -271,16 +271,24 @@ defmodule NebulaWeb.V1.PutController do
           new_metadata
         end
 
+      # If this is a new cdmi domain member, make the owner the new member.
+      metadata2 =
+        if Enum.any?(conn.path_info, fn x -> x == "cdmi_domain_members" end) do
+          Map.put(metadata, :cdmi_owner, object_name)
+        else
+          metadata
+        end
+
       new_data_object = %{
         objectType: @data_object,
         objectID: object_oid,
         objectName: object_name,
         parentURI: conn.assigns.parentURI,
         parentID: conn.assigns.parent.objectID,
-        domainURI: domain_uri,
+        domainURI: conn.assigns.cdmi_domain,
         capabilitiesURI: dataobject_capabilities_uri(),
         completionStatus: "Complete",
-        metadata: metadata
+        metadata: metadata2
       }
 
       assign(conn, :newobject, new_data_object)
