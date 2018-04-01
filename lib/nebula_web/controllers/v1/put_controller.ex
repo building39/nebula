@@ -258,10 +258,26 @@ defmodule NebulaWeb.V1.PutController do
       #     {:ok, conn.assigns.cdmi_domain}
       # end
 
-      Logger.debug("body params: #{inspect(conn.body_params)}")
+      body_params = conn.body_params
+
+      new_data_object =
+        Map.merge(
+          %{
+            objectType: @data_object,
+            objectID: object_oid,
+            objectName: object_name,
+            parentURI: conn.assigns.parentURI,
+            parentID: conn.assigns.parent.objectID,
+            domainURI: "/cdmi_domains/" <> conn.assigns.cdmi_domain,
+            capabilitiesURI: dataobject_capabilities_uri(),
+            completionStatus: "Complete"
+          },
+          body_params
+        )
+        |> Map.delete(:metadata)
 
       metadata =
-        if Map.has_key?(conn.body_params, "metadata") do
+        if Map.has_key?(body_params, "metadata") do
           new_metadata = construct_metadata(auth_as)
           supplied_metadata = conn.body_params["metadata"]
           merged_metadata = Map.merge(new_metadata, supplied_metadata)
@@ -279,19 +295,8 @@ defmodule NebulaWeb.V1.PutController do
           metadata
         end
 
-      new_data_object = %{
-        objectType: @data_object,
-        objectID: object_oid,
-        objectName: object_name,
-        parentURI: conn.assigns.parentURI,
-        parentID: conn.assigns.parent.objectID,
-        domainURI: conn.assigns.cdmi_domain,
-        capabilitiesURI: dataobject_capabilities_uri(),
-        completionStatus: "Complete",
-        metadata: metadata2
-      }
-
-      assign(conn, :newobject, new_data_object)
+      new_data_object2 = Map.put(new_data_object, :metadata, metadata2)
+      assign(conn, :newobject, new_data_object2)
     end
   end
 

@@ -34,10 +34,15 @@ defmodule Nebula.V1.Authentication do
               Logger.debug("doing basic authentication")
               result = basic_authentication(conn.assigns.cdmi_domain, authstring)
               Logger.debug("Authentication result: #{inspect(result)}")
-              result
+
+              if result == nil do
+                {"", [], ""}
+              else
+                result
+              end
 
             _ ->
-              {"", nil, "system_domain/"}
+              {"", [], "system_domain/"}
           end
 
         if user != "" do
