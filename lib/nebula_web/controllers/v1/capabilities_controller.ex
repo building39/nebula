@@ -39,7 +39,7 @@ defmodule NebulaWeb.V1.CapabilitiesController do
 
         conn
         |> put_status(:ok)
-        |> render("cdmi_capabilities.json", cdmi_capabilities: data)
+        |> render("cdmi_capabilities.cdmia", cdmi_capabilities: data)
 
       :not_found ->
         request_fail(conn, :not_found, "Not Found #{inspect(query)}")

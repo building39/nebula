@@ -18,7 +18,7 @@ defmodule NebulaWeb.Util.Constants do
   @render_object_type [
     {@capabilities_object(), "cdmi_capabilities.cdmia"},
     {@container_object(), "cdmi_container.cdmic"},
-    {@data_object(), "cdmi_dataobject.cdmio"},
+    {@data_object(), "cdmi_object.cdmio"},
     {@domain_object(), "cdmi_domain.cdmid"}
   ]
 

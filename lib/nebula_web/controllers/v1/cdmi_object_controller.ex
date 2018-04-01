@@ -44,7 +44,7 @@ defmodule NebulaWeb.V1.CdmiObjectController do
     if String.ends_with?(conn.request_path, "/") do
       conn
       |> put_status(:ok)
-      |> render("cdmi_object.json", cdmi_object: data)
+      |> render("cdmi_object.cdmio", cdmi_object: data)
     else
       location = @api_prefix <> "container" <> data.parentURI <> data.objectName
       request_fail(conn, :moved_permanently, "Moved Permanently", [{"Location", location}])

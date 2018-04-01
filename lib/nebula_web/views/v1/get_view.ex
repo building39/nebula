@@ -10,15 +10,7 @@ defmodule NebulaWeb.V1.GetView do
     object
   end
 
-  def render("cdmi_container.cdmic", %{cdmi_object: object}) do
-    object
-  end
-
   def render("cdmi_domain.json", %{cdmi_object: object}) do
-    object
-  end
-
-  def render("cdmi_domain.cdmid", %{cdmi_object: object}) do
     object
   end
 
@@ -26,15 +18,7 @@ defmodule NebulaWeb.V1.GetView do
     object
   end
 
-  def render("cdmi_object.cdmio", %{cdmi_object: object}) do
-    object
-  end
-
   def render("cdmi_queue.json", %{cdmi_object: object}) do
-    object
-  end
-
-  def render("cdmi_queue.cdmiq", %{cdmi_object: object}) do
     object
   end
 end
