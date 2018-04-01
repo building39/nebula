@@ -120,7 +120,7 @@ defmodule NebulaWeb.V1.PutController do
 
       c
       |> put_status(:ok)
-      |> render("cdmi_dataobject.json", object: c.assigns.newobject)
+      |> render("cdmi_dataobject.cdmio", object: c.assigns.newobject)
     else
       Logger.debug("XYZ halted")
       c
