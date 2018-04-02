@@ -6,17 +6,29 @@
 use Mix.Config
 
 # Configures the endpoint
-config :nebula, Nebula.Endpoint,
+config :nebula, NebulaWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "VCK6/hzwTbL5DeSDYLLoPgPOyGEmutHYkr7nl4zDBrGVsTvebsMbOJO6Rl59UD0u",
-  render_errors: [view: Nebula.ErrorView, accepts: ~w(json)],
-  pubsub: [name: Nebula.PubSub,
+  render_errors: [view: NebulaWeb.ErrorView, accepts: ~w(json cdmia cdmic cdmid cdmio cdmiq)],
+  pubsub: [name: NebulaWeb.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+# Configure mime types
+config :mime, :types, %{
+  "application/cdmi-capability" => ["cdmia"],
+  "application/cdmi-container" => ["cdmic"],
+  "application/cdmi-domain" => ["cdmid"],
+  "application/cdmi-object" => ["cdmio"],
+  "application/cdmi-queue" => ["cdmiq"]
+}
+
+config :memcache_client,
+  transcoder: Memcache.Client.Transcoder.Erlang
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

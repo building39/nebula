@@ -6,7 +6,7 @@ use Mix.Config
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
-config :nebula, Nebula.Endpoint,
+config :nebula, NebulaWeb.Endpoint,
   http: [port: 4000],
   debug_errors: false,
   code_reloader: true,
@@ -14,13 +14,35 @@ config :nebula, Nebula.Endpoint,
   watchers: []
 
 config :nebula,
-  cdmi_version: ["1.1"]
+  cdmi_version: ["1.1", "1.1.1"]
 
-config :memcache_client,
-  transcoder: Memcache.Client.Transcoder.Erlang
+  config :logger,
+    format: "[$level] $message\n",
+    metadata: [:file, :line],
+    backends: [{LoggerFileBackend, :info},
+               {LoggerFileBackend, :debug},
+               {LoggerFileBackend, :error}]
 
-# Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n"
+  config :logger, :debug,
+    colors: [enabled: :true],
+    metadata: [:pid, :file, :line],
+    path: "/var/log/nebula/debug.log",
+    format: "$time $date [$level] $levelpad $metadata $message\n",
+    level: :debug
+
+  config :logger, :error,
+    colors: [enabled: :true],
+    metadata: [:pid],
+    path: "/var/log/nebula/error.log",
+    format: "$time $date [$level] $levelpad $metadata $message\n",
+    level: :error
+
+  config :logger, :info,
+    colors: [enabled: :true],
+    metadata: [:pid],
+    path: "/var/log/nebula/info.log",
+    format: "$time $date [$level] $levelpad $metadata $message\n",
+    level: :info
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
@@ -33,6 +55,6 @@ config :pooler, pools:
       group: :riak,
       max_count: 10,
       init_count: 5,
-      start_mfa: { Riak.Connection, :start_link, ['192.168.69.64', 8087] }
+      start_mfa: { Riak.Connection, :start_link, ['nebriak1.fuzzcat.loc', 8087] }
     ]
   ]

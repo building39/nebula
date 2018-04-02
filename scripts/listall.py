@@ -17,6 +17,8 @@ keys_fetched = 0
 failures = 0
 
 for key in data['keys']:
+    furl = "%s/%s" % (URL, key)
+    print("furl: %s" % furl)
     r = requests.get("%s/%s" % (URL, key))
     if r.status_code in [200]:
         print("Key: %s" % key)
