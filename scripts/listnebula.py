@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from base64 import encodestring
+from base64 import encodestring, decodestring
 import getopt
 import getpass
 import json
@@ -17,7 +17,7 @@ VERSION = '1.0.0'
 
 
 class GetNebula(object):
-    
+
     def __init__(self,
                  host,  # Nebula host url
                  adminid,
@@ -30,14 +30,17 @@ class GetNebula(object):
         self.adminpw = adminpw
         self.verbose = verbose
         self.url = 'http://%s:%s/cdmi' % (self.host, self.port)
-        auth_string = 'Basic %s' % encodestring('%s:%s' % (self.adminid, self.adminpw))
+        encoded_creds = encodestring('%s:%s' % (self.adminid, self.adminpw))
+        print('Decoded creds: %s') % decodestring(encoded_creds)
+        auth_string = 'Basic %s' % encoded_creds.strip()
         self.headers = HEADERS.copy()
         self.headers["Authorization"] = auth_string
+        print("headers: %s" % self.headers)
         self.objects_found = 0
-        
+
     def read(self, object='/'):
-        #sys.path.append('/opt/eclipse/plugins/org.python.pydev_4.3.0.201508182223/pysrc')
-        #import pydevd; pydevd.settrace()
+        # sys.path.append('/opt/eclipse/plugins/org.python.pydev_4.3.0.201508182223/pysrc')
+        # import pydevd; pydevd.settrace()
         # First, read the root.
         url = '%s%s' % (self.url, object)
         headers = self.headers.copy()
@@ -58,10 +61,10 @@ class GetNebula(object):
                 nextobject = '%s%s' % (object, child)
                 self.read(object=nextobject)
         else:
-           print("listneubula received status code %d - exiting..." % r.status_code)
-           print("url is %s" % url)
-           print("Found %d objects" % self.objects_found)
-           sys.exit(1)
+            print("listnebula received status code %d - exiting..." % r.status_code)
+            print("url is %s" % url)
+            print("Found %d objects" % self.objects_found)
+            sys.exit(1)
 
 
 def usage():
@@ -85,7 +88,7 @@ def main(argv):
         usage()
 
     adminid = 'administrator'
-    adminpw = ''    
+    adminpw = ''
     host = None
     port = 8080
     verbose = False
@@ -97,7 +100,7 @@ def main(argv):
                                     'adminpw=',
                                     'help',
                                     'debug',
-                                   'host=',
+                                    'host=',
                                     'port=',
                                     'verbose'])
     except getopt.GetoptError, e:
@@ -119,11 +122,11 @@ def main(argv):
             host = arg
         elif opt == '--port':
             port = arg
-        
+
     if host is None:
         usage()
         sys.exit(1)
-        
+
     while adminpw == '':
         adminpw = getpass.getpass('Please enter a password for the admin user')
 
@@ -134,9 +137,10 @@ def main(argv):
                         verbose)  # print verbose information on progress
 
     getcdmi.read()
-    
+
     print("Found a total of %d objects" % getcdmi.objects_found)
-    
+
+
 if __name__ == "__main__":
     main(sys.argv[1:])
 1111

@@ -5,7 +5,7 @@ defmodule Nebula.V1.Authentication do
 
   import Plug.Conn
   import Phoenix.Controller
-  use Nebula.Util.ControllerCommon
+  use NebulaWeb.Util.ControllerCommon
   require Logger
 
   def init(opts) do
@@ -15,9 +15,9 @@ defmodule Nebula.V1.Authentication do
   @doc """
   Document the authenticate function
   """
-  @spec call(Plug.Conn.t, any) :: Plug.Conn.t
+  @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
   def call(conn, _opts) do
-    Logger.debug("Authentication plug. Conn: #{inspect conn, pretty: true}")
+    Logger.debug("Authentication plug. Conn: #{inspect(conn, pretty: true)}")
     auth = get_req_header(conn, "authorization")
 
     case auth do
@@ -28,15 +28,21 @@ defmodule Nebula.V1.Authentication do
         [method, authstring] = String.split(List.to_string(auth))
         authstring = Base.decode64!(authstring)
 
-        {user, privileges, domain} =
+        {user, privileges, _domain} =
           case method do
             "Basic" ->
               Logger.debug("doing basic authentication")
               result = basic_authentication(conn.assigns.cdmi_domain, authstring)
-              Logger.debug("Authentication result: #{inspect result}")
-              result
+              Logger.debug("Authentication result: #{inspect(result)}")
+
+              if result == nil do
+                {"", [], ""}
+              else
+                result
+              end
+
             _ ->
-              {"", nil, "system_domain/"}
+              {"", [], "system_domain/"}
           end
 
         if user != "" do
@@ -58,26 +64,26 @@ defmodule Nebula.V1.Authentication do
   defp basic_authentication(domain, authstring) do
     [user, rest] = String.split(authstring, ":")
     [password | _] = String.split(rest, ";")
-    Logger.debug("password is #{inspect password}")
-    Logger.debug("user is #{inspect user}")
-    Logger.debug("domain is #{inspect domain}")
+    Logger.debug("password is #{inspect(password)}")
+    Logger.debug("user is #{inspect(user)}")
+    Logger.debug("domain is #{inspect(domain)}")
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
     query = "sp:" <> domain_hash <> "/cdmi_domains/" <> domain <> "cdmi_domain_members/" <> user
     user_obj = GenServer.call(Metadata, {:search, query})
-    Logger.debug("response from search: #{inspect user_obj}")
+    Logger.debug("response from search: #{inspect(user_obj)}")
 
     case user_obj do
       {:ok, data} ->
-        creds = data.cdmi_member_credentials
+        creds = data.metadata.cdmi_member_credentials
 
         if creds == encrypt(user, password) do
-          {user, data.cdmi_member_privileges, domain}
+          {user, data.metadata.cdmi_member_privileges, domain}
         else
           if user == "administrator" and domain != "system_domain/" do
             Logger.debug("Try to authenticate as administrator")
             basic_authentication("system_domain/", authstring)
           else
-            Logger.debug("wtf? user: #{inspect user} domain: #{inspect domain}")
+            Logger.debug("wtf? user: #{inspect(user)} domain: #{inspect(domain)}")
             nil
           end
         end
@@ -87,7 +93,7 @@ defmodule Nebula.V1.Authentication do
           Logger.debug("Try to authenticate as administrator")
           basic_authentication("system_domain/", authstring)
         else
-          Logger.debug("wtf? user: #{inspect user} domain: #{inspect domain}")
+          Logger.debug("wtf? user: #{inspect(user)} domain: #{inspect(domain)}")
           nil
         end
     end

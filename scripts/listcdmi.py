@@ -23,16 +23,18 @@ failures = 0
 level = 0
 missing_children = []
 
+
 def printit(name, data):
-    if name == '/':
-        name = 'root'
+    # if name == '/':
+    #     name = 'root'
     print('*' * 80)
     print('Object: %s' % name)
     print('-' * 80)
     print('%s' % json.dumps(data, indent=2))
     print('*' * 80)
     print('\n' *3)
-    
+
+
 def get_object(name, search_pred, parent=''):
     global keys_fetched
     global missing_children

@@ -12,18 +12,21 @@ defmodule NebulaWeb.Router do
     # plug Nebula.V1.ApplyACLs
   end
 
-  scope "/api", NebulaWeb do
+  scope "/cdmi", NebulaWeb do
     pipe_through(:api)
 
     scope "/v1", V1, as: :v1 do
       # get("/cdmi_objectid/:id", CdmiObjectController, :show)
+      get("/", GetController, :show)
       get("/*path", GetController, :show)
       # delete("/cdmi_objectid/:id", CdmiObjectController, :delete)
       # delete("/cdmi_domains/*path", DomainController, :delete)
       delete("/*path", PutController, :delete)
       # put("/container/*path", PutController, :create)
       # put("/cdmi_domains/*path", DomainController, :create)
+      post("/", PostController, :update)
       post("/*path", PostController, :update)
+      put("/", PutController, :create)
       put("/*path", PutController, :create)
     end
   end

@@ -59,7 +59,7 @@ defmodule Nebula.Mixfile do
       {:hexate, ">= 0.6.0"},
       {:memcache_client, "~> 1.1.0"},
       {:cdmioid, git: "https://github.com/building39/cdmioid.git", tag: "0.1.1"},
-      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "develop"}
+      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "v0.2.10"}
     ]
   end
 end

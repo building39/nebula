@@ -4,10 +4,11 @@ defmodule NebulaWeb.V1.CapabilitiesController do
   """
 
   use NebulaWeb, :controller
-  use Nebula.Util.ControllerCommon
+  use NebulaWeb.Util.ControllerCommon
 
-  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
-  import Nebula.Util.Utils, only: [get_domain_hash: 1]
+  import NebulaWeb.Util.Constants
+  import NebulaWeb.Util.Macros, only: [set_mandatory_response_headers: 2]
+  import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
   require Logger
 
   @doc """
@@ -38,7 +39,7 @@ defmodule NebulaWeb.V1.CapabilitiesController do
 
         conn
         |> put_status(:ok)
-        |> render("cdmi_capabilities.json", cdmi_capabilities: data)
+        |> render("cdmi_capabilities.cdmia", cdmi_capabilities: data)
 
       :not_found ->
         request_fail(conn, :not_found, "Not Found #{inspect(query)}")

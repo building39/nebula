@@ -5,9 +5,9 @@ defmodule Nebula.V1.ApplyCapabilities do
 
   import Plug.Conn
   import Phoenix.Controller
-  import Nebula.Constants
-  import Nebula.Util.Utils, only: [get_domain_hash: 1]
-  use Nebula.Util.ControllerCommon
+  import NebulaWeb.Util.Constants
+  import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
+  use NebulaWeb.Util.ControllerCommon
   require Logger
 
   def init(opts) do

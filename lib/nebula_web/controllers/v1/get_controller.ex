@@ -4,11 +4,11 @@ defmodule NebulaWeb.V1.GetController do
   """
 
   use NebulaWeb, :controller
-  use Nebula.Util.ControllerCommon
+  use NebulaWeb.Util.ControllerCommon
 
-  import Nebula.Constants
-  import Nebula.Macros, only: [set_mandatory_response_headers: 2]
-  import Nebula.Util.Utils, only: [get_domain_hash: 1]
+  import NebulaWeb.Util.Constants
+  import NebulaWeb.Util.Macros, only: [set_mandatory_response_headers: 2]
+  import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
   require Logger
 
   @doc """
@@ -21,17 +21,17 @@ defmodule NebulaWeb.V1.GetController do
   def show(conn, _params) do
     Logger.debug(fn -> "conn: #{inspect(conn, pretty: true)}" end)
 
+    objectType = conn.assigns.data.objectType
+    {_, render_type} = List.keyfind(render_object_type(), objectType, 0)
+
+    Logger.debug("render_type: #{inspect(render_type)}")
     data = process_query_string(conn, conn.assigns.data)
-    conn2 = set_mandatory_response_headers(conn, data.objectType)
-    Logger.debug("response headers set")
+    Logger.debug("Returning data: #{inspect(data, pretty: true)}")
 
-    {_, render_type} = List.keyfind(render_object_type(), data.objectType, 0)
-    Logger.debug("render_type: #{inspect render_type}")
-
-    conn2
-    |> check_acls(conn2.method)
+    conn
+    |> set_mandatory_response_headers(objectType)
+    |> check_acls(conn.method)
     |> put_status(:ok)
     |> render(render_type, cdmi_object: data)
   end
-
 end

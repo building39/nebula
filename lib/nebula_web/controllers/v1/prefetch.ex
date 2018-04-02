@@ -1,11 +1,13 @@
 defmodule Nebula.V1.Prefetch do
   import Plug.Conn
   import Phoenix.Controller
-  import Nebula.Constants
+  import NebulaWeb.Util.Constants
 
-  import Nebula.Util.Utils, only: [get_domain_hash: 1]
-  use Nebula.Util.ControllerCommon
+  import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
+  use NebulaWeb.Util.ControllerCommon
   require Logger
+
+  @container_object container_object()
 
   def init(opts) do
     opts
@@ -18,7 +20,18 @@ defmodule Nebula.V1.Prefetch do
   def call(conn, _opts) do
     Logger.debug("Prefetch plug")
     Logger.debug("Prefetch: handle_object_get")
-    req_path = conn.request_path
+    ap = api_prefix()
+    api_prefix = String.slice(ap, 0, String.length(ap) - 1)
+    req_path = if String.starts_with?(conn.request_path, api_prefix) do
+      t = String.replace_prefix(conn.request_path, api_prefix, "")
+      if t == "" do
+        "/"
+      else
+        t
+      end
+    else
+      conn.request_path
+    end
     Logger.debug(fn -> "req_path: #{inspect(req_path)}" end)
     domain = conn.assigns.cdmi_domain
     domain_hash = get_domain_hash("/cdmi_domains/" <> domain)
@@ -30,7 +43,7 @@ defmodule Nebula.V1.Prefetch do
 
     if rc == :ok  do
       case data.objectType do
-        container_object() ->
+        @container_object ->
           if not String.ends_with?(conn.request_path, "/") do
             request_fail(conn, :moved_permanently, "Moved Permanently", [{"Location", req_path}])
           else
@@ -53,7 +66,7 @@ defmodule Nebula.V1.Prefetch do
           conn
         "POST" ->
           conn
-        other ->
+        _other ->
           Logger.error("Unhandled method: #{inspect conn.method}")
           conn
       end
