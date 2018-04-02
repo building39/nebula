@@ -16,10 +16,10 @@ defmodule NebulaWeb.Util.Constants do
   @system_capabilities_uri "/cdmi_capabilities/"
   @system_domain_uri "/cdmi_domains/system_domain/"
   @render_object_type [
-    {@capabilities_object(), "cdmi_capabilities.cdmia"},
-    {@container_object(), "cdmi_container.cdmic"},
-    {@data_object(), "cdmi_object.cdmio"},
-    {@domain_object(), "cdmi_domain.cdmid"}
+    {@capabilities_object(), "cdmi_capabilities.json"},
+    {@container_object(), "cdmi_container.json"},
+    {@data_object(), "cdmi_object.json"},
+    {@domain_object(), "cdmi_domain.json"}
   ]
 
   @enterprise_number 45241

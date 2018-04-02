@@ -21,17 +21,17 @@ defmodule NebulaWeb.V1.GetController do
   def show(conn, _params) do
     Logger.debug(fn -> "conn: #{inspect(conn, pretty: true)}" end)
 
+    objectType = conn.assigns.data.objectType
+    {_, render_type} = List.keyfind(render_object_type(), objectType, 0)
+
+    Logger.debug("render_type: #{inspect(render_type)}")
     data = process_query_string(conn, conn.assigns.data)
-    conn2 = set_mandatory_response_headers(conn, data.objectType)
-    Logger.debug("response headers set")
+    Logger.debug("Returning data: #{inspect(data, pretty: true)}")
 
-    {_, render_type} = List.keyfind(render_object_type(), data.objectType, 0)
-    Logger.debug("render_type: #{inspect render_type}")
-
-    conn2
-    |> check_acls(conn2.method)
+    conn
+    |> set_mandatory_response_headers(objectType)
+    |> check_acls(conn.method)
     |> put_status(:ok)
     |> render(render_type, cdmi_object: data)
   end
-
 end
