@@ -9,6 +9,9 @@ defmodule NebulaWeb.V1.PutController do
   import NebulaWeb.Util.Constants
 
   import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
+
+  @compile if Mix.env() == :test, do: :export_all
+
   require Logger
 
   @container_object container_object()
@@ -411,6 +414,7 @@ defmodule NebulaWeb.V1.PutController do
   @spec validity_check(Plug.Conn.t()) :: Plug.Conn.t()
   defp validity_check(conn) do
     Logger.debug(fn -> "In validity_check" end)
+    Logger.debug(fn -> "Conn: #{inspect conn}" end)
 
     if conn.halted == true do
       conn
