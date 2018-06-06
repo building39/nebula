@@ -12,7 +12,7 @@ defmodule NebulaWeb.V1.PutControllerTest do
   end
 
   test "validity check for halted" do
-    conn = %Plug.Conn{halted: true}
+    conn = build_conn("PUT", "path/without/trailing/slash") |> halt()
     assert conn == NebulaWeb.V1.PutController.validity_check(conn)
   end
 
