@@ -5,7 +5,7 @@ defmodule Nebula.Mixfile do
     [
       app: :nebula,
       version: "0.0.2",
-      elixir: "~> 1.5",
+      elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: [plt_add_deps: :transitive],
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
@@ -48,18 +48,18 @@ defmodule Nebula.Mixfile do
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:linguist, "~> 0.1"},
       {:pooler, "~> 1.5"},
-      {:phoenix, "~> 1.3"},
-      {:poison, ">= 3.1.0", override: true},
-      {:phoenix_pubsub, "~> 1.0"},
-      {:gettext, "~> 0.13"},
-      {:cowboy, "~> 1.0"},
+      {:phoenix, "~> 1.4"},
+      {:poison, "~> 4.0", override: true},
+      {:phoenix_pubsub, "~> 1.1"},
+      {:gettext, "~> 0.17"},
+      {:cowboy, "~> 2.6"},
       {:logger_file_backend, "~> 0.0"},
-      {:comeonin, "~> 4.0"},
+      {:comeonin, "~> 5.0"},
       {:uuid, "~> 1.1"},
-      {:hexate, ">= 0.6.0"},
-      {:memcache_client, "~> 1.1.0"},
+      {:hexate, "~> 0.6"},
+      {:memcache_client, "~> 1.1"},
       {:cdmioid, git: "https://github.com/building39/cdmioid.git", tag: "0.1.1"},
-      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "v0.2.10"}
+      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "v0.3.1"}
     ]
   end
 end
