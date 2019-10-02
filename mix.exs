@@ -7,10 +7,21 @@ defmodule Nebula.Mixfile do
       version: "0.0.2",
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
-      dialyzer: [plt_add_deps: :transitive],
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
+      dialyzer: [
+        plt_add_deps: true,
+        remove_defaults: [:unknown],
+        ignore_warnings: "dialyzer.ignore-warnings"
+      ],
       deps: deps()
     ]
   end
@@ -24,6 +35,7 @@ defmodule Nebula.Mixfile do
       applications: [
         :phoenix,
         :phoenix_pubsub,
+        :plug,
         :poison,
         :cowboy,
         :logger,
@@ -62,6 +74,8 @@ defmodule Nebula.Mixfile do
       {:memcache_client, "~> 1.1"},
       {:telemetry, "~> 0.4"},
       {:cdmioid, git: "https://github.com/building39/cdmioid.git", tag: "0.1.1"},
+      {:mock, "~> 0.3", only: :test},
+      {:excoveralls, "~> 0.8", only: :test},
       {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "v0.3.1"}
     ]
   end

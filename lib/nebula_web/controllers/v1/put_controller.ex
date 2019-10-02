@@ -9,6 +9,9 @@ defmodule NebulaWeb.V1.PutController do
   import NebulaWeb.Util.Constants
 
   import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
+
+  @compile if Mix.env() == :test, do: :export_all
+
   require Logger
 
   @container_object container_object()
@@ -246,18 +249,6 @@ defmodule NebulaWeb.V1.PutController do
       {object_oid, _object_key} = Cdmioid.generate(@enterprise_number)
       object_name = List.last(conn.path_info)
       auth_as = conn.assigns.authenticated_as
-
-      # {:ok, domain_uri} =
-      #   cond do
-      # Enum.at(conn.path_info, 2) == "cdmi_domains" ->
-      #   {:ok, "system_domain/"}
-      #   Map.has_key?(conn.body_params, "domainURI") ->
-      #     construct_domain(conn, conn.body_params["domainURI"])
-      #
-      #   true ->
-      #     {:ok, conn.assigns.cdmi_domain}
-      # end
-
       body_params = conn.body_params
 
       new_data_object =
@@ -283,8 +274,7 @@ defmodule NebulaWeb.V1.PutController do
           merged_metadata = Map.merge(new_metadata, supplied_metadata)
           merged_metadata
         else
-          new_metadata = construct_metadata(auth_as)
-          new_metadata
+          construct_metadata(auth_as)
         end
 
       # If this is a new cdmi domain member, make the owner the new member.
