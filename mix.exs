@@ -53,11 +53,14 @@ defmodule Nebula.Mixfile do
       {:phoenix_pubsub, "~> 1.1"},
       {:gettext, "~> 0.17"},
       {:cowboy, "~> 2.6"},
+      {:plug_cowboy, "~> 2.1"},
+      {:plug, "~> 1.8"},
       {:logger_file_backend, "~> 0.0"},
       {:comeonin, "~> 5.0"},
       {:uuid, "~> 1.1"},
       {:hexate, "~> 0.6"},
       {:memcache_client, "~> 1.1"},
+      {:telemetry, "~> 0.4"},
       {:cdmioid, git: "https://github.com/building39/cdmioid.git", tag: "0.1.1"},
       {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "v0.3.1"}
     ]
