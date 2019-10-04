@@ -50,10 +50,13 @@ class CheckNebula(object):
         self.unknown_objects = 0
 
     def check(self, objectName='/', domainURI='/cdmi_domains/system_domain'):
+        print("Looking for objectName %s" % objectName)
         if objectName == 'default_domain/':
             domainURI = '/cdmi_domains/default_domain/'
         elif objectName in ['/', 'cdmi_domains', 'system_domain', 'cdmi_capabilities', 'system_congfiguration']:
             domainURI = '/cdmi_domains/system_domain/'
+
+        print("Domain URI: %s" % domainURI)
         (status, body) = self.get(objectName, domainURI)
         if status in [200, 201, 204]:
             body = json.loads(body)
@@ -102,7 +105,8 @@ class CheckNebula(object):
                     print("Found valid domain onject")
                     self.domains_used += 1
                 else:
-                    print("could not find domain %s status: %d" % (domainUri, status4))
+                    print("could not find domain %s status: %d" %
+                          (domainUri, status4))
                     self.domains_missing += 1
             children = body.get('children', [])
             print("Found children: %s" % children)
@@ -110,8 +114,6 @@ class CheckNebula(object):
             print("Children range: %s" % childrenrange)
             num_children = len(children)
             if childrenrange:
-                #import sys; sys.path.append('/opt/eclipse/plugins/org.python.pydev_4.3.0.201508182223/pysrc')
-                #import pydevd; pydevd.settrace()
                 (start, end) = childrenrange.split('-')
                 x = int(end) - int(start) + 1
                 if x != num_children:
@@ -137,15 +139,15 @@ class CheckNebula(object):
            print("Found %d objects" % self.objects_found)
 
     def get(self, objectName, domainURI):
-        headers = self.headers
+        headers = self.headers.copy()
         realm = domainURI.split('/')[2]
-        if domainURI == '/cdmi_domains/system_domain':
+        if domainURI == '/cdmi_domains/system_domain/':
             headers["Authorization"] = self.system_domain.rstrip()
         else:
             headers["Authorization"] = self.default_domain.rstrip()
         url = '%s%s' % (self.url, objectName)
         print("Looking for: %s" % url)
-        headers = self.headers.copy()
+
         r = requests.get(url=url,
                          headers=headers,
                          allow_redirects=True)
