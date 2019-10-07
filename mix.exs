@@ -76,10 +76,10 @@ defmodule Nebula.Mixfile do
       {:memcachir, "~> 3.2"},
       {:memcache_client, "~> 1.1"},
       {:telemetry, "~> 0.4"},
-      {:cdmioid, git: "https://github.com/building39/cdmioid.git", tag: "0.1.1"},
+      {:cdmioid, git: "https://github.com/building39/cdmioid.git", branch: "master"},
       {:mock, "~> 0.3", only: :test},
       {:excoveralls, "~> 0.8", only: :test},
-      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "v0.3.2"}
+      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", branch: "master"}
     ]
   end
 end
