@@ -30,6 +30,8 @@ config :mime, :types, %{
 config :memcache_client,
   transcoder: Memcache.Client.Transcoder.Erlang
 
+# config :phoenix, :json_encoding, Jason
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"

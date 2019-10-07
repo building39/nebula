@@ -5,6 +5,7 @@ import getpass
 import json
 import requests
 import sys
+import traceback
 
 HEADERS = {"X-CDMI-Specification-Version": "1.1"}
 
@@ -49,7 +50,7 @@ class CheckNebula(object):
         self.dataobjects_found = 0
         self.unknown_objects = 0
 
-    def check(self, objectName='/', domainURI='/cdmi_domains/system_domain'):
+    def check(self, objectName='/', domainURI='/cdmi_domains/system_domain/'):
         print("Looking for objectName %s" % objectName)
         if objectName == 'default_domain/':
             domainURI = '/cdmi_domains/default_domain/'
@@ -58,12 +59,14 @@ class CheckNebula(object):
 
         print("Domain URI: %s" % domainURI)
         (status, body) = self.get(objectName, domainURI)
+        print("1. Status: %s, Object: %s" % (status, body))
         if status in [200, 201, 204]:
             body = json.loads(body)
             if objectName == 'default_domain/':
                 domainURI = '/cdmi_domains/default_domain/'
             print("Found object named '%s'" % objectName)
             print("in domain '%s'" % domainURI)
+            print("Object: %s" % body)
             objectType = body.get('objectType', None)
             if objectType == 'application/cdmi-container':
                 self.containers_found += 1
@@ -78,34 +81,34 @@ class CheckNebula(object):
             self.objects_found += 1
             capUri = body.get('capabilitiesURI', None)
             if capUri:
-                (status2, body2) = self.get(capUri)
+                (status2, body2) = self.get(capUri, domainURI)
                 if status2 in [200, 201, 204]:
-                    print("Found valid capabilities object")
+                    print("2. Found valid capabilities object")
                     self.capabilities_used += 1
                 else:
-                    print("No capabilities object found")
+                    print("3. No capabilities object found")
                     self.capabilities_missing += 1
                     print("Capability %s missing" % capUri)
             parentUri = body.get('parentURI', None)
             if parentUri:
                 if parentUri in ["/", "/system_configuration/"]:
                     parentUri = "/"
-                (status3, body3) = self.get(parentUri)
+                (status3, body3) = self.get(parentUri, domainURI)
                 if status3 in [200, 201, 204]:
-                    print("Found the parent object")
+                    print("4. Found the parent object")
                     self.parents_found += 1
                 else:
-                    print("No parent object found")
+                    print("5. No parent object found")
                     self.parents_missing += 1
                     print('Object %s is missing parent %s status: %d' % (body.get('objectName'), parentUri, status3))
             domainUri = body.get('domainURI', None)
             if domainUri:
-                (status4, body4) = self.get(domainUri)
+                (status4, body4) = self.get(domainUri, domainURI)
                 if status4 in [200, 201, 204]:
-                    print("Found valid domain onject")
+                    print("6. Found valid domain object")
                     self.domains_used += 1
                 else:
-                    print("could not find domain %s status: %d" %
+                    print("7. could not find domain %s status: %d" %
                           (domainUri, status4))
                     self.domains_missing += 1
             children = body.get('children', [])
@@ -124,16 +127,19 @@ class CheckNebula(object):
                 if num_children:
                     print("No childrenrange found for object with %d children" % num_children)
                     self.child_count_mismatch += 1
+            dURI = body.get('domainURI', domainURI)
             for child in children:
                 nextobject = '%s%s' % (objectName, child)
                 print("...next object: %s" % nextobject)
-                (status5, body) = self.get(nextobject)
+                print("...in domain: %s" % dURI)
+                (status5, body) = self.get(nextobject, dURI)
                 if status5 in [200, 201, 204]:
+                    print('8. ...found: %s' % nextobject)
                     self.children_found += 1
-                    self.check(object=nextobject)
+                    self.check(objectName=nextobject)
                 else:
                     self.children_missing += 1
-                    print('...missing child %s status: %d' % (child, status5))
+                    print('9. ...missing child %s status: %d' % (child, status5))
         else:
            print("listnebula received status code %d - exiting..." % status)
            print("Found %d objects" % self.objects_found)
@@ -146,11 +152,15 @@ class CheckNebula(object):
         else:
             headers["Authorization"] = self.default_domain.rstrip()
         url = '%s%s' % (self.url, objectName)
-        print("Looking for: %s" % url)
+        print("Looking for: %s in domain %s" % (url, domainURI))
 
         r = requests.get(url=url,
                          headers=headers,
                          allow_redirects=True)
+        print("Requests response: %s" % r)
+        if r.status_code == 404:
+            print("++++++++++++++++++ NOT FOUND ++++++++++++++++++++++++++++++")
+            print repr(traceback.format_stack())
         return(r.status_code, r.text)
 
 def usage():
