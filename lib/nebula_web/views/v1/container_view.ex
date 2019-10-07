@@ -3,6 +3,7 @@ defmodule NebulaWeb.V1.ContainerView do
   require Logger
 
   def render("cdmi_container.cdmic", %{object: object}) do
+    Logger.debug("rendering #{inspect(object, pretty: true)}")
     object
   end
 end

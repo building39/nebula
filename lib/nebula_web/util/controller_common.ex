@@ -65,12 +65,14 @@ defmodule NebulaWeb.Util.ControllerCommon do
       def check_acls(conn, _method) do
         Logger.debug(fn -> "In check_acls" end)
 
-        if conn.halted do
+        conn2 = if conn.halted do
           Logger.debug("acls. halted.")
           conn
         else
           conn
         end
+        Logger.debug("Leaving check_acls. conn: #{inspect(conn2, pretty: true)}")
+        conn2
       end
 
       @doc """

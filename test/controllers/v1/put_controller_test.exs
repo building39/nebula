@@ -1,7 +1,9 @@
-defmodule Noecto.V1.PutControllerTest do
-  use Noecto.ConnCase
+defmodule NebulaWeb.V1.PutControllerTest do
+  use NebulaWeb.ConnCase
 
-  alias Noecto.Container
+  require Logger
+
+  alias NebulaWeb.Container
   @valid_attrs %{}
   @invalid_attrs %{}
 
@@ -9,7 +11,22 @@ defmodule Noecto.V1.PutControllerTest do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
   end
 
-  test "the truth" do
-    assert 1 + 1 == 2
+  test "validity check for halted" do
+    conn = build_conn("PUT", "path/without/trailing/slash") |> halt()
+    assert conn == NebulaWeb.V1.PutController.validity_check(conn)
+  end
+
+  test "validity check for request path" do
+    conn = build_conn("PUT", "path/without/trailing/slash")
+    new_conn = NebulaWeb.V1.PutController.validity_check(conn)
+    assert new_conn.resp_body == "{\"error\":\"Container name must end with a \\\"/\\\"\"}"
+
+    conn = build_conn("PUT", "object/name/cant/start/with/cdmi_/cdmi_object/")
+    new_conn = NebulaWeb.V1.PutController.validity_check(conn)
+    assert new_conn.resp_body == "{\"error\":\"Container name must must not start with \\\"cdmi_\\\"\"}"
+
+    conn = build_conn("PUT", "this/is/a/good/path/")
+    new_conn = NebulaWeb.V1.PutController.validity_check(conn)
+    assert new_conn == conn
   end
 end

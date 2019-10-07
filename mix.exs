@@ -4,13 +4,24 @@ defmodule Nebula.Mixfile do
   def project do
     [
       app: :nebula,
-      version: "0.0.2",
-      elixir: "~> 1.5",
+      version: "0.1.1",
+      elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
-      dialyzer: [plt_add_deps: :transitive],
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ],
+      dialyzer: [
+        plt_add_deps: true,
+        remove_defaults: [:unknown],
+        ignore_warnings: "dialyzer.ignore-warnings"
+      ],
       deps: deps()
     ]
   end
@@ -24,6 +35,7 @@ defmodule Nebula.Mixfile do
       applications: [
         :phoenix,
         :phoenix_pubsub,
+        :plug,
         :poison,
         :cowboy,
         :logger,
@@ -31,6 +43,7 @@ defmodule Nebula.Mixfile do
         :comeonin,
         :cdmioid,
         :memcache_client,
+        :memcachir,
         :nebula_metadata
       ]
     ]
@@ -48,18 +61,25 @@ defmodule Nebula.Mixfile do
       {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
       {:linguist, "~> 0.1"},
       {:pooler, "~> 1.5"},
-      {:phoenix, "~> 1.3"},
-      {:poison, ">= 3.1.0", override: true},
-      {:phoenix_pubsub, "~> 1.0"},
-      {:gettext, "~> 0.13"},
-      {:cowboy, "~> 1.0"},
+      {:phoenix, "~> 1.4"},
+      {:poison, "~> 4.0", override: true},
+      {:jason, "~> 1.0"},
+      {:phoenix_pubsub, "~> 1.1"},
+      {:gettext, "~> 0.17"},
+      {:cowboy, "~> 2.6"},
+      {:plug_cowboy, "~> 2.1"},
+      {:plug, "~> 1.8"},
       {:logger_file_backend, "~> 0.0"},
-      {:comeonin, "~> 4.0"},
+      {:comeonin, "~> 5.0"},
       {:uuid, "~> 1.1"},
-      {:hexate, ">= 0.6.0"},
-      {:memcache_client, "~> 1.1.0"},
-      {:cdmioid, git: "https://github.com/building39/cdmioid.git", tag: "0.1.1"},
-      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", tag: "v0.2.10"}
+      {:hexate, "~> 0.6"},
+      {:memcachir, "~> 3.2"},
+      {:memcache_client, "~> 1.1"},
+      {:telemetry, "~> 0.4"},
+      {:cdmioid, git: "https://github.com/building39/cdmioid.git", branch: "master"},
+      {:mock, "~> 0.3", only: :test},
+      {:excoveralls, "~> 0.8", only: :test},
+      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", branch: "master"}
     ]
   end
 end

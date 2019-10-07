@@ -13,15 +13,23 @@ defmodule NebulaWeb.V1.PutView do
   end
 
   def render("cdmi_domain.json", %{cdmi_object: object}) do
+    Logger.debug("rendering a json domain object: #{inspect(object, pretty: true)}")
     object
   end
 
   def render("cdmi_queue.json", %{cdmi_object: object}) do
+    Logger.debug("rendering a json  object: #{inspect(object, pretty: true)}")
     object
   end
 
   def render(render_type, %{cdmi_object: object}) do
     Logger.debug(fn -> "In cdmi_domain render, type: #{inspect(render_type)}" end)
+    Logger.debug("rendering a json  object: #{inspect(object, pretty: true)}")
+    object
+  end
+
+  def render(render_type, object) do
+    Logger.debug("rendering something: #{inspect(object, pretty: true)}")
     object
   end
 end
