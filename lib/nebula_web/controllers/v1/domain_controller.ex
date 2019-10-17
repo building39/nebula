@@ -56,106 +56,102 @@ defmodule NebulaWeb.V1.DomainController do
   end
 
   @spec check_for_dup(Plug.Conn.t()) :: Plug.Conn.t()
+  defp check_for_dup(conn = %{halted: true}) do
+    Logger.debug("Halted")
+    conn
+  end
   defp check_for_dup(conn) do
     Logger.debug("Check for dup")
 
-    if conn.halted do
-      Logger.debug("Halted")
-      conn
-    else
-      object_name = List.last(conn.path_info) <> "/"
-      Logger.debug("Object name: #{inspect(object_name)}")
+    object_name = List.last(conn.path_info) <> "/"
+    Logger.debug("Object name: #{inspect(object_name)}")
 
-      parent_uri = conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
+    parent_uri = conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
 
-      Logger.debug("parent uri: #{inspect(parent_uri)}")
-      Logger.debug("XYZ calling get_domain_hash")
-      domain_hash = get_domain_hash(parent_uri <> object_name)
+    Logger.debug("parent uri: #{inspect(parent_uri)}")
+    Logger.debug("XYZ calling get_domain_hash")
+    domain_hash = get_domain_hash(parent_uri <> object_name)
 
-      path = parent_uri <> object_name
-      query = "sp:" <> domain_hash <> path
-      Logger.debug("Searching for #{inspect(query)}")
-      response = GenServer.call(Metadata, {:search, query})
-      Logger.debug("Response from search: #{inspect(response)}")
+    path = parent_uri <> object_name
+    query = "sp:" <> domain_hash <> path
+    Logger.debug("Searching for #{inspect(query)}")
+    response = GenServer.call(Metadata, {:search, query})
+    Logger.debug("Response from search: #{inspect(response)}")
 
-      case tuple_size(response) do
-        2 ->
-          {status, _} = response
-
+    case tuple_size(response) do
+      2 ->
+        {status, _} = response
           case status do
-            :not_found ->
-              conn
+          :not_found ->
+            conn
 
-            :ok ->
-              request_fail(conn, :conflict, "Domain already exists")
-          end
+          :ok ->
+            request_fail(conn, :conflict, "Domain already exists")
+        end
 
-        3 ->
-          request_fail(conn, :conflict, "Domain already exists.")
-      end
+      3 ->
+        request_fail(conn, :conflict, "Domain already exists.")
     end
   end
 
   @spec create_new_domain(Plug.Conn.t()) :: Plug.Conn.t()
+  defp create_new_domain(conn = %{halted: true}) do
+    conn
+  end
   defp create_new_domain(conn) do
     Logger.debug("Create New Domain")
 
-    if conn.halted do
-      conn
-    else
-      {object_oid, _object_key} = Cdmioid.generate(45241)
-      object_name = List.last(conn.path_info) <> "/"
+    object_oid = Cdmioid.generate(45241)
+    object_name = List.last(conn.path_info) <> "/"
 
-      parent_uri =
-        if Map.has_key?(conn.assigns.parent, :parentURI) do
-          conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
-        else
-          # It's the top level domain
-          "/cdmi_domains/"
-        end
+    parent_uri =
+      if Map.has_key?(conn.assigns.parent, :parentURI) do
+        conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
+      else
+        # It's the top level domain
+        "/cdmi_domains/"
+      end
 
-      auth_as = conn.assigns.authenticated_as
-      new_metadata = construct_metadata(auth_as)
+    auth_as = conn.assigns.authenticated_as
+    new_metadata = construct_metadata(auth_as)
 
-      metadata =
-        if Map.has_key?(conn.body_params, "metadata") do
-          Map.merge(new_metadata, conn.body_params["metadata"])
-        else
-          new_metadata
-        end
+    metadata =
+      if Map.has_key?(conn.body_params, "metadata") do
+        Map.merge(new_metadata, conn.body_params["metadata"])
+      else
+        new_metadata
+      end
+    parent_id = conn.assigns.parent.objectID
 
-      parent_id = conn.assigns.parent.objectID
+    domainURI =
+      if String.starts_with?(parent_uri, "/") do
+        parent_uri <> object_name
+      else
+        "/" <> parent_uri <> object_name
+      end
 
-      domainURI =
-        if String.starts_with?(parent_uri, "/") do
-          parent_uri <> object_name
-        else
-          "/" <> parent_uri <> object_name
-        end
+    new_domain = %{
+      objectType: domain_object(),
+      objectID: object_oid,
+      objectName: object_name,
+      parentURI: parent_uri,
+      parentID: parent_id,
+      domainURI: domainURI,
+      capabilitiesURI: domain_capabilities_uri(),
+      completionStatus: "Complete",
+      children: [],
+      childrenrange: "",
+      metadata: metadata
+    }
+    new_conn = assign(conn, :newobject, new_domain)
+    |> write_new_object()
+    |> update_parent(conn.method)
 
-      new_domain = %{
-        objectType: domain_object(),
-        objectID: object_oid,
-        objectName: object_name,
-        parentURI: parent_uri,
-        parentID: parent_id,
-        domainURI: domainURI,
-        capabilitiesURI: domain_capabilities_uri(),
-        completionStatus: "Complete",
-        children: [],
-        childrenrange: "",
-        metadata: metadata
-      }
-      new_conn = assign(conn, :newobject, new_domain)
-      |> write_new_object()
-      |> update_parent(conn.method)
+    domain_name = Enum.join(Enum.drop(new_conn.path_info, 3), "/") <> "/"
+    Logger.debug("MLM domain_name #{inspect domain_name}")
+    Task.start(fn -> create_new_domain_children(new_conn, domain_name) end)
 
-      domain_name = Enum.join(Enum.drop(new_conn.path_info, 3), "/") <> "/"
-      Logger.debug("MLM domain_name #{inspect domain_name}")
-      Task.start(fn -> create_new_domain_children(new_conn, domain_name) end)
-
-      new_conn
-    end
+    new_conn
   end
 
   @spec create_new_domain_children(Plug.Conn.t, String.t) :: no_return
@@ -230,39 +226,37 @@ defmodule NebulaWeb.V1.DomainController do
   Get the parent of an object.
   """
   @spec get_domain_parent(Plug.Conn.t()) :: Plug.Conn.t()
+  def get_domain_parent(conn = %{halted: true}) do
+    conn
+  end
   def get_domain_parent(conn) do
     Logger.debug("In get_domain_parent")
 
-    if conn.halted do
-      Logger.debug("rats. halted.")
-      conn
-    else
-      Logger.debug("XYZ path_info: #{inspect(conn.path_info)}")
-      domain_path = Enum.drop(conn.path_info, 2)
-      parent_uri = "/" <> Enum.join(Enum.drop(domain_path, -1), "/") <> "/"
-      Logger.debug("XYZ parent_uri: #{inspect(parent_uri)}")
-      conn = assign(conn, :parentURI, parent_uri)
-      Logger.debug("XYZ cdmi_domain: #{inspect(conn.assigns.cdmi_domain)}")
-      Logger.debug("XYZ calling get_domain_hash")
+    Logger.debug("XYZ path_info: #{inspect(conn.path_info)}")
+    domain_path = Enum.drop(conn.path_info, 2)
+    parent_uri = "/" <> Enum.join(Enum.drop(domain_path, -1), "/") <> "/"
+    Logger.debug("XYZ parent_uri: #{inspect(parent_uri)}")
+    conn = assign(conn, :parentURI, parent_uri)
+    Logger.debug("XYZ cdmi_domain: #{inspect(conn.assigns.cdmi_domain)}")
+    Logger.debug("XYZ calling get_domain_hash")
 
-      domain_hash =
-        if String.starts_with?(parent_uri, "/cdmi_domains/") do
-          get_domain_hash("/cdmi_domains/system_domain/")
-        else
-          get_domain_hash(parent_uri)
-        end
-
-      Logger.debug("XYZ calling get_domain_hash")
-      query = "sp:" <> domain_hash <> parent_uri
-      parent_obj = GenServer.call(Metadata, {:search, query})
-
-      case parent_obj do
-        {:ok, data} ->
-          assign(conn, :parent, data)
-
-        {_, _} ->
-          request_fail(conn, :not_found, "Parent container does not exist!")
+    domain_hash =
+      if String.starts_with?(parent_uri, "/cdmi_domains/") do
+        get_domain_hash("/cdmi_domains/system_domain/")
+      else
+        get_domain_hash(parent_uri)
       end
+
+    Logger.debug("XYZ calling get_domain_hash")
+    query = "sp:" <> domain_hash <> parent_uri
+    parent_obj = GenServer.call(Metadata, {:search, query})
+
+    case parent_obj do
+      {:ok, data} ->
+        assign(conn, :parent, data)
+
+      {_, _} ->
+        request_fail(conn, :not_found, "Parent container does not exist!")
     end
   end
 end

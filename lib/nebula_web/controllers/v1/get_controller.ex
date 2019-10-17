@@ -19,7 +19,7 @@ defmodule NebulaWeb.V1.GetController do
 
   """
   def show(conn, _params) do
-    # Logger.debug(fn -> "conn: #{inspect(conn, pretty: true)}" end)
+    Logger.debug(fn -> "conn: #{inspect(conn, pretty: true)}" end)
 
     objectType = conn.assigns.data.objectType
     Logger.debug(fn -> "conn: #{inspect(conn, pretty: true)}" end)

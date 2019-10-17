@@ -10,22 +10,17 @@ defmodule Plug.Parsers.CDMIO do
 
   require Logger
 
-  def parse(conn, "application", subtype, _headers, opts) do
+  def parse(conn, "application", "cdmi-object", _headers, opts) do
     Logger.debug("In the CDMIO parser")
+    Logger.debug("opts: #{inspect(opts)}")
 
-    if subtype == "cdmi-object" do
-      Logger.debug("opts: #{inspect(opts)}")
+    decoder =
+      Keyword.get(opts, :json_decoder) ||
+        raise ArgumentError, "JSON parser expects a :json_decoder option"
 
-      decoder =
-        Keyword.get(opts, :json_decoder) ||
-          raise ArgumentError, "JSON parser expects a :json_decoder option"
-
-      conn
-      |> read_body(opts)
-      |> decode(decoder)
-    else
-      {:next, conn}
-    end
+    conn
+    |> read_body(opts)
+    |> decode(decoder)
   end
 
   def parse(conn, _type, _subtype, _headers, _opts) do
