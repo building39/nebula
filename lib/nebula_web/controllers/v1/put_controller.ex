@@ -44,6 +44,7 @@ defmodule NebulaWeb.V1.PutController do
   def get_domain_parent(conn = %{halted: true}) do
     conn
   end
+
   def get_domain_parent(conn) do
     Logger.debug("In get_domain_parent")
 
@@ -54,6 +55,7 @@ defmodule NebulaWeb.V1.PutController do
     conn = assign(conn, :parentURI, parent_uri)
     Logger.debug("XYZ cdmi_domain: #{inspect(conn.assigns.cdmi_domain)}")
     Logger.debug("XYZ calling get_domain_hash")
+
     domain_hash =
       if String.starts_with?(parent_uri, "/cdmi_domains/") do
         get_domain_hash("/cdmi_domains/system_domain/")
@@ -68,6 +70,7 @@ defmodule NebulaWeb.V1.PutController do
     case parent_obj do
       {:ok, data} ->
         assign(conn, :parent, data)
+
       {_, _} ->
         request_fail(conn, :not_found, "Parent container does not exist!")
     end
@@ -77,6 +80,7 @@ defmodule NebulaWeb.V1.PutController do
   defp do_create(conn = %{halted: true}, _object, _params) do
     conn
   end
+
   defp do_create(conn, @container_object, _params) do
     Logger.debug("creating a new container")
 
@@ -158,6 +162,7 @@ defmodule NebulaWeb.V1.PutController do
   defp check_for_dup(conn = %{halted: true}, @data_object) do
     conn
   end
+
   defp check_for_dup(conn, @container_object) do
     Logger.debug(fn -> "Check for duplicate container" end)
 
@@ -236,6 +241,7 @@ defmodule NebulaWeb.V1.PutController do
   defp create_new_data_object(conn = %{halted: true}) do
     conn
   end
+
   defp create_new_data_object(conn) do
     Logger.debug("Create New Data Object")
 
@@ -259,8 +265,10 @@ defmodule NebulaWeb.V1.PutController do
         body_params
       )
       |> Map.delete(:metadata)
-    Logger.debug("New data object: #{inspect new_data_object, pretty: true}")
-      metadata =
+
+    Logger.debug("New data object: #{inspect(new_data_object, pretty: true)}")
+
+    metadata =
       if Map.has_key?(body_params, "metadata") do
         new_metadata = construct_metadata(auth_as)
         supplied_metadata = conn.body_params["metadata"]
@@ -269,7 +277,8 @@ defmodule NebulaWeb.V1.PutController do
       else
         construct_metadata(auth_as)
       end
-    Logger.debug("Metadata: #{inspect metadata, pretty: true}")
+
+    Logger.debug("Metadata: #{inspect(metadata, pretty: true)}")
     # If this is a new cdmi domain member, make the owner the new member.
     metadata2 =
       if Enum.any?(conn.path_info, fn x -> x == "cdmi_domain_members" end) do
@@ -277,9 +286,10 @@ defmodule NebulaWeb.V1.PutController do
       else
         metadata
       end
-    Logger.debug("Metadata:2 #{inspect metadata2, pretty: true}")
+
+    Logger.debug("Metadata:2 #{inspect(metadata2, pretty: true)}")
     new_data_object2 = Map.put(new_data_object, :metadata, metadata2)
-    Logger.debug("New data object2: #{inspect new_data_object2, pretty: true}")
+    Logger.debug("New data object2: #{inspect(new_data_object2, pretty: true)}")
     assign(conn, :newobject, new_data_object2)
   end
 
@@ -288,6 +298,7 @@ defmodule NebulaWeb.V1.PutController do
   defp create_new_domain(conn = %{halted: true}) do
     conn
   end
+
   defp create_new_domain(conn) do
     Logger.debug("Create New Domain")
     object_oid = Cdmioid.generate(@enterprise_number)
@@ -312,6 +323,7 @@ defmodule NebulaWeb.V1.PutController do
       end
 
     parent_id = conn.assigns.parent.objectID
+
     domainURI =
       if String.starts_with?(parent_uri, "/") do
         parent_uri <> object_name
@@ -337,6 +349,7 @@ defmodule NebulaWeb.V1.PutController do
       assign(conn, :newobject, new_domain)
       |> write_new_object()
       |> update_parent(conn.method)
+
     domain_name = Enum.join(Enum.drop(new_conn.path_info, 3), "/") <> "/"
     Logger.debug("MLM domain_name #{inspect(domain_name)}")
     Task.start(fn -> create_new_domain_children(new_conn, domain_name) end)
@@ -389,8 +402,9 @@ defmodule NebulaWeb.V1.PutController do
   @spec validity_check(Plug.Conn.t()) :: Plug.Conn.t()
   defp validity_check(conn = %{halted: true}) do
     Logger.debug(fn -> "In validity_check - halted" end)
-      conn
+    conn
   end
+
   defp validity_check(conn) do
     Logger.debug(fn -> "In validity_check" end)
 

@@ -20,11 +20,14 @@ defmodule NebulaWeb.Util.Utils do
   """
   @spec get_domain_hash(String.t() | binary) :: String.t()
   def get_domain_hash(domain) when is_binary(domain) do
-    Logger.debug("generating hash for #{inspect domain}")
-    hash = :crypto.hmac(:sha, <<"domain">>, domain)
-    |> Base.encode16()
-    |> String.downcase()
-    Logger.debug("hash is #{inspect hash}")
+    Logger.debug("generating hash for #{inspect(domain)}")
+
+    hash =
+      :crypto.hmac(:sha, <<"domain">>, domain)
+      |> Base.encode16()
+      |> String.downcase()
+
+    Logger.debug("hash is #{inspect(hash)}")
     hash
   end
 

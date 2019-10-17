@@ -19,7 +19,7 @@ defmodule Nebula.V1.ResolveDomain do
   def call(conn, _opts) do
     Logger.debug("ResolveDomain plug")
     auth = get_req_header(conn, "authorization")
-    Logger.debug("Auth header: #{inspect auth}")
+    Logger.debug("Auth header: #{inspect(auth)}")
     # if Enum.member?(["cdmi_domains", "/"], Enum.at(conn.path_info, 2)) do
     #   conn
     #   |> assign(:cdmi_domain, "system_domain/")

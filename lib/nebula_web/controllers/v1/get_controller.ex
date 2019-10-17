@@ -29,10 +29,12 @@ defmodule NebulaWeb.V1.GetController do
     data = process_query_string(conn, conn.assigns.data)
     Logger.debug("Returning data: #{inspect(data, pretty: true)}")
 
-    new_conn = conn
-    |> set_mandatory_response_headers(objectType)
-    |> check_acls(conn.method)
-    |> put_status(:ok)
+    new_conn =
+      conn
+      |> set_mandatory_response_headers(objectType)
+      |> check_acls(conn.method)
+      |> put_status(:ok)
+
     Logger.debug("About to render")
     r = render(new_conn, render_type, cdmi_object: data)
     Logger.debug("Render returned #{inspect(r, pretty: true)}")

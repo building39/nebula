@@ -6,6 +6,7 @@ defmodule Nebula.V1.CapabilitiesView do
     Logger.debug("Now rendering #{inspect(cdmi_capabilities, pretty: true)}")
     cdmi_capabilities
   end
+
   def render(conn, render_type, object) do
     Logger.debug("rendering something: #{inspect(object, pretty: true)}")
     object

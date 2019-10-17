@@ -74,7 +74,7 @@ defmodule Nebula.V1.Authentication do
 
     case user_obj do
       {:ok, data} ->
-        Logger.debug("Auth Data: #{inspect data, pretty: true}")
+        Logger.debug("Auth Data: #{inspect(data, pretty: true)}")
         creds = data.metadata.cdmi_member_credentials
 
         if creds == encrypt(user, password) do

@@ -23,21 +23,21 @@ defmodule Nebula.V1.ApplyCapabilities do
     query = "sp:" <> domain_hash <> system_capabilities_uri()
     Logger.debug("Apply capabilities is Searching...")
     {rc, capabilities} = GenServer.call(Metadata, {:search, query})
-    Logger.debug("Apply capabilities found rc: #{inspect rc}")
-    Logger.debug("Apply capabilities found data: #{inspect capabilities}")
+    Logger.debug("Apply capabilities found rc: #{inspect(rc)}")
+    Logger.debug("Apply capabilities found data: #{inspect(capabilities)}")
 
     case rc do
       :ok ->
-        Logger.debug("Capabilities: #{inspect capabilities}")
+        Logger.debug("Capabilities: #{inspect(capabilities)}")
         assign(conn, :sys_capabilities, capabilities)
-        Logger.debug("Conn: #{inspect conn, pretty: true}")
+        Logger.debug("Conn: #{inspect(conn, pretty: true)}")
         assign_map = conn.assigns
         assign_map = Map.put_new(assign_map, :sys_capabilities, capabilities)
         Map.put(conn, :assigns, assign_map)
+
       _ ->
-      Logger.debug("NotFound")
+        Logger.debug("NotFound")
         request_fail(conn, :not_found, "Not found 1")
     end
-
   end
 end

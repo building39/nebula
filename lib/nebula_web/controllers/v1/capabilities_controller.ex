@@ -27,6 +27,7 @@ defmodule NebulaWeb.V1.CapabilitiesController do
   def show(conn = %{halted: true}, _paramas) do
     conn
   end
+
   def show(conn, _params) do
     Logger.debug("Made it into the capabilities controller")
     Logger.debug("Conn: #{inspect(conn)}")

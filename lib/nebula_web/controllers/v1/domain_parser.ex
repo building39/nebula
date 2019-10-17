@@ -23,6 +23,7 @@ defmodule Plug.Parsers.CDMID do
     |> read_body(opts)
     |> decode(decoder)
   end
+
   def parse(conn, _type, _subtype, _headers, _opts) do
     {:next, conn}
   end

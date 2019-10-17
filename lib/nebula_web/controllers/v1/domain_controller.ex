@@ -25,10 +25,11 @@ defmodule NebulaWeb.V1.DomainController do
       |> check_acls(conn.method)
       |> create_new_domain()
 
-    Logger.debug("new c: #{inspect c, pretty: true}")
+    Logger.debug("new c: #{inspect(c, pretty: true)}")
 
     if not c.halted do
       Logger.debug("Not halted")
+
       c
       |> put_status(:ok)
       |> render("cdmi_domain.json", object: c.assigns.newobject)
@@ -60,6 +61,7 @@ defmodule NebulaWeb.V1.DomainController do
     Logger.debug("Halted")
     conn
   end
+
   defp check_for_dup(conn) do
     Logger.debug("Check for dup")
 
@@ -81,7 +83,8 @@ defmodule NebulaWeb.V1.DomainController do
     case tuple_size(response) do
       2 ->
         {status, _} = response
-          case status do
+
+        case status do
           :not_found ->
             conn
 
@@ -98,6 +101,7 @@ defmodule NebulaWeb.V1.DomainController do
   defp create_new_domain(conn = %{halted: true}) do
     conn
   end
+
   defp create_new_domain(conn) do
     Logger.debug("Create New Domain")
 
@@ -121,6 +125,7 @@ defmodule NebulaWeb.V1.DomainController do
       else
         new_metadata
       end
+
     parent_id = conn.assigns.parent.objectID
 
     domainURI =
@@ -143,18 +148,20 @@ defmodule NebulaWeb.V1.DomainController do
       childrenrange: "",
       metadata: metadata
     }
-    new_conn = assign(conn, :newobject, new_domain)
-    |> write_new_object()
-    |> update_parent(conn.method)
+
+    new_conn =
+      assign(conn, :newobject, new_domain)
+      |> write_new_object()
+      |> update_parent(conn.method)
 
     domain_name = Enum.join(Enum.drop(new_conn.path_info, 3), "/") <> "/"
-    Logger.debug("MLM domain_name #{inspect domain_name}")
+    Logger.debug("MLM domain_name #{inspect(domain_name)}")
     Task.start(fn -> create_new_domain_children(new_conn, domain_name) end)
 
     new_conn
   end
 
-  @spec create_new_domain_children(Plug.Conn.t, String.t) :: no_return
+  @spec create_new_domain_children(Plug.Conn.t(), String.t()) :: no_return
   defp create_new_domain_children(conn, domain_name) do
     Logger.debug("creating domain children")
     :timer.sleep(1_000)
@@ -162,27 +169,33 @@ defmodule NebulaWeb.V1.DomainController do
     create_new_domain_child(conn, "cdmi_domain_summary", domain_name)
   end
 
-  @spec create_new_domain_child(Plug.Conn.t(), binary, String.t) :: nil
+  @spec create_new_domain_child(Plug.Conn.t(), binary, String.t()) :: nil
   defp create_new_domain_child(conn, name, domain_name) do
-    Logger.debug("creating domain child #{inspect name} for domain #{inspect domain_name}")
+    Logger.debug("creating domain child #{inspect(name)} for domain #{inspect(domain_name)}")
     temp_parentURI = "/" <> Enum.join(Enum.drop(conn.path_info, 2), "/") <> "/"
     temp_path_info = List.flatten(conn.path_info ++ [name])
-    Logger.debug("temp_parentURI: #{inspect temp_parentURI}")
-    Logger.debug("temp_path_info: #{inspect temp_path_info}")
-    new_conn = conn
-    # |> assign(:cdmi_domain, domain_name)
-    |> assign(:parent, conn.assigns.newobject)
-    |> assign(:parentURI, temp_parentURI)
-    |> Map.put(:body_params, %{"domainURI" => domain_name})
-    |> Map.put(:params, %{})
-    |> Map.put(:path_info, temp_path_info)
-    |> Map.put(:request_path, conn.request_path <> name <> "/")
-    |> create_new_container()
-    |> write_new_object()
-    Logger.debug("new_conn: #{inspect new_conn, pretty: true}")
+    Logger.debug("temp_parentURI: #{inspect(temp_parentURI)}")
+    Logger.debug("temp_path_info: #{inspect(temp_path_info)}")
+
+    new_conn =
+      conn
+      # |> assign(:cdmi_domain, domain_name)
+      |> assign(:parent, conn.assigns.newobject)
+      |> assign(:parentURI, temp_parentURI)
+      |> Map.put(:body_params, %{"domainURI" => domain_name})
+      |> Map.put(:params, %{})
+      |> Map.put(:path_info, temp_path_info)
+      |> Map.put(:request_path, conn.request_path <> name <> "/")
+      |> create_new_container()
+      |> write_new_object()
+
+    Logger.debug("new_conn: #{inspect(new_conn, pretty: true)}")
     :timer.sleep(1_000)
-    new_conn = new_conn
-    |> update_parent(conn.method)
+
+    new_conn =
+      new_conn
+      |> update_parent(conn.method)
+
     if name == "cdmi_domain_summary" do
       create_new_domain_child(new_conn, "cumulative", domain_name)
       create_new_domain_child(new_conn, "daily", domain_name)
@@ -195,6 +208,7 @@ defmodule NebulaWeb.V1.DomainController do
   def delete(conn, _params) do
     Logger.debug("In delete domain")
     {rc, data} = get_domain(conn)
+
     case rc do
       :ok ->
         c =
@@ -206,16 +220,16 @@ defmodule NebulaWeb.V1.DomainController do
           |> delete_object()
           |> update_parent(conn.method)
 
-          if not c.halted do
-            Logger.debug("did something")
+        if not c.halted do
+          Logger.debug("did something")
 
-            c
-            |> put_status(:no_content)
-            |> json(nil)
-          else
-            Logger.debug("delete domain halted")
-            c
-          end
+          c
+          |> put_status(:no_content)
+          |> json(nil)
+        else
+          Logger.debug("delete domain halted")
+          c
+        end
 
       :not_found ->
         request_fail(conn, :not_found, data)
@@ -229,6 +243,7 @@ defmodule NebulaWeb.V1.DomainController do
   def get_domain_parent(conn = %{halted: true}) do
     conn
   end
+
   def get_domain_parent(conn) do
     Logger.debug("In get_domain_parent")
 

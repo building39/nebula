@@ -16,6 +16,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
       def delete_object(conn = %{halted: true}) do
         conn
       end
+
       def delete_object(conn) do
         oid = conn.assigns.data.objectID
         Task.start(__MODULE__, :handle_delete, [conn.assigns.data])
@@ -64,6 +65,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
       def check_acls(conn = %{halted: true}, _method) do
         conn
       end
+
       def check_acls(conn, _method) do
         Logger.debug(fn -> "In check_acls" end)
         # TODO: enforce acls
@@ -77,6 +79,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
       def check_capabilities(conn = %{halted: true}, _object_type, _action) do
         conn
       end
+
       def check_capabilities(conn, object_type, "DELETE") do
         Logger.debug(fn -> "In check_capabilities DELETE" end)
         Logger.debug("conn: #{inspect(conn, pretty: true)}")
@@ -117,8 +120,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
         Logger.debug("parent is: #{inspect(parent)}")
         Logger.debug("parent capabilitiesURI: #{inspect(parent.capabilitiesURI)}")
 
-        query =
-          "sp:" <> get_domain_hash("/cdmi_domains/system_domain/") <> parent.capabilitiesURI
+        query = "sp:" <> get_domain_hash("/cdmi_domains/system_domain/") <> parent.capabilitiesURI
 
         {:ok, capabilities} = GenServer.call(Metadata, {:search, query})
 
@@ -201,6 +203,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
         Logger.debug("construct_domain halted")
         conn
       end
+
       defp construct_domain(conn, domain) do
         Logger.debug("constructing a new domain URI for domain: #{inspect(domain)}")
 
@@ -232,8 +235,8 @@ defmodule NebulaWeb.Util.ControllerCommon do
                     {:error, domain}
                   end
                 end
-
             end
+
           _ ->
             {:error, domain}
         end
@@ -289,6 +292,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
       defp create_new_container(conn = %{halted: true}) do
         conn
       end
+
       defp create_new_container(conn) do
         Logger.debug(fn -> "In create_new_container" end)
 
@@ -354,6 +358,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
       def get_parent(conn = %{halted: true}) do
         conn
       end
+
       def get_parent(conn) do
         Logger.debug(fn -> "In get_parent" end)
 
@@ -433,8 +438,9 @@ defmodule NebulaWeb.Util.ControllerCommon do
       """
       @spec update_parent(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
       def update_parent(conn = %{halted: true}, _action) do
-          conn
+        conn
       end
+
       def update_parent(conn, "DELETE") do
         Logger.debug(fn -> "In update_parent DELETE" end)
 
@@ -512,6 +518,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
       def write_new_object(conn = %{halted: true}) do
         conn
       end
+
       def write_new_object(conn) do
         Logger.debug(fn -> "XYZ In write_new_object" end)
 

@@ -26,10 +26,10 @@ defmodule NebulaWeb.V1.GetView do
     Logger.debug("Now rendering #{inspect(object, pretty: true)}")
     object
   end
+
   def render(object_type, object) do
     Logger.debug("Now rendering object type #{inspect(object_type, pretty: true)}")
     Logger.debug("Now rendering #{inspect(object, pretty: true)}")
     object
   end
-
 end

@@ -11,5 +11,4 @@ defmodule NebulaWeb.V1.PostController do
   # ]
   import NebulaWeb.Util.Utils, only: [get_domain_hash: 1]
   require Logger
-
 end
