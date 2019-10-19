@@ -10,6 +10,10 @@ defmodule Plug.Parsers.CDMIC do
 
   require Logger
 
+  def init(opts) do
+    opts
+  end
+
   def parse(conn, "application", subtype, _headers, opts) do
     Logger.debug("In the CDMIC parser")
 

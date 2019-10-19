@@ -10,6 +10,10 @@ defmodule Plug.Parsers.CDMIQ do
 
   require Logger
 
+  def init(opts) do
+    opts
+  end
+
   def parse(conn, "application", "cdmi-queue", _headers, opts) do
     Logger.debug("In the CDMIQ parser")
     Logger.debug("opts: #{inspect(opts)}")

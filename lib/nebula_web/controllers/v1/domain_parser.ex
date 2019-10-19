@@ -10,6 +10,10 @@ defmodule Plug.Parsers.CDMID do
 
   require Logger
 
+  def init(opts) do
+    opts
+  end
+
   def parse(conn, "application", "cdmi-domain", _headers, opts) do
     Logger.debug("In the CDMID parser")
 
