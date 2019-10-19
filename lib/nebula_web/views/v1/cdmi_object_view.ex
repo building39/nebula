@@ -7,7 +7,7 @@ defmodule NebulaWeb.V1.CdmiObjectView do
     cdmi_object
   end
 
-  def render(render_type, object) do
+  def render(_render_type, object) do
     Logger.debug("rendering something: #{inspect(object, pretty: true)}")
     object
   end

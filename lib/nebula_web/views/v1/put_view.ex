@@ -28,7 +28,7 @@ defmodule NebulaWeb.V1.PutView do
     object
   end
 
-  def render(render_type, object) do
+  def render(_render_type, object) do
     Logger.debug("rendering something: #{inspect(object, pretty: true)}")
     object
   end
