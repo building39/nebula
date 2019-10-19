@@ -61,12 +61,12 @@ defmodule NebulaWeb.Util.ControllerCommon do
       Check ACLs.
       This is a TODO.
       """
-      @spec check_acls(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
-      def check_acls(conn = %{halted: true}, _method) do
+      @spec check_acls(Plug.Conn.t()) :: Plug.Conn.t()
+      def check_acls(conn = %{halted: true}) do
         conn
       end
 
-      def check_acls(conn, _method) do
+      def check_acls(conn) do
         Logger.debug(fn -> "In check_acls" end)
         # TODO: enforce acls
         conn
