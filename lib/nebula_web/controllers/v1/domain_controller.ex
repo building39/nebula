@@ -22,7 +22,7 @@ defmodule NebulaWeb.V1.DomainController do
       |> get_domain_parent()
       |> check_for_dup()
       |> check_capabilities(:domain, conn.method)
-      |> check_acls(conn.method)
+      |> check_acls()
       |> create_new_domain()
 
     Logger.debug("new c: #{inspect(c, pretty: true)}")
@@ -216,7 +216,7 @@ defmodule NebulaWeb.V1.DomainController do
           |> assign(:data, data)
           |> get_domain_parent()
           |> check_capabilities(:domain, conn.method)
-          |> check_acls(conn.method)
+          |> check_acls()
           |> delete_object()
           |> update_parent(conn.method)
 

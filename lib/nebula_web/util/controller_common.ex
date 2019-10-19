@@ -433,6 +433,16 @@ defmodule NebulaWeb.Util.ControllerCommon do
         Map.has_key?(data, parm)
       end
 
+      @spec set_mandatory_response_headers(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
+      def set_mandatory_response_headers(conn, resource) do
+        conn
+          |> put_resp_header(
+              "X-CDMI-Specification-Version",
+              Enum.join(Application.get_env(:nebula, :cdmi_version), ",")
+            )
+          |> put_resp_header("content-type", resource)
+      end
+
       @doc """
       Update an object's parent.
       """

@@ -6,7 +6,6 @@ defmodule NebulaWeb.V1.CdmiObjectController do
   use NebulaWeb, :controller
   use NebulaWeb.Util.ControllerCommon
   import NebulaWeb.Util.Constants
-  import NebulaWeb.Util.Macros, only: [set_mandatory_response_headers: 2]
   @api_prefix api_prefix()
   @capabilities_object capabilities_object()
   @container_object container_object()
@@ -91,7 +90,7 @@ defmodule NebulaWeb.V1.CdmiObjectController do
       conn2
       |> get_parent()
       |> check_capabilities(:cdmi_object, conn2.method)
-      |> check_acls(conn2.method)
+      |> check_acls()
       |> delete_object()
       |> update_parent(conn2.method)
 
