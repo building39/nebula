@@ -9,53 +9,6 @@ defmodule NebulaWeb.Util.ControllerCommon do
       import NebulaWeb.Util.Utils
       require Logger
 
-      @doc """
-      Delete an object and all of its children
-      """
-      @spec delete_object(Plug.Conn.t()) :: Plug.Conn.t()
-      def delete_object(conn = %{halted: true}) do
-        conn
-      end
-
-      def delete_object(conn) do
-        oid = conn.assigns.data.objectID
-        Task.start(__MODULE__, :handle_delete, [conn.assigns.data])
-        conn
-      end
-
-      @spec handle_delete(map) :: atom
-      def handle_delete(obj) do
-        oid = obj.objectID
-
-        if obj.objectType == data_object() do
-          GenServer.call(Metadata, {:delete, oid})
-        else
-          children = Map.get(obj, :children, [])
-          Logger.debug("XYZ calling get_domain_hash")
-          hash = get_domain_hash(obj.domainURI)
-          query = "sp:" <> hash <> obj.parentURI <> obj.objectName
-
-          if length(children) == 0 do
-            GenServer.call(Metadata, {:delete, oid})
-          else
-            for child <- children do
-              query = query <> child
-
-              case GenServer.call(Metadata, {:search, query}) do
-                {:ok, data} ->
-                  handle_delete(data)
-
-                _ ->
-                  nil
-              end
-
-              GenServer.call(Metadata, {:delete, oid})
-            end
-          end
-        end
-
-        #        :ok
-      end
 
       @doc """
       Check ACLs.
@@ -349,6 +302,54 @@ defmodule NebulaWeb.Util.ControllerCommon do
           {_, _} ->
             request_fail(conn, :bad_request, "Bad request")
         end
+      end
+
+      @doc """
+      Delete an object and all of its children
+      """
+      @spec delete_object(Plug.Conn.t()) :: Plug.Conn.t()
+      def delete_object(conn = %{halted: true}) do
+        conn
+      end
+
+      def delete_object(conn) do
+        oid = conn.assigns.data.objectID
+        Task.start(__MODULE__, :handle_delete, [conn.assigns.data])
+        conn
+      end
+
+      @spec handle_delete(map) :: atom
+      def handle_delete(obj) do
+        oid = obj.objectID
+
+        if obj.objectType == data_object() do
+          GenServer.call(Metadata, {:delete, oid})
+        else
+          children = Map.get(obj, :children, [])
+          Logger.debug("XYZ calling get_domain_hash")
+          hash = get_domain_hash(obj.domainURI)
+          query = "sp:" <> hash <> obj.parentURI <> obj.objectName
+
+          if length(children) == 0 do
+            GenServer.call(Metadata, {:delete, oid})
+          else
+            for child <- children do
+              query = query <> child
+
+              case GenServer.call(Metadata, {:search, query}) do
+                {:ok, data} ->
+                  handle_delete(data)
+
+                _ ->
+                  nil
+              end
+
+              GenServer.call(Metadata, {:delete, oid})
+            end
+          end
+        end
+
+        #        :ok
       end
 
       @doc """
