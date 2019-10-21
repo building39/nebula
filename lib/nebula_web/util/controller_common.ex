@@ -294,7 +294,9 @@ defmodule NebulaWeb.Util.ControllerCommon do
               metadata: metadata
             }
 
-            assign(conn, :newobject, new_container)
+            c = assign(conn, :newobject, new_container)
+            Logger.debug("Assign: #{inspect c.assigns, pretty: true}")
+            c
 
           {:not_found, _} ->
             request_fail(conn, :bad_request, "Specified domain not found")
@@ -375,6 +377,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
 
         Logger.debug("container's parent is #{inspect(parent_uri)}")
         conn2 = assign(conn, :parentURI, parent_uri)
+        Logger.debug("Assign: #{inspect conn2.assigns, pretty: true}")
         Logger.debug("XYZ calling get_domain_hash")
 
         domain_hash =
@@ -393,7 +396,9 @@ defmodule NebulaWeb.Util.ControllerCommon do
         case parent_obj do
           {:ok, data} ->
             Logger.debug(fn -> "get_parent found parent #{inspect(data, pretty: true)}" end)
-            assign(conn2, :parent, data)
+            c = assign(conn2, :parent, data)
+            Logger.debug("Assign: #{inspect c.assigns, pretty: true}")
+            c
 
           {_, _} ->
             Logger.debug("couldn't find parent container #{inspect(query)}")
@@ -475,7 +480,9 @@ defmodule NebulaWeb.Util.ControllerCommon do
 
         parent = Map.put(parent, :childrenrange, new_range)
         result = GenServer.call(Metadata, {:update, parent.objectID, parent})
-        assign(conn, :parent, parent)
+        c = assign(conn, :parent, parent)
+        Logger.debug("Assign: #{inspect c.assigns, pretty: true}")
+        c
       end
 
       def update_parent(conn, "PUT") do
@@ -515,6 +522,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
           {:ok, new_parent2} ->
             Logger.debug("XYZ parent update succeeded: #{inspect(new_parent2, pretty: true)}")
             new_conn = assign(conn, :parent, new_parent2)
+            Logger.debug("Assign: #{inspect new_conn.assigns, pretty: true}")
             Logger.debug("XYZ New conn: #{inspect(new_conn)}")
             new_conn
 

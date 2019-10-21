@@ -69,7 +69,9 @@ defmodule NebulaWeb.V1.PutController do
 
     case parent_obj do
       {:ok, data} ->
-        assign(conn, :parent, data)
+        c = assign(conn, :parent, data)
+        Logger.debug("Assign: #{inspect c.assigns, pretty: true}")
+        c
 
       {_, _} ->
         request_fail(conn, :not_found, "Parent container does not exist!")
@@ -207,6 +209,7 @@ defmodule NebulaWeb.V1.PutController do
 
     object_name = List.last(conn.path_info) <> "/"
     Logger.debug("Object name: #{inspect(object_name)}")
+    Logger.debug("Conn: #{inspect(conn, pretty: true)}")
 
     parent_uri = conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
 
@@ -345,6 +348,8 @@ defmodule NebulaWeb.V1.PutController do
       metadata: metadata
     }
 
+    Logger.debug("domainURI: #{inspect domainURI}")
+    Logger.debug("New Domain: #{inspect new_domain, pretty: true}")
     new_conn =
       assign(conn, :newobject, new_domain)
       |> write_new_object()
@@ -372,6 +377,7 @@ defmodule NebulaWeb.V1.PutController do
     temp_path_info = List.flatten(conn.path_info ++ [name])
     Logger.debug("temp_parentURI: #{inspect(temp_parentURI)}")
     Logger.debug("temp_path_info: #{inspect(temp_path_info)}")
+    Logger.debug("newobject: #{inspect conn.assigns.newobject}")
     # |> assign(:cdmi_domain, domain_name)
     new_conn =
       conn
@@ -385,6 +391,7 @@ defmodule NebulaWeb.V1.PutController do
       |> write_new_object()
 
     Logger.debug("new_conn: #{inspect(new_conn, pretty: true)}")
+    Logger.debug("Assign: #{inspect new_conn.assigns, pretty: true}")
     :timer.sleep(1_000)
 
     new_conn =
