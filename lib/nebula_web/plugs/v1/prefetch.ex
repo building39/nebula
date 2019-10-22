@@ -1,4 +1,4 @@
-defmodule Nebula.V1.Prefetch do
+defmodule NebulaWeb.Plugs.V1.Prefetch do
   import Plug.Conn
   import Phoenix.Controller
   import NebulaWeb.Util.Constants

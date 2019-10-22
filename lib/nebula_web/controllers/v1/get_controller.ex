@@ -24,10 +24,12 @@ defmodule NebulaWeb.V1.GetController do
 
     data = process_query_string(conn, conn.assigns.data)
 
-    conn
+    c = conn
     |> set_mandatory_response_headers(objectType)
     |> check_acls()
     |> put_status(:ok)
+    Logger.debug("About to render....")
+    c
     |> render(render_type, cdmi_object: data)
 
   end

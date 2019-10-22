@@ -1,4 +1,4 @@
-defmodule Nebula.V1.ApplyCapabilities do
+defmodule NebulaWeb.Plugs.V1.ApplyCapabilities do
   @moduledoc """
   Get the capabilities object for the current object.
   """

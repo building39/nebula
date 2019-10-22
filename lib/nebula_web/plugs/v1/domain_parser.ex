@@ -1,4 +1,4 @@
-defmodule Plug.Parsers.CDMIQ do
+defmodule NebulaWeb.Plugs.V1.Parsers.CDMID do
   @moduledoc """
   Parses CDMI domain request body.
 
@@ -14,8 +14,9 @@ defmodule Plug.Parsers.CDMIQ do
     opts
   end
 
-  def parse(conn, "application", "cdmi-queue", _headers, opts) do
-    Logger.debug("In the CDMIQ parser")
+  def parse(conn, "application", "cdmi-domain", _headers, opts) do
+    Logger.debug("In the CDMID parser")
+
     Logger.debug("opts: #{inspect(opts)}")
 
     decoder =

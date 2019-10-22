@@ -1,4 +1,4 @@
-defmodule Nebula.V1.CapabilitiesView do
+defmodule NebulaWeb.Views.V1.CapabilitiesView do
   use NebulaWeb, :view
   require Logger
 

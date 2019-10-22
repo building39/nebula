@@ -1,4 +1,4 @@
-defmodule Nebula.V1.ApplyACLs do
+defmodule NebulaWeb.Plugs.V1.ApplyACLs do
   @moduledoc """
   Apply Access Control List permissions to the object.
   """

@@ -1,6 +1,6 @@
-defmodule Plug.Parsers.CDMIC do
+defmodule NebulaWeb.Plugs.V1.Parsers.CDMIQ do
   @moduledoc """
-  Parses CDMI container request body.
+  Parses CDMI domain request body.
 
   An empty request body is parsed as an empty map.
   """
@@ -14,22 +14,17 @@ defmodule Plug.Parsers.CDMIC do
     opts
   end
 
-  def parse(conn, "application", subtype, _headers, opts) do
-    Logger.debug("In the CDMIC parser")
+  def parse(conn, "application", "cdmi-queue", _headers, opts) do
+    Logger.debug("In the CDMIQ parser")
+    Logger.debug("opts: #{inspect(opts)}")
 
-    if subtype == "cdmi-container" do
-      Logger.debug("opts: #{inspect(opts)}")
+    decoder =
+      Keyword.get(opts, :json_decoder) ||
+        raise ArgumentError, "JSON parser expects a :json_decoder option"
 
-      decoder =
-        Keyword.get(opts, :json_decoder) ||
-          raise ArgumentError, "JSON parser expects a :json_decoder option"
-
-      conn
-      |> read_body(opts)
-      |> decode(decoder)
-    else
-      {:next, conn}
-    end
+    conn
+    |> read_body(opts)
+    |> decode(decoder)
   end
 
   def parse(conn, _type, _subtype, _headers, _opts) do
@@ -53,8 +48,6 @@ defmodule Plug.Parsers.CDMIC do
   end
 
   defp decode({:ok, body, conn}, decoder) do
-    Logger.debug("decoding body: #{inspect(body)}")
-
     case decoder.decode!(body) do
       terms when is_map(terms) ->
         {:ok, terms, conn}

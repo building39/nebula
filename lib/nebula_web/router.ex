@@ -3,13 +3,13 @@ defmodule NebulaWeb.Router do
 
   pipeline :api do
     plug(:accepts, ["json", "cdmia", "cdmic", "cdmid", "cdmio", "cdmiq"])
-    plug(Nebula.V1.CDMIVersion)
-    plug(Nebula.V1.ResolveDomain)
-    plug(Nebula.V1.ApplyCapabilities)
-    plug(Nebula.V1.Authentication)
-    plug(Nebula.V1.Prefetch)
-    # plug Nebula.V1.CheckDomain
-    # plug Nebula.V1.ApplyACLs
+    plug(NebulaWeb.Plugs.V1.CDMIVersion)
+    plug(NebulaWeb.Plugs.V1.ResolveDomain)
+    plug(NebulaWeb.Plugs.V1.ApplyCapabilities)
+    plug(NebulaWeb.Plugs.V1.Authentication)
+    plug(NebulaWeb.Plugs.V1.Prefetch)
+    # plug NebulaWeb.Plugs.V1.CheckDomain
+    # plug NebulaWeb.Plugs.V1.ApplyACLs
   end
 
   scope "/cdmi", NebulaWeb do

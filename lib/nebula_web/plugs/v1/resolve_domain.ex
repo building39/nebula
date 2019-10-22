@@ -1,4 +1,4 @@
-defmodule Nebula.V1.ResolveDomain do
+defmodule NebulaWeb.Plugs.V1.ResolveDomain do
   @moduledoc """
   Resolve the user's domain.
   """

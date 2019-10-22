@@ -1,4 +1,4 @@
-defmodule Nebula.V1.Authentication do
+defmodule NebulaWeb.Plugs.V1.Authentication do
   @moduledoc """
   Handle user authentication.
   """
