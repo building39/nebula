@@ -28,29 +28,22 @@ defmodule Nebula.V1.Authentication do
         [method, authstring] = String.split(List.to_string(auth))
         authstring = Base.decode64!(authstring)
 
-        {user, privileges, _domain} =
-          case method do
-            "Basic" ->
-              Logger.debug("doing basic authentication")
-              result = basic_authentication(conn.assigns.cdmi_domain, authstring)
-              Logger.debug("Authentication result: #{inspect(result)}")
+        case method do
+          "Basic" ->
+            Logger.debug("doing basic authentication")
+            {user, privileges} = basic_authentication(conn.assigns.cdmi_domain, authstring)
+            Logger.debug("Authentication result: #{inspect(user)}")
 
-              if result == nil do
-                {"", [], ""}
-              else
-                result
-              end
+            if user == :unauthorized do
+              authentication_failed(conn, method)
+            else
+              conn
+              |> assign(:authenticated_as, user)
+              |> assign(:cdmi_member_privileges, privileges)
+            end
 
-            _ ->
-              {"", [], "system_domain/"}
-          end
-
-        if user != "" do
-          conn
-          |> assign(:authenticated_as, user)
-          |> assign(:cdmi_member_privileges, privileges)
-        else
-          authentication_failed(conn, method)
+          _ ->
+            authentication_failed(conn, method)
         end
     end
   end
@@ -60,7 +53,7 @@ defmodule Nebula.V1.Authentication do
     request_fail(conn, :unauthorized, "Unauthorized", [{"WWW-Authenticate", method}])
   end
 
-  @spec basic_authentication(String.t(), String.t()) :: tuple | nil
+  @spec basic_authentication(String.t(), String.t()) :: {String.t(), String.t()} | {:unauthorized, nil}
   defp basic_authentication(domain, authstring) do
     [user, rest] = String.split(authstring, ":")
     [password | _] = String.split(rest, ";")
@@ -78,25 +71,13 @@ defmodule Nebula.V1.Authentication do
         creds = data.metadata.cdmi_member_credentials
 
         if creds == encrypt(user, password) do
-          {user, data.metadata.cdmi_member_privileges, domain}
+          {user, data.metadata.cdmi_member_privileges}
         else
-          if user == "administrator" and domain != "system_domain/" do
-            Logger.debug("Try to authenticate as administrator")
-            basic_authentication("system_domain/", authstring)
-          else
-            Logger.debug("wtf? user: #{inspect(user)} domain: #{inspect(domain)}")
-            nil
-          end
+          {:unauthorized, nil}
         end
 
       {:not_found, _} ->
-        if user == "administrator" and domain != "system_domain/" do
-          Logger.debug("Try to authenticate as administrator")
-          basic_authentication("system_domain/", authstring)
-        else
-          Logger.debug("wtf? user: #{inspect(user)} domain: #{inspect(domain)}")
-          nil
-        end
+        {:unauthorized, nil}
     end
   end
 end
