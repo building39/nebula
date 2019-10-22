@@ -160,7 +160,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
       defp construct_domain(conn, domain) do
         Logger.debug("constructing a new domain URI for domain: #{inspect(domain)}")
 
-        hash = get_domain_hash("/cdmi_domains/system_domain/")
+        hash = get_domain_hash("/cdmi_domains/" <> domain)
         query = "sp:" <> hash <> "/cdmi_domains/" <> domain
         Logger.debug("query: #{inspect(query)}")
         response = GenServer.call(Metadata, {:search, query})
@@ -249,7 +249,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
       defp create_new_container(conn) do
         Logger.debug(fn -> "In create_new_container" end)
 
-        {object_oid, _object_key} = Cdmioid.generate(45241)
+        object_oid = Cdmioid.generate(45241)
         object_name = List.last(conn.path_info) <> "/"
         Logger.debug("MLM path_info: #{inspect(conn.path_info)}")
         auth_as = conn.assigns.authenticated_as
