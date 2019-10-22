@@ -22,7 +22,7 @@ defmodule NebulaWeb.V1.PutController do
 
   @spec create(Plug.Conn.t(), any) :: Plug.Conn.t()
   def create(conn, params) do
-    Logger.debug(fn -> "In create enterprise_number: #{inspect(@enterprise_number)}" end)
+    Logger.debug(fn -> "In create conn: #{inspect(conn, pretty: true)}" end)
 
     if List.keymember?(conn.req_headers, "content-type", 0) do
       {_, content_type} = List.keyfind(conn.req_headers, "content-type", 0)
@@ -69,9 +69,7 @@ defmodule NebulaWeb.V1.PutController do
 
     case parent_obj do
       {:ok, data} ->
-        c = assign(conn, :parent, data)
-        Logger.debug("Assign: #{inspect c.assigns, pretty: true}")
-        c
+        assign(conn, :parent, data)
 
       {_, _} ->
         request_fail(conn, :not_found, "Parent container does not exist!")
