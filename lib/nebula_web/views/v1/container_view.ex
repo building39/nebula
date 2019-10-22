@@ -1,4 +1,4 @@
-defmodule NebulaWeb.Views.V1.ContainerView do
+defmodule NebulaWeb.V1.ContainerView do
   use NebulaWeb, :view
   require Logger
 

@@ -1,4 +1,4 @@
-defmodule NebulaWeb.Plugs.V1.Parsers.CDMIC do
+defmodule Plug.Parsers.CDMIC do
   @moduledoc """
   Parses CDMI container request body.
 

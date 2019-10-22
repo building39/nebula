@@ -1,4 +1,4 @@
-defmodule NebulaWeb.Plugs.V1.Parsers.CDMID do
+defmodule Plug.Parsers.CDMID do
   @moduledoc """
   Parses CDMI domain request body.
 

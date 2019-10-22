@@ -1,4 +1,4 @@
-defmodule Nebula.Web.Plugs.V1.CheckDomain do
+defmodule Nebula.V1.CheckDomain do
   import Plug.Conn
   import Phoenix.Controller
   import NebulaWeb.Util.Constants

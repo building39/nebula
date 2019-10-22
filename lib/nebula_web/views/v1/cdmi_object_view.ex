@@ -1,4 +1,4 @@
-defmodule NebulaWeb.Views.V1.CdmiObjectView do
+defmodule NebulaWeb.V1.CdmiObjectView do
   use NebulaWeb, :view
   require Logger
 

@@ -1,4 +1,4 @@
-defmodule NebulaWeb.Plugs.V1.ResolveDomain do
+defmodule Nebula.V1.ResolveDomain do
   @moduledoc """
   Resolve the user's domain.
   """
@@ -27,10 +27,12 @@ defmodule NebulaWeb.Plugs.V1.ResolveDomain do
     new_conn =
       case auth do
         [] ->
+          Logger.debug("What are we doing here?")
           conn
           |> assign(:cdmi_domain, "system_domain/")
 
-        _ ->
+        x ->
+          Logger.debug("AUTH: #{inspect x}")
           [method, authstring] = String.split(List.to_string(auth))
           authstring = Base.decode64!(authstring)
 
@@ -64,8 +66,12 @@ defmodule NebulaWeb.Plugs.V1.ResolveDomain do
   end
 
   @spec get_domain_from_realm_map(Plug.Conn.t()) :: String.t()
-  defp get_domain_from_realm_map(_conn) do
+  defp get_domain_from_realm_map(conn) do
     # TODO: handle the realm map
+    domain_hash = get_domain_hash("/cdmi_domains/system_domain/")
+    query = "sp:" <> domain_hash <> "/system_configuration/domain_maps"
+    domain_map = GenServer.call(Metadata, {:search, query})
+    Logger.debug("domain map: #{inspect domain_map, prettY: true}")
     "system_domain/"
   end
 

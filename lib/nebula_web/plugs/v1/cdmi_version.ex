@@ -1,4 +1,4 @@
-defmodule NebulaWeb.Plugs.V1.CDMIVersion do
+defmodule Nebula.V1.CDMIVersion do
   @moduledoc """
   Check the X-CDMI-Specification-Version request header.
   """
@@ -11,6 +11,7 @@ defmodule NebulaWeb.Plugs.V1.CDMIVersion do
   require Logger
 
   def init(opts) do
+    Logger.debug("CDMIVersion init")
     opts
   end
 
