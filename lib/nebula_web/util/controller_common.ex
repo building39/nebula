@@ -280,6 +280,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
 
         case domain_uri do
           {:ok, domain} ->
+            Logger.debug("setting parentURI")
             new_container = %{
               objectType: container_object(),
               objectID: object_oid,
@@ -293,9 +294,10 @@ defmodule NebulaWeb.Util.ControllerCommon do
               childrenrange: "",
               metadata: metadata
             }
+            Logger.debug("parentURI ok")
 
             c = assign(conn, :newobject, new_container)
-            Logger.debug("Assign: #{inspect c.assigns, pretty: true}")
+            Logger.debug("Assign 1: #{inspect c.assigns, pretty: true}")
             c
 
           {:not_found, _} ->
@@ -330,7 +332,9 @@ defmodule NebulaWeb.Util.ControllerCommon do
           children = Map.get(obj, :children, [])
           Logger.debug("XYZ calling get_domain_hash")
           hash = get_domain_hash(obj.domainURI)
+          Logger.debug("setting parentURI")
           query = "sp:" <> hash <> obj.parentURI <> obj.objectName
+          Logger.debug("parentURI ok")
 
           if length(children) == 0 do
             GenServer.call(Metadata, {:delete, oid})
@@ -376,8 +380,10 @@ defmodule NebulaWeb.Util.ControllerCommon do
           end
 
         Logger.debug("container's parent is #{inspect(parent_uri)}")
+        Logger.debug("setting parentURI")
         conn2 = assign(conn, :parentURI, parent_uri)
-        Logger.debug("Assign: #{inspect conn2.assigns, pretty: true}")
+        Logger.debug("parentURI ok")
+        Logger.debug("Assign 2: #{inspect conn2.assigns, pretty: true}")
         Logger.debug("XYZ calling get_domain_hash")
 
         domain_hash =
@@ -397,7 +403,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
           {:ok, data} ->
             Logger.debug(fn -> "get_parent found parent #{inspect(data, pretty: true)}" end)
             c = assign(conn2, :parent, data)
-            Logger.debug("Assign: #{inspect c.assigns, pretty: true}")
+            Logger.debug("Assign 3: #{inspect c.assigns, pretty: true}")
             c
 
           {_, _} ->
@@ -481,7 +487,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
         parent = Map.put(parent, :childrenrange, new_range)
         result = GenServer.call(Metadata, {:update, parent.objectID, parent})
         c = assign(conn, :parent, parent)
-        Logger.debug("Assign: #{inspect c.assigns, pretty: true}")
+        Logger.debug("Assign 4: #{inspect c.assigns, pretty: true}")
         c
       end
 
@@ -522,7 +528,7 @@ defmodule NebulaWeb.Util.ControllerCommon do
           {:ok, new_parent2} ->
             Logger.debug("XYZ parent update succeeded: #{inspect(new_parent2, pretty: true)}")
             new_conn = assign(conn, :parent, new_parent2)
-            Logger.debug("Assign: #{inspect new_conn.assigns, pretty: true}")
+            Logger.debug("Assign 5: #{inspect new_conn.assigns, pretty: true}")
             Logger.debug("XYZ New conn: #{inspect(new_conn)}")
             new_conn
 

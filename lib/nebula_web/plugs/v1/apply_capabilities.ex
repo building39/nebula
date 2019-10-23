@@ -29,7 +29,10 @@ defmodule Nebula.V1.ApplyCapabilities do
 
     case rc do
       :ok ->
-        assign(conn, :sys_capabilities, capabilities)
+        Logger.debug("assigning capabilities Conn: #{inspect conn, pretty: true}")
+        c = assign(conn, :sys_capabilities, capabilities)
+        Logger.debug("capabilities assigned Conn: #{inspect conn, pretty: true}")
+        c
 
       _ ->
         Logger.debug("Capabilities NotFound")

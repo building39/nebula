@@ -72,7 +72,7 @@ defmodule Nebula.Mixfile do
       {:cdmioid, git: "https://github.com/building39/cdmioid.git", branch: "master"},
       {:mock, "~> 0.3", only: :test},
       {:excoveralls, "~> 0.8", only: :test},
-      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", branch: "master"}
+      {:nebula_metadata, git: "git@github.com:building39/nebula_metadata.git", branch: "develop"}
     ]
   end
 end

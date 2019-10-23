@@ -70,9 +70,12 @@ defmodule Nebula.V1.ResolveDomain do
     # TODO: handle the realm map
     domain_hash = get_domain_hash("/cdmi_domains/system_domain/")
     query = "sp:" <> domain_hash <> "/system_configuration/domain_maps"
-    domain_map = GenServer.call(Metadata, {:search, query})
-    Logger.debug("domain map: #{inspect domain_map, prettY: true}")
-    "system_domain/"
+    {:ok, domain_maps} = GenServer.call(Metadata, {:search, query})
+    {:ok, domain_maps} = Poison.decode(domain_maps.value)
+    {_, domain} = Enum.find(domain_maps, {"", "default_domain/"}, fn {k, _v} -> k == conn.host end)
+    Logger.debug("domain map: #{inspect domain_maps, pretty: true}")
+    Logger.debug("Got this domain: #{inspect domain}")
+    domain
   end
 
   @spec get_realm(list) :: String.t() | nil
@@ -81,7 +84,6 @@ defmodule Nebula.V1.ResolveDomain do
   end
 
   defp get_realm([option | rest]) do
-    Logger.debug("option: #{inspect(option)}")
 
     if String.starts_with?(option, "realm=") do
       [_, domain] = String.split(option, "=")

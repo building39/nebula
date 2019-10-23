@@ -57,7 +57,7 @@ defmodule NebulaWeb.V1.PutController do
     Logger.debug("XYZ calling get_domain_hash")
 
     domain_hash =
-      if String.starts_with?(parent_uri, "/cdmi_domains/") do
+      if parent_uri == "/cdmi_domains/" do
         get_domain_hash("/cdmi_domains/system_domain/")
       else
         get_domain_hash(parent_uri)
@@ -69,6 +69,7 @@ defmodule NebulaWeb.V1.PutController do
 
     case parent_obj do
       {:ok, data} ->
+        Logger.debug("Parent:::::::::::::::::::::::::: #{inspect data, pretty: true}")
         assign(conn, :parent, data)
 
       {_, _} ->
@@ -209,7 +210,9 @@ defmodule NebulaWeb.V1.PutController do
     Logger.debug("Object name: #{inspect(object_name)}")
     Logger.debug("Conn: #{inspect(conn, pretty: true)}")
 
+    Logger.debug("setting parentURI")
     parent_uri = conn.assigns.parent.parentURI <> conn.assigns.parent.objectName
+    Logger.debug("parentURI ok")
 
     Logger.debug("parent uri: #{inspect(parent_uri)}")
     Logger.debug("XYZ calling get_domain_hash")
@@ -251,6 +254,7 @@ defmodule NebulaWeb.V1.PutController do
     auth_as = conn.assigns.authenticated_as
     body_params = conn.body_params
 
+    Logger.debug("setting parentURI")
     new_data_object =
       Map.merge(
         %{
@@ -266,6 +270,7 @@ defmodule NebulaWeb.V1.PutController do
         body_params
       )
       |> Map.delete(:metadata)
+    Logger.debug("parentURI ok")
 
     Logger.debug("New data object: #{inspect(new_data_object, pretty: true)}")
 
